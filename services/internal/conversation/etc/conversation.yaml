@@ -1,0 +1,6 @@
+Name: conversation.rpc
+ListenOn: 0.0.0.0:8002
+Etcd:
+  Hosts:
+  - "etcd:2379"
+  Key: conversation.rpc

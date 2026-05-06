@@ -1,0 +1,6 @@
+Name: oss.rpc
+ListenOn: 0.0.0.0:8004
+Etcd:
+  Hosts:
+  - "etcd:2379"
+  Key: oss.rpc

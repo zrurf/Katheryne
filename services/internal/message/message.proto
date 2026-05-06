@@ -1,0 +1,159 @@
+syntax = "proto3";
+
+package message;
+
+option go_package = "./message";
+
+message SendMessageReq {
+  int64 conv_id = 1;
+  int64 sender = 2;
+  int64 receiver = 3;      // 单聊=对方uid, 群聊=group_id
+  string type = 4;
+  string content = 5;
+  string content_type = 6;
+  int64 quote_msg_id = 7;
+  string extra = 8;         // json string
+}
+message SendMessageResp {
+  int64 msg_id = 1;
+  int64 conv_id = 2;
+  int64 created_at = 3;
+}
+
+message RecallMessageReq {
+  int64 conv_id = 1;
+  int64 msg_id = 2;
+  int64 operator = 3;
+}
+message RecallMessageResp {}
+
+message EditMessageReq {
+  int64 conv_id = 1;
+  int64 msg_id = 2;
+  string content = 3;
+  int64 editor = 4;
+}
+message EditMessageResp {}
+
+message GetMessagesReq {
+  int64 conv_id = 1;
+  int64 cursor = 2;        // 上一页最后一条 msg_id
+  int32 limit = 3;
+  string direction = 4;    // before / after
+}
+message MsgItem {
+  int64 id = 1;
+  int64 conv_id = 2;
+  int64 sender = 3;
+  int64 receiver = 4;
+  string type = 5;
+  string content = 6;
+  string content_type = 7;
+  int64 quote_msg_id = 8;
+  bool recalled = 9;
+  bool edited = 10;
+  string extra = 11;
+  int64 created_at = 12;
+}
+message GetMessagesResp {
+  repeated MsgItem list = 1;
+  bool has_more = 2;
+}
+
+message SearchMessagesReq {
+  string keyword = 1;
+  int64 conv_id = 2;
+  int64 sender = 3;
+  int64 start_time = 4;
+  int64 end_time = 5;
+  int32 page = 6;
+  int32 size = 7;
+}
+message SearchMessagesResp {
+  repeated MsgItem list = 1;
+  int64 total = 2;
+}
+
+// 已读回执：提交已读区间
+message SubmitReadReq {
+  int64 conv_id = 1;
+  int64 uid = 2;
+  int64 last_read_msg_id = 3;   // 用户在该会话中最后一条已读的消息ID
+}
+message SubmitReadResp {}
+
+// 查询某消息被哪些人已读
+message GetReadMembersReq {
+  int64 conv_id = 1;
+  int64 msg_id = 2;
+}
+message ReadMemberItem {
+  int64 uid = 1;
+  string name = 2;
+  string avatar = 3;
+  int64 read_at = 4;
+}
+message GetReadMembersResp {
+  repeated ReadMemberItem list = 1;
+  int64 total = 2;
+}
+
+// 获取用户在某会话的未读数（精确计算）
+message GetUnreadCountReq {
+  int64 conv_id = 1;
+  int64 uid = 2;
+}
+message GetUnreadCountResp { int64 count = 1; }
+
+// 批量获取未读数
+message BatchGetUnreadCountReq {
+  int64 uid = 1;
+  repeated int64 conv_ids = 2;
+}
+message ConvUnread {
+  int64 conv_id = 1;
+  int64 count = 2;
+}
+message BatchGetUnreadCountResp { repeated ConvUnread list = 1; }
+
+// 离线同步：获取用户所有会话的未读消息
+message SyncOfflineMsgsReq {
+  int64 uid = 1;
+  int64 last_sync_msg_id = 2;   // 该设备上次同步到的最大 msg_id
+  string device_id = 3;         // 设备唯一标识
+  int32 limit = 4;              // 每页条数，默认100
+}
+message SyncOfflineMsgsResp {
+  repeated MsgItem messages = 1;
+  bool has_more = 2;
+  int64 new_last_sync_msg_id = 3; // 本次返回的最大 msg_id，客户端应保存
+}
+
+// 获取会话最后一条消息（用于会话列表展示）
+message GetLastMsgReq { int64 conv_id = 1; }
+message GetLastMsgResp { MsgItem msg = 1; }
+
+// 更新会话最后消息缓存（由消息服务内部调用或通知）
+message UpdateConvLastMsgReq {
+  int64 conv_id = 1;
+  int64 msg_id = 2;
+  string snippet = 3;
+  int64 sender = 4;
+  int64 created_at = 5;
+}
+message UpdateConvLastMsgResp {}
+
+service message {
+  rpc SendMessage(SendMessageReq) returns (SendMessageResp);
+  rpc RecallMessage(RecallMessageReq) returns (RecallMessageResp);
+  rpc EditMessage(EditMessageReq) returns (EditMessageResp);
+  rpc GetMessages(GetMessagesReq) returns (GetMessagesResp);
+  rpc SearchMessages(SearchMessagesReq) returns (SearchMessagesResp);
+  rpc SubmitRead(SubmitReadReq) returns (SubmitReadResp);
+  rpc GetReadMembers(GetReadMembersReq) returns (GetReadMembersResp);
+  rpc GetUnreadCount(GetUnreadCountReq) returns (GetUnreadCountResp);
+  rpc BatchGetUnreadCount(BatchGetUnreadCountReq) returns (BatchGetUnreadCountResp);
+  rpc SyncOfflineMsgs(SyncOfflineMsgsReq) returns (SyncOfflineMsgsResp);
+  rpc GetLastMsg(GetLastMsgReq) returns (GetLastMsgResp);
+  rpc UpdateConvLastMsg(UpdateConvLastMsgReq) returns (UpdateConvLastMsgResp);
+}

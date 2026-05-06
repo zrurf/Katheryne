@@ -1,0 +1,47 @@
+Name: gateway-api
+Host: 0.0.0.0
+Port: 80
+MaxConns: 10000
+Timeout: 3000
+
+Middlewares:
+  Metrics: true
+
+Telemetry:
+  Name: gateway-api
+  Endpoint: tempo:4317
+  Batcher: otlpgrpc
+  Sampler: 1.0
+
+AuthRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: auth.rpc
+ConversationRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: conversation.rpc
+MessageRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: message.rpc
+OssRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: oss.rpc
+SocialRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: social.rpc
+UserRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: user.rpc
+
+RedisAddr: "garnet:6379"

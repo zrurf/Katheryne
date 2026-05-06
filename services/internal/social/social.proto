@@ -1,0 +1,344 @@
+syntax = "proto3";
+
+package social;
+
+option go_package = "./social";
+
+// ========== 好友 ==========
+message SendFriendReq {
+  int64 uid = 1;
+  int64 to_uid = 2;
+  string message = 3;
+}
+message SendFriendResp {
+    int64 req_id = 1;
+}
+
+message HandleFriendReq {
+  int64 req_id = 1;
+  int64 handler_uid = 2;
+  string action = 3; // accept / reject
+}
+message HandleFriendResp {}
+
+message GetFriendRequestsReq {
+  int64 uid = 1;
+  string type = 2; // sent / received
+  int32 page = 3;
+  int32 size = 4;
+}
+message FriendRequestItem {
+  int64 id = 1;
+  int64 uid = 2;
+  string name = 3;
+  string avatar = 4;
+  string message = 5;
+  string status = 6;
+  int64 created_at = 7;
+}
+message GetFriendRequestsResp {
+  repeated FriendRequestItem list = 1;
+  int64 total = 2;
+}
+
+message GetFriendsReq {
+    int64 uid = 1;
+    string group = 2;
+}
+message FriendItem {
+  int64 uid = 1;
+  string name = 2;
+  string avatar = 3;
+  string remark = 4;
+  string status = 5;
+  string group_name = 6;
+}
+message GetFriendsResp {
+    repeated FriendItem list = 1;
+}
+
+message DeleteFriendReq {
+    int64 uid = 1;
+    int64 peer_uid = 2;
+}
+message DeleteFriendResp {}
+
+message UpdateFriendRemarkReq {
+  int64 uid = 1;
+  int64 peer_uid = 2;
+  string remark = 3;
+  string group_name = 4;
+}
+message UpdateFriendRemarkResp {}
+
+message IsFriendReq {
+    int64 uid = 1;
+    int64 peer_uid = 2;
+}
+message IsFriendResp {
+    bool is_friend = 1;
+}
+
+// ========== 黑名单 ==========
+message AddBlacklistReq {
+    int64 uid = 1;
+    int64 peer_uid = 2;
+}
+message AddBlacklistResp {}
+message RemoveBlacklistReq {
+    int64 uid = 1;
+    int64 peer_uid = 2;
+}
+message RemoveBlacklistResp {}
+message IsBlacklistedReq {
+    int64 uid = 1;
+    int64 peer_uid = 2;
+}
+message IsBlacklistedResp {
+    bool blacklisted = 1;
+}
+message GetBlacklistReq {
+    int64 uid = 1;
+}
+message GetBlacklistResp {
+    repeated FriendItem list = 1;
+}
+
+// ========== 群组 ==========
+message CreateGroupReq {
+  int64 owner_uid = 1;
+  string name = 2;
+  string avatar = 3;
+  repeated int64 member_uids = 4;
+  string verify_mode = 5;
+}
+message CreateGroupResp {
+    int64 group_id = 1;
+    int64 conv_id = 2;
+}
+
+message GetGroupInfoReq {
+    int64 group_id = 1;
+}
+message GroupInfo {
+  int64 group_id = 1;
+  string name = 2;
+  string avatar = 3;
+  int64 owner = 4;
+  int32 member_count = 5;
+  string status = 6;
+  string verify_mode = 7;
+  int64 created_at = 8;
+}
+message GetGroupInfoResp {
+    GroupInfo info = 1;
+}
+
+message UpdateGroupReq {
+  int64 group_id = 1;
+  string name = 2;
+  string avatar = 3;
+  string verify_mode = 4;
+}
+message UpdateGroupResp {}
+
+message JoinGroupReq {
+  int64 group_id = 1;
+  int64 uid = 2;
+  string message = 3;
+}
+message JoinGroupResp {
+  bool need_confirm = 1; // 是否需要审批
+  int64 req_id = 2;      // 如果需要审批，返回申请 ID
+}
+
+message LeaveGroupReq { 
+    int64 group_id = 1;
+    int64 uid = 2;
+}
+message LeaveGroupResp {}
+
+message KickMemberReq {
+  int64 group_id = 1;
+  int64 operator_uid = 2;
+  int64 target_uid = 3;
+}
+message KickMemberResp {}
+
+message MuteMemberReq {
+  int64 group_id = 1;
+  int64 operator_uid = 2;
+  int64 target_uid = 3;
+  int64 mute_until = 4; // unix timestamp, 0 = unmute
+}
+message MuteMemberResp {}
+
+message TransferOwnerReq {
+  int64 group_id = 1;
+  int64 old_owner = 2;
+  int64 new_owner = 3;
+}
+message TransferOwnerResp {}
+
+message GetGroupMembersReq {
+  int64 group_id = 1;
+  string role = 2;
+}
+message GroupMemberItem {
+  int64 uid = 1;
+  string name = 2;
+  string avatar = 3;
+  string role = 4;
+  string nick = 5;
+  int64 join_time = 6;
+  int64 mute_until = 7;
+}
+message GetGroupMembersResp {
+    repeated GroupMemberItem list = 1;
+}
+
+message HandleGroupJoinReq {
+  int64 req_id = 1;
+  int64 reviewer_uid = 2;
+  string action = 3;
+}
+message HandleGroupJoinResp {}
+message GetGroupJoinRequestsReq {
+  int64 group_id = 1;
+  string status = 2;          // 可选：pending / approved / rejected
+  int32 page = 3;             // 页码，从1开始
+  int32 size = 4;             // 每页条数
+}
+message GroupJoinRequestItem {
+  int64 id = 1;
+  int64 uid = 2;
+  string name = 3;
+  string avatar = 4;
+  string message = 5;
+  string status = 6;
+  int64 created_at = 7;
+}
+message GetGroupJoinRequestsResp {
+  repeated GroupJoinRequestItem list = 1;
+  int64 total = 2;
+}
+
+message IsGroupMemberReq {
+    int64 group_id = 1;
+    int64 uid = 2;
+}
+message IsGroupMemberResp {
+    bool is_member = 1;
+    string role = 2;
+}
+
+message IsGroupMutedReq {
+    int64 group_id = 1;
+    int64 uid = 2;
+}
+message IsGroupMutedResp {
+    bool muted = 1;
+    int64 mute_until = 2;
+}
+
+// 群公告
+message CreateAnnouncementReq {
+  int64 group_id = 1;
+  int64 uid = 2;
+  string content = 3;
+}
+message CreateAnnouncementResp {
+    int64 id = 1;
+}
+message GetAnnouncementsReq {
+    int64 group_id = 1;
+    int32 page = 2;
+    int32 size = 3;
+}
+message AnnouncementItem {
+  int64 id = 1;
+  int64 uid = 2;
+  string name = 3;
+  string content = 4;
+  bool pinned = 5;
+  int64 created_at = 6;
+}
+message GetAnnouncementsResp {
+  repeated AnnouncementItem list = 1;
+  int64 total = 2;
+}
+
+// ========== 邀请进群 ==========
+message InviteToGroupReq {
+  int64 group_id = 1;
+  int64 inviter_uid = 2;                // 邀请人
+  repeated int64 invitee_uids = 3;      // 被邀请人列表
+  string message = 4;
+}
+message InviteToGroupResp {
+  repeated int64 failed_uids = 1;       // 邀请失败的用户ID（如已群成员）
+}
+
+// 被邀请人的操作
+message HandleGroupInviteReq {
+  int64 invite_id = 1;                  // 邀请记录ID（Garnet 中的唯一标识）
+  int64 uid = 2;                        // 被邀请人UID
+  string action = 3;                    // accept / reject
+}
+message HandleGroupInviteResp {}
+
+// 获取某个用户收到的邀请列表
+message GetGroupInvitesReq {
+  int64 uid = 1;
+}
+message GroupInviteItem {
+  int64 id = 1;
+  int64 group_id = 2;
+  string group_name = 3;
+  string group_avatar = 4;
+  int64 inviter_uid = 5;
+  string inviter_name = 6;
+  string message = 7;
+  int64 created_at = 8;
+}
+message GetGroupInvitesResp {
+  repeated GroupInviteItem list = 1;
+}
+
+// ========== 服务 ==========
+service social {
+  // 好友
+  rpc SendFriendRequest(SendFriendReq) returns (SendFriendResp);
+  rpc HandleFriendRequest(HandleFriendReq) returns (HandleFriendResp);
+  rpc GetFriendRequests(GetFriendRequestsReq) returns (GetFriendRequestsResp);
+  rpc GetFriends(GetFriendsReq) returns (GetFriendsResp);
+  rpc DeleteFriend(DeleteFriendReq) returns (DeleteFriendResp);
+  rpc UpdateFriendRemark(UpdateFriendRemarkReq) returns (UpdateFriendRemarkResp);
+  rpc IsFriend(IsFriendReq) returns (IsFriendResp);
+  // 黑名单
+  rpc AddBlacklist(AddBlacklistReq) returns (AddBlacklistResp);
+  rpc RemoveBlacklist(RemoveBlacklistReq) returns (RemoveBlacklistResp);
+  rpc IsBlacklisted(IsBlacklistedReq) returns (IsBlacklistedResp);
+  rpc GetBlacklist(GetBlacklistReq) returns (GetBlacklistResp);
+  // 群组
+  rpc CreateGroup(CreateGroupReq) returns (CreateGroupResp);
+  rpc GetGroupInfo(GetGroupInfoReq) returns (GetGroupInfoResp);
+  rpc UpdateGroup(UpdateGroupReq) returns (UpdateGroupResp);
+  rpc JoinGroup(JoinGroupReq) returns (JoinGroupResp);
+  rpc LeaveGroup(LeaveGroupReq) returns (LeaveGroupResp);
+  rpc KickMember(KickMemberReq) returns (KickMemberResp);
+  rpc MuteMember(MuteMemberReq) returns (MuteMemberResp);
+  rpc TransferOwner(TransferOwnerReq) returns (TransferOwnerResp);
+  rpc GetGroupMembers(GetGroupMembersReq) returns (GetGroupMembersResp);
+  rpc HandleGroupJoinRequest(HandleGroupJoinReq) returns (HandleGroupJoinResp);
+  rpc GetGroupJoinRequests(GetGroupJoinRequestsReq) returns (GetGroupJoinRequestsResp);
+  rpc IsGroupMember(IsGroupMemberReq) returns (IsGroupMemberResp);
+  rpc IsGroupMuted(IsGroupMutedReq) returns (IsGroupMutedResp);
+  // 群公告
+  rpc CreateAnnouncement(CreateAnnouncementReq) returns (CreateAnnouncementResp);
+  rpc GetAnnouncements(GetAnnouncementsReq) returns (GetAnnouncementsResp);
+  // 邀请进群
+  rpc InviteToGroup(InviteToGroupReq) returns (InviteToGroupResp);
+  rpc HandleGroupInvite(HandleGroupInviteReq) returns (HandleGroupInviteResp);
+  rpc GetGroupInvites(GetGroupInvitesReq) returns (GetGroupInvitesResp);
+}

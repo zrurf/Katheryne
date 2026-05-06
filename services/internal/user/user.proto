@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "./user";
+
+// ========== 数据结构 ==========
+message UserInfo {
+  int64 uid = 1;
+  string name = 2;
+  string phone = 3;
+  string avatar = 4;
+  string status = 5;
+  int64 created_at = 6;
+  int64 updated_at = 7;
+  int64 last_login = 8;
+}
+
+// ========== 请求/响应 ==========
+message GetUserByUIDReq {
+  int64 uid = 1;
+  string token = 2;
+}
+message GetUserResp {
+  UserInfo user = 1;
+}
+
+message BatchGetUserInfoReq {
+  repeated int64 uids = 1;   // 最多建议 100 个
+}
+message BatchGetUserInfoResp {
+  map<int64, UserInfo> users = 1;   // uid -> UserInfo，不存在的 uid 不返回
+}
+
+message CreateUserReq { 
+  string name = 1;
+  string phone = 2;
+  bytes opaque_record = 3;
+}
+message CreateUserResp {
+    UserInfo user = 1;
+}
+
+message UpdateUserReq {
+  int64 uid = 1;
+  string name = 2;
+  string avatar = 3;
+}
+message UpdateUserResp {}
+
+message UpdateUserStatusReq {
+  int64 uid = 1;
+  string status = 2;
+}
+message UpdateUserStatusResp {}
+
+message UpdateLastLoginReq { int64 uid = 1; }
+message UpdateLastLoginResp {}
+
+message GetUserSettingsReq { int64 uid = 1; }
+message UserSettings {
+  string language = 1;
+  bool msg_notification = 2;
+  bool sound_enabled = 3;
+  bool auto_translate = 4;
+  string translate_target = 5;
+  bool content_filter = 6;
+}
+message GetUserSettingsResp { UserSettings settings = 1; }
+message UpdateUserSettingsReq {
+  int64 uid = 1;
+  string language = 2;
+  bool msg_notification = 3;
+  bool sound_enabled = 4;
+  bool auto_translate = 5;
+  string translate_target = 6;
+  bool content_filter = 7;
+}
+message UpdateUserSettingsResp {}
+
+message IsUserBannedReq { int64 uid = 1; }
+message IsUserBannedResp { bool banned = 1; string reason = 2; }
+
+message AddPushTokenReq {
+  int64 uid = 1;
+  string device_id = 2;
+  string platform = 3;
+  string token = 4;
+}
+message AddPushTokenResp {}
+message RemovePushTokenReq {
+  int64 uid = 1;
+  string device_id = 2;
+}
+message RemovePushTokenResp {}
+
+// ========== 服务 ==========
+service user {
+  rpc GetUserByUID(GetUserByUIDReq) returns (GetUserResp);
+  rpc BatchGetUserInfo(BatchGetUserInfoReq) returns (BatchGetUserInfoResp);
+  rpc CreateUser(CreateUserReq) returns (CreateUserResp);
+  rpc UpdateUser(UpdateUserReq) returns (UpdateUserResp);
+  rpc UpdateUserStatus(UpdateUserStatusReq) returns (UpdateUserStatusResp);
+  rpc UpdateLastLogin(UpdateLastLoginReq) returns (UpdateLastLoginResp);
+  rpc GetUserSettings(GetUserSettingsReq) returns (GetUserSettingsResp);
+  rpc UpdateUserSettings(UpdateUserSettingsReq) returns (UpdateUserSettingsResp);
+  rpc IsUserBanned(IsUserBannedReq) returns (IsUserBannedResp);
+  rpc AddPushToken(AddPushTokenReq) returns (AddPushTokenResp);
+  rpc RemovePushToken(RemovePushTokenReq) returns (RemovePushTokenResp);
+}

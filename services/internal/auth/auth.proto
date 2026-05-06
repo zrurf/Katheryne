@@ -1,0 +1,80 @@
+syntax = "proto3";
+package auth;
+option go_package = "./auth";
+
+message RegisterInitReq {
+  string phone = 1;
+  bytes registration_request = 2;
+}
+message RegisterInitResp {
+  bytes server_public_key = 1;
+  bytes registration_response = 2;
+  bytes credential_identifier = 3;
+}
+
+message RegisterFinalizeReq {
+  string phone = 1;
+  string name = 2;
+  bytes registration_record = 3;
+}
+message RegisterFinalizeResp {
+  bool result = 1;
+  string reason = 2;
+}
+
+message LoginInitReq {
+  string phone = 1;
+  bytes ke1 = 2;
+}
+message LoginInitResp {
+  bytes ke2 = 1;
+  string session_id = 2;
+}
+
+message LoginFinalizeReq {
+  bytes ke3 = 1;
+  string session_id = 2;
+}
+message LoginFinalizeResp {
+  int64 uid = 1;
+  bool need_2fa = 2;                   // 是否需要二次验证
+  string tfa_token = 3;             // 需要2FA时返回的临时 token
+  string access_token = 4;
+  string refresh_token = 5;
+  int64 expires_at = 6;
+}
+
+message TFAVerifyReq {
+  string tfa_token = 1;             // 上一步返回的临时 token
+  string code = 2;                     // 用户输入的 TOTP 验证码
+}
+message TFAVerifyResp {
+  int64 uid = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+  int64 expires_at = 4;
+}
+
+message LogoutReq {
+  string access_token = 1;
+}
+message LogoutResp {}
+
+message RefreshTokenReq {
+  string refresh_token = 1;
+}
+message RefreshTokenResp {
+  string access_token = 1;
+  string refresh_token = 2;
+  int64 expires_at = 3;
+}
+
+service Auth {
+  rpc RegisterInit(RegisterInitReq) returns (RegisterInitResp);
+  rpc RegisterFinalize(RegisterFinalizeReq) returns (RegisterFinalizeResp);
+  rpc LoginInit(LoginInitReq) returns (LoginInitResp);
+  rpc LoginFinalize(LoginFinalizeReq) returns (LoginFinalizeResp);
+  rpc TFAVerify(TFAVerifyReq) returns (TFAVerifyResp);
+  rpc Logout(LogoutReq) returns (LogoutResp);
+  rpc RefreshToken(RefreshTokenReq) returns (RefreshTokenResp);
+}

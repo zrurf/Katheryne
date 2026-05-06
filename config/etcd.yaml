@@ -1,0 +1,15 @@
+name: 'default'
+data-dir: '/etc/etcd'
+heartbeat-interval: 500
+election-timeout: 2500
+listen-client-urls: http://0.0.0.0:2379
+advertise-client-urls: http://0.0.0.0:2379
+listen-peer-urls: http://0.0.0.0:2380
+initial-advertise-peer-urls: http://0.0.0.0:2380
+initial-cluster: default=http://0.0.0.0:2380
+initial-cluster-token: etcd-cluster
+initial-cluster-state: new
+auto-compaction-mode: periodic
+auto-compaction-retention: "1"
+logger: zap
+log-level: info

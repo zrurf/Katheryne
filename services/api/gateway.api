@@ -1,0 +1,754 @@
+syntax = "v1"
+
+info (
+	title: "Katheryne API Gateway"
+	desc:  "Katheryne API聚合网关"
+)
+
+type EmptyReponse {}
+
+// 身份认证服务model
+type (
+	// 注册阶段 1
+	RegisterInitRequest {
+		Phone               string `json:"phone"`
+		RegistrationRequest string `json:"r"`
+	}
+	RegisterInitResponse {
+		ServerPublicKey      string `json:"spk"`
+		RegistrationResponse string `json:"r"`
+		CredentialIdentifier string `json:"cid,omitempty"`
+	}
+	// 注册阶段 2
+	RegisterFinalizeRequest {
+		Phone              string `json:"phone"`
+		Name               string `json:"name"`
+		RegistrationRecord string `json:"r"`
+	}
+	RegisterFinalizeResponse {
+		Result bool   `json:"result"`
+		Reason string `json:"reason,omitempty"`
+	}
+	// 登录阶段 1
+	LoginInitRequest {
+		Phone string `json:"phone"`
+		Ke1   string `json:"k"`
+	}
+	LoginInitResponse {
+		Ke2       string `json:"k"`
+		SessionId string `json:"sid"`
+	}
+	// 登录阶段 2
+	LoginFinalizeRequest {
+		Ke3       string `json:"k"`
+		SessionId string `json:"sid"`
+	}
+	LoginFinalizeResponse {
+		UID          int64  `json:"uid"`
+		Need2FA      bool   `json:"need_2fa"` // 是否需要进行二次验证
+		TFAToken     string `json:"tfa_token,omitempty"` // 二次验证临时令牌
+		AccessToken  string `json:"access_token,omitempty"`
+		RefreshToken string `json:"refresh_token,omitempty"`
+		ExpiresAt    int64  `json:"expires_at,omitempty"`
+	}
+	// 2FA 验证请求
+	TFAVerifyRequest {
+		TFAToken string `json:"tfa_token"`
+		Code     string `json:"code"`
+	}
+	TFAVerifyResponse {
+		UID          int64  `json:"uid"`
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		ExpiresAt    int64  `json:"expires_at"`
+	}
+	// 登出
+	LogoutRequest {
+		Authorization string `header:"Authorization"`
+	}
+	// 用户信息
+	UserInfoRequest {
+		Uid           int64  `path:"uid"`
+		Authorization string `header:"Authorization"`
+	}
+	UserInfoResponse {
+		UID       int64  `json:"uid"`
+		Name      string `json:"name"`
+		Avatar    string `json:"avatar"`
+		Status    string `json:"status"`
+		CreatedAt int64  `json:"created_at"`
+		UpdatedAt int64  `json:"updated_at"`
+		LastLogin int64  `json:"last_login"`
+	}
+	// 刷新令牌
+	RefreshTokenRequest {
+		RefreshToken string `json:"refresh_token"`
+	}
+	RefreshTokenResponse {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		ExpiresAt    int64  `json:"expires_at"`
+	}
+)
+
+// OAuth2服务model
+type (
+	AuthorizeRequest {
+		ResponseType string `form:"response_type"`
+		ClientId     string `form:"client_id"`
+		RedirectUri  string `form:"redirect_uri"`
+		Scope        string `form:"scope"`
+		State        string `form:"state"`
+	}
+	TokenRequest {
+		GrantType    string `form:"grant_type"`
+		ClientId     string `form:"client_id"`
+		ClientSecret string `form:"client_secret"`
+		Code         string `form:"code,optional"`
+		Scope        string `form:"scope,optional"`
+		RedirectUri  string `form:"redirect_uri,optional"`
+		RefreshToken string `form:"refresh_token,optional"`
+	}
+	TokenResponse {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		TokenType    string `json:"token_type"`
+		ExpiresIn    int64  `json:"expires_in"`
+		Scope        string `json:"scope"`
+	}
+)
+
+// 对象存储服务model
+type (
+	UploadResponse {
+		FileName  string `json:"filename"`
+		Size      int64  `json:"size"`
+		Url       string `json:"url"`
+		OssIndex  string `json:"oss_index"`
+		ExpiresAt int64  `json:"expires_at"`
+	}
+	InitiateUploadRequest {
+		FileName    string `json:"file_name"`
+		ContentType string `json:"content_type,optional"`
+		TotalSize   int64  `json:"total_size,optional"`
+	}
+	InitiateUploadResponse {
+		UploadID  string `json:"upload_id"`
+		Bucket    string `json:"bucket"`
+		ObjectKey string `json:"object_key"`
+	}
+	UploadPartRequest {
+		UploadID   string `form:"upload_id"`
+		PartNumber int    `form:"part_number"`
+	// 文件内容通过 multipart/form-data 的 file 字段上传
+	}
+	UploadPartResponse {
+		ETag       string `json:"etag"`
+		PartNumber int    `json:"part_number"`
+	}
+	PartInfo {
+		PartNumber int    `json:"part_number"`
+		ETag       string `json:"etag"`
+	}
+	CompleteUploadRequest {
+		UploadID string     `json:"upload_id"`
+		Parts    []PartInfo `json:"parts"`
+	}
+)
+
+// IM社交服务
+type (
+	SendFriendRequest {
+		UID     int64  `json:"uid"`
+		Message string `json:"message,optional"`
+	}
+	SendFriendResponse {
+		Result bool `json:"result"`
+	}
+	HandleFriendRequest {
+		ReqID  int64  `path:"id"`
+		Action string `json:"action"` // accept / reject
+	}
+	HandleFriendResponse {
+		Result bool `json:"result"`
+	}
+	GetFriendRequestsReq {
+		Type string `form:"type,default=received"` // sent / received
+		Page int    `form:"page,default=1"` // 0表示获取全部
+		Size int    `form:"size,default=20"`
+	}
+	FriendRequestItem {
+		ID        int64  `json:"id"`
+		UID       int64  `json:"uid"`
+		Name      string `json:"name"`
+		Avatar    string `json:"avatar"`
+		Message   string `json:"message"`
+		Status    string `json:"status"`
+		CreatedAt int64  `json:"created_at"`
+	}
+	GetFriendRequestsResp {
+		List  []FriendRequestItem `json:"list"`
+		Total int64               `json:"total"`
+	}
+	GetFriendsReq {
+		Group string `form:"group,optional"`
+	}
+	FriendItem {
+		UID       int64  `json:"uid"`
+		Name      string `json:"name"`
+		Avatar    string `json:"avatar"`
+		Remark    string `json:"remark"`
+		Status    string `json:"status"`
+		Online    bool   `json:"online"`
+		GroupName string `json:"group_name"`
+	}
+	GetFriendsResp {
+		List []FriendItem `json:"list"`
+	}
+	DeleteFriendReq {
+		UID int64 `json:"uid"`
+	}
+	DeleteFriendResp {
+		Result bool `json:"result"`
+	}
+	UpdateFriendRemarkReq {
+		UID       int64  `json:"uid"`
+		Remark    string `json:"remark"`
+		GroupName string `json:"group_name,optional"`
+	}
+	UpdateFriendRemarkResp {
+		Result bool `json:"result"`
+	}
+	AddBlacklistReq {
+		UID int64 `json:"uid"`
+	}
+	AddBlacklistResp {
+		Result bool `json:"result"`
+	}
+	RemoveBlacklistReq {
+		UID int64 `json:"uid"`
+	}
+	RemoveBlacklistResp {
+		Result bool `json:"result"`
+	}
+	GetBlacklistResp {
+		List []FriendItem `json:"list"`
+	}
+	InviteToGroupReq {
+		GroupID     int64   `json:"group_id"`
+		InviteeUIDs []int64 `json:"invitee_uids"`
+		Message     string  `json:"message,optional"`
+	}
+	InviteToGroupResp {
+		FailedUIDs []int64 `json:"failed_uids"`
+	}
+	HandleGroupInviteReq {
+		ID     int64  `path:"id"`
+		Action string `json:"action"` // accept / reject
+	}
+	HandleGroupInviteResp {
+		Result bool `json:"result"`
+	}
+	GetGroupInvitesReq  {}
+	GroupInviteItem {
+		ID          int64  `json:"id"`
+		GroupID     int64  `json:"group_id"`
+		GroupName   string `json:"group_name"`
+		GroupAvatar string `json:"group_avatar"`
+		InviterUID  int64  `json:"inviter_uid"`
+		InviterName string `json:"inviter_name"`
+		Message     string `json:"message"`
+		CreatedAt   int64  `json:"created_at"`
+	}
+	GetGroupInvitesResp {
+		List []GroupInviteItem `json:"list"`
+	}
+)
+
+// 群聊model
+type (
+	CreateGroupReq {
+		Name       string  `json:"name"`
+		Avatar     string  `json:"avatar,optional"`
+		MemberUIDs []int64 `json:"member_uids,optional"`
+		VerifyMode string  `json:"verify_mode,default=NONE"`
+	}
+	CreateGroupResp {
+		GroupID int64 `json:"group_id"`
+		ConvID  int64 `json:"conv_id"`
+	}
+	GetGroupInfoReq {
+		GroupID int64 `path:"group_id"`
+	}
+	GroupInfoResp {
+		GroupID     int64  `json:"group_id"`
+		Name        string `json:"name"`
+		Avatar      string `json:"avatar"`
+		Owner       int64  `json:"owner"`
+		MemberCount int    `json:"member_count"`
+		Status      string `json:"status"`
+		VerifyMode  string `json:"verify_mode"`
+		CreatedAt   int64  `json:"created_at"`
+	}
+	UpdateGroupReq {
+		GroupID    int64  `json:"group_id"`
+		Name       string `json:"name,optional"`
+		Avatar     string `json:"avatar,optional"`
+		VerifyMode string `json:"verify_mode,optional"`
+	}
+	UpdateGroupResp {
+		Result bool `json:"result"`
+	}
+	JoinGroupReq {
+		GroupID int64  `json:"group_id"`
+		Message string `json:"message,optional"`
+	}
+	JoinGroupResp {
+		Result bool `json:"result"`
+	}
+	LeaveGroupReq {
+		GroupID int64 `json:"group_id"`
+	}
+	LeaveGroupResp {
+		Result bool `json:"result"`
+	}
+	KickMemberReq {
+		GroupID int64 `json:"group_id"`
+		UID     int64 `json:"uid"`
+	}
+	KickMemberResp {
+		Result bool `json:"result"`
+	}
+	MuteMemberReq {
+		GroupID  int64 `json:"group_id"`
+		UID      int64 `json:"uid"`
+		Duration int   `json:"duration"` // 秒
+	}
+	MuteMemberResp {
+		Result bool `json:"result"`
+	}
+	TransferOwnerReq {
+		GroupID  int64 `json:"group_id"`
+		NewOwner int64 `json:"new_owner"`
+	}
+	TransferOwnerResp {
+		Result bool `json:"result"`
+	}
+	GetGroupMembersReq {
+		GroupID int64  `path:"group_id"`
+		Role    string `form:"role,optional"`
+	}
+	GroupMemberItem {
+		UID       int64  `json:"uid"`
+		Name      string `json:"name"`
+		Avatar    string `json:"avatar"`
+		Role      string `json:"role"`
+		Nick      string `json:"nick"`
+		JoinTime  int64  `json:"join_time"`
+		MuteUntil int64  `json:"mute_until"`
+	}
+	GetGroupMembersResp {
+		List []GroupMemberItem `json:"list"`
+	}
+	HandleGroupJoinReq {
+		ReqID  int64  `path:"id"`
+		Action string `json:"action"` // accept / reject
+	}
+	HandleGroupJoinResp {
+		Result bool `json:"result"`
+	}
+	// 群公告
+	CreateAnnouncementReq {
+		GroupID int64  `json:"group_id"`
+		Content string `json:"content"`
+	}
+	CreateAnnouncementResp {
+		Result bool `json:"result"`
+	}
+	GetAnnouncementsReq {
+		GroupID int64 `path:"group_id"`
+		Page    int   `form:"page,default=1"`
+		Size    int   `form:"size,default=20"`
+	}
+	AnnouncementItem {
+		ID        int64  `json:"id"`
+		UID       int64  `json:"uid"`
+		Name      string `json:"name"`
+		Content   string `json:"content"`
+		Pinned    bool   `json:"pinned"`
+		CreatedAt int64  `json:"created_at"`
+	}
+	GetAnnouncementsResp {
+		List  []AnnouncementItem `json:"list"`
+		Total int64              `json:"total"`
+	}
+	// 入群申请列表
+	GetGroupJoinRequestsReq {
+		GroupID int64  `path:"group_id"`
+		Status  string `form:"status,optional"`
+	}
+	GroupJoinRequestItem {
+		ID        int64  `json:"id"`
+		UID       int64  `json:"uid"`
+		Name      string `json:"name"`
+		Avatar    string `json:"avatar"`
+		Message   string `json:"message"`
+		Status    string `json:"status"`
+		CreatedAt int64  `json:"created_at"`
+	}
+	GetGroupJoinRequestsResp {
+		List []GroupJoinRequestItem `json:"list"`
+	}
+)
+
+// IM消息服务model
+type (
+	GetMessagesReq {
+		ConvID    int64  `path:"conv_id"`
+		Cursor    int64  `form:"cursor,optional"` // 上一页最后一条消息 ID，空=最新
+		Limit     int    `form:"limit,default=30"`
+		Direction string `form:"direction,default=before"` // before / after
+	}
+	MessageItem {
+		ID           int64  `json:"id"`
+		ConvID       int64  `json:"conv_id"`
+		Sender       int64  `json:"sender"`
+		SenderName   string `json:"sender_name"`
+		SenderAvatar string `json:"sender_avatar"`
+		Type         string `json:"type"`
+		Content      string `json:"content"`
+		ContentType  string `json:"content_type"`
+		QuoteMsgID   int64  `json:"quote_msg_id,omitempty"`
+		QuoteContent string `json:"quote_content,omitempty"`
+		Recalled     bool   `json:"recalled"`
+		Edited       bool   `json:"edited"`
+		Extra        string `json:"extra,omitempty"`
+		CreatedAt    int64  `json:"created_at"`
+	}
+	GetMessagesResp {
+		List    []MessageItem `json:"list"`
+		HasMore bool          `json:"has_more"`
+	}
+	SearchMessagesReq {
+		Keyword   string `form:"keyword"`
+		ConvID    int64  `form:"conv_id,optional"`
+		Sender    int64  `form:"sender,optional"`
+		StartTime int64  `form:"start_time,optional"`
+		EndTime   int64  `form:"end_time,optional"`
+		Page      int    `form:"page,default=1"`
+		Size      int    `form:"size,default=20"`
+	}
+	SearchMessagesResp {
+		List  []MessageItem `json:"list"`
+		Total int64         `json:"total"`
+	}
+	RecallMessageReq {
+		ConvID int64 `json:"conv_id"`
+		MsgID  int64 `json:"msg_id"`
+	}
+	RecallMessageResp  {}
+	EditMessageReq {
+		ConvID  int64  `json:"conv_id"`
+		MsgID   int64  `json:"msg_id"`
+		Content string `json:"content"`
+	}
+	EditMessageResp  {}
+	GetMessageReadMembersReq {
+		ConvID int64 `path:"conv_id"`
+		MsgID  int64 `path:"msg_id"`
+	}
+	ReadMemberItem {
+		UID    int64  `json:"uid"`
+		Name   string `json:"name"`
+		Avatar string `json:"avatar"`
+		ReadAt int64  `json:"read_at"`
+	}
+	GetMessageReadMembersResp {
+		List  []ReadMemberItem `json:"list"`
+		Total int64            `json:"total"`
+	}
+	SyncOfflineMessagesReq {
+		DeviceID      string `form:"device_id"`
+		LastSyncMsgID int64  `form:"last_sync_msg_id,optional"`
+		Limit         int    `form:"limit,default=100"`
+	}
+	SyncOfflineMessagesResp {
+		List             []MessageItem `json:"list"`
+		HasMore          bool          `json:"has_more"`
+		NewLastSyncMsgID int64         `json:"new_last_sync_msg_id"`
+	}
+)
+
+// 获取会话列表
+type (
+	GetConversationsReq  {}
+	ConversationItem {
+		ConvID         int64  `json:"conv_id"`
+		Type           string `json:"type"` // SINGLE / GROUP
+		Name           string `json:"name"`
+		Avatar         string `json:"avatar"`
+		GroupID        int64  `json:"group_id,omitempty"`
+		LastMsgID      int64  `json:"last_msg_id,omitempty"`
+		LastMsgSnippet string `json:"last_msg_snippet,omitempty"`
+		LastMsgTime    int64  `json:"last_msg_time,omitempty"`
+		LastMsgSender  int64  `json:"last_msg_sender,omitempty"`
+		UnreadCount    int64  `json:"unread_count"`
+		Mute           bool   `json:"mute"`
+		Pinned         bool   `json:"pinned"`
+	}
+	GetConversationsResp {
+		List []ConversationItem `json:"list"`
+	}
+	GetConversationReq {
+		ConvID int64 `path:"conv_id"`
+	}
+	GetConversationResp {
+		ConvID  int64  `json:"conv_id"`
+		Type    string `json:"type"`
+		Name    string `json:"name"`
+		Avatar  string `json:"avatar"`
+		GroupID int64  `json:"group_id,omitempty"`
+		Mute    bool   `json:"mute"`
+		Pinned  bool   `json:"pinned"`
+	}
+	DeleteConversationReq {
+		ConvID int64 `json:"conv_id"`
+	}
+	DeleteConversationResp  {}
+	SetConvMuteReq {
+		ConvID int64 `json:"conv_id"`
+		Mute   bool  `json:"mute"`
+	}
+	SetConvMuteResp  {}
+	SetConvPinReq {
+		ConvID int64 `json:"conv_id"`
+		Pinned bool  `json:"pinned"`
+	}
+	SetConvPinResp  {}
+	ClearUnreadReq {
+		ConvID int64 `json:"conv_id"`
+	}
+	ClearUnreadResp  {}
+	// 获取或创建单聊会话
+	GetOrCreateSingleConvReq {
+		PeerUID int64 `json:"peer_uid"`
+	}
+	GetOrCreateSingleConvResp {
+		ConvID  int64 `json:"conv_id"`
+		Created bool  `json:"created"`
+	}
+	GetTotalUnreadResp {
+		Count int64 `json:"count"`
+	}
+)
+
+// 身份认证服务
+@server (
+	prefix: /api/v1/auth
+	group:  auth
+)
+service gateway-api {
+	@handler RegisterInit
+	post /register/init (RegisterInitRequest) returns (RegisterInitResponse)
+
+	@handler RegisterFinalize
+	post /register/finalize (RegisterFinalizeRequest) returns (RegisterFinalizeResponse)
+
+	@handler LoginInit
+	post /login/init (LoginInitRequest) returns (LoginInitResponse)
+
+	@handler LoginFinalize
+	post /login/finalize (LoginFinalizeRequest) returns (LoginFinalizeResponse)
+
+	@handler TFAVerify
+	post /tfa-verify (TFAVerifyRequest) returns (TFAVerifyResponse)
+
+	@handler Logout
+	post /logout (LogoutRequest) returns (EmptyReponse)
+
+	@handler GetUserInfo
+	get /user_info/:uid (UserInfoRequest) returns (UserInfoResponse)
+
+	@handler RefreshToken
+	post /refresh (RefreshTokenRequest) returns (RefreshTokenResponse)
+}
+
+// OAuth2服务
+@server (
+	prefix: /api/v1/oauth2
+	group:  oauth2
+)
+service gateway-api {
+	@handler Authorize
+	get /authorize (AuthorizeRequest) returns (EmptyReponse)
+
+	@handler Token
+	post /token (TokenRequest) returns (TokenResponse)
+}
+
+// 对象存储服务
+@server (
+	prefix:     /api/v1/oss
+	group:      oss
+	middleware: AuthMiddleware
+)
+service gateway-api {
+	@handler Upload
+	post /upload returns (UploadResponse)
+
+	@handler InitiateUpload
+	post /upload/initiate (InitiateUploadRequest) returns (InitiateUploadResponse)
+
+	@handler UploadPart
+	post /upload/part (UploadPartRequest) returns (UploadPartResponse)
+
+	@handler CompleteUpload
+	post /upload/complete (CompleteUploadRequest) returns (UploadResponse)
+}
+
+// 社交服务
+@server (
+	prefix:     /api/v1/social
+	group:      social
+	middleware: AuthMiddleware
+)
+service gateway-api {
+	// 好友
+	@handler SendFriendRequest
+	post /friend/request (SendFriendRequest) returns (SendFriendResponse)
+
+	@handler HandleFriendRequest
+	post /friend/request/:id (HandleFriendRequest) returns (HandleFriendResponse)
+
+	@handler GetFriendRequests
+	get /friend/requests (GetFriendRequestsReq) returns (GetFriendRequestsResp)
+
+	@handler GetFriends
+	get /friends (GetFriendsReq) returns (GetFriendsResp)
+
+	@handler DeleteFriend
+	post /friend/delete (DeleteFriendReq) returns (DeleteFriendResp)
+
+	@handler UpdateFriendRemark
+	post /friend/remark (UpdateFriendRemarkReq) returns (UpdateFriendRemarkResp)
+
+	// 黑名单
+	@handler AddBlacklist
+	post /blacklist/add (AddBlacklistReq) returns (AddBlacklistResp)
+
+	@handler RemoveBlacklist
+	post /blacklist/remove (RemoveBlacklistReq) returns (RemoveBlacklistResp)
+
+	@handler GetBlacklist
+	get /blacklist returns (GetBlacklistResp)
+
+	// 群组
+	@handler CreateGroup
+	post /group/create (CreateGroupReq) returns (CreateGroupResp)
+
+	@handler GetGroupInfo
+	get /group/:group_id (GetGroupInfoReq) returns (GroupInfoResp)
+
+	@handler UpdateGroup
+	post /group/update (UpdateGroupReq) returns (UpdateGroupResp)
+
+	@handler JoinGroup
+	post /group/join (JoinGroupReq) returns (JoinGroupResp)
+
+	@handler LeaveGroup
+	post /group/leave (LeaveGroupReq) returns (LeaveGroupResp)
+
+	@handler KickMember
+	post /group/kick (KickMemberReq) returns (KickMemberResp)
+
+	@handler MuteMember
+	post /group/mute (MuteMemberReq) returns (MuteMemberResp)
+
+	@handler TransferOwner
+	post /group/transfer (TransferOwnerReq) returns (TransferOwnerResp)
+
+	@handler GetGroupMembers
+	get /group/:group_id/members (GetGroupMembersReq) returns (GetGroupMembersResp)
+
+	@handler HandleGroupJoinRequest
+	post /group/join/:id (HandleGroupJoinReq) returns (HandleGroupJoinResp)
+
+	@handler GetGroupJoinRequests
+	get /group/:group_id/requests (GetGroupJoinRequestsReq) returns (GetGroupJoinRequestsResp)
+
+	// 群公告
+	@handler CreateAnnouncement
+	post /group/announcement (CreateAnnouncementReq) returns (CreateAnnouncementResp)
+
+	@handler GetAnnouncements
+	get /group/:group_id/announcements (GetAnnouncementsReq) returns (GetAnnouncementsResp)
+
+	// 邀请进群
+	@handler InviteToGroup
+	post /group/invite (InviteToGroupReq) returns (InviteToGroupResp)
+
+	@handler HandleGroupInvite
+	post /group/invite/:id (HandleGroupInviteReq) returns (HandleGroupInviteResp)
+
+	@handler GetGroupInvites
+	get /group/invites (GetGroupInvitesReq) returns (GetGroupInvitesResp)
+}
+
+// 消息服务
+@server (
+	prefix:     /api/v1/message
+	group:      message
+	middleware: AuthMiddleware
+)
+service gateway-api {
+	@handler GetMessages
+	get /:conv_id (GetMessagesReq) returns (GetMessagesResp)
+
+	@handler SearchMessages
+	get /search (SearchMessagesReq) returns (SearchMessagesResp)
+
+	@handler RecallMessage
+	post /recall (RecallMessageReq) returns (RecallMessageResp)
+
+	@handler EditMessage
+	post /edit (EditMessageReq) returns (EditMessageResp)
+
+	@handler SyncOfflineMessages
+	get /sync (SyncOfflineMessagesReq) returns (SyncOfflineMessagesResp)
+
+	@handler GetMessageReadMembers
+	get /:conv_id/read/:msg_id (GetMessageReadMembersReq) returns (GetMessageReadMembersResp)
+}
+
+// 会话服务
+@server (
+	prefix:     /api/v1/conversation
+	group:      conversation
+	middleware: AuthMiddleware
+)
+service gateway-api {
+	@handler GetConversations
+	get /list (GetConversationsReq) returns (GetConversationsResp)
+
+	@handler GetConversation
+	get /:conv_id (GetConversationReq) returns (GetConversationResp)
+
+	@handler GetOrCreateSingleConv
+	post /single (GetOrCreateSingleConvReq) returns (GetOrCreateSingleConvResp)
+
+	@handler DeleteConversation
+	post /delete (DeleteConversationReq) returns (DeleteConversationResp)
+
+	@handler SetConvMute
+	post /mute (SetConvMuteReq) returns (SetConvMuteResp)
+
+	@handler SetConvPin
+	post /pin (SetConvPinReq) returns (SetConvPinResp)
+
+	@handler ClearUnread
+	post /clear_unread (ClearUnreadReq) returns (ClearUnreadResp)
+
+	@handler GetTotalUnread
+	get /total_unread returns (GetTotalUnreadResp)
+}
+

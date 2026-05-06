@@ -1,0 +1,6 @@
+Name: message.rpc
+ListenOn: 0.0.0.0:8003
+Etcd:
+  Hosts:
+  - "etcd:2379"
+  Key: message.rpc

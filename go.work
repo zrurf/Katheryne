@@ -1,0 +1,12 @@
+go 1.26.2
+
+use (
+	./services/api/bot
+	./services/api/gateway
+	./services/internal/auth
+	./services/internal/conversation
+	./services/internal/message
+	./services/internal/oss
+	./services/internal/social
+	./services/internal/user
+)

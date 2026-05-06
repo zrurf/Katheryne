@@ -1,0 +1,411 @@
+syntax = "v1"
+
+info (
+	title: "Katheryne Bot Platform"
+	desc:  "Katheryne Bot 开放平台"
+)
+
+type (
+	// ========== 开发者 API ==========
+	CreateBotReq {
+		Name            string   `json:"name"`
+		Avatar          string   `json:"avatar,optional"`
+		Description     string   `json:"description,optional"`
+		WebhookURL      string   `json:"webhook_url,optional"`
+		SubscribeEvents []string `json:"subscribe_events,optional"`
+	}
+	CreateBotResp {
+		BotID        int64  `json:"bot_id"`
+		ClientID     string `json:"client_id"`
+		ClientSecret string `json:"client_secret"` // 仅创建时返回一次
+	}
+	UpdateBotReq {
+		BotID           int64    `json:"bot_id"`
+		Name            string   `json:"name,optional"`
+		Avatar          string   `json:"avatar,optional"`
+		Description     string   `json:"description,optional"`
+		WebhookURL      string   `json:"webhook_url,optional"`
+		SubscribeEvents []string `json:"subscribe_events,optional"`
+	}
+	UpdateBotResp  {}
+	DeleteBotReq {
+		BotID int64 `json:"bot_id"`
+	}
+	DeleteBotResp  {}
+	GetBotReq {
+		BotID int64 `path:"bot_id"`
+	}
+	BotInfo {
+		BotID           int64    `json:"bot_id"`
+		Name            string   `json:"name"`
+		Avatar          string   `json:"avatar"`
+		Description     string   `json:"description"`
+		OwnerUID        int64    `json:"owner_uid"`
+		WebhookURL      string   `json:"webhook_url"`
+		SubscribeEvents []string `json:"subscribe_events"`
+		Status          string   `json:"status"`
+		ClientID        string   `json:"client_id"`
+		CreatedAt       int64    `json:"created_at"`
+	}
+	GetBotResp {
+		Bot BotInfo `json:"bot"`
+	}
+	ListMyBotsResp {
+		List []BotInfo `json:"list"`
+	}
+	RotateWebhookSecretReq {
+		BotID int64 `json:"bot_id"`
+	}
+	RotateWebhookSecretResp {
+		WebhookSecret string `json:"webhook_secret"` // 仅返回一次
+	}
+	RegenerateCredentialReq {
+		BotID int64 `json:"bot_id"`
+	}
+	RegenerateCredentialResp {
+		ClientID     string `json:"client_id"`
+		ClientSecret string `json:"client_secret"`
+	}
+	// ========== Bot 安装管理 ==========
+	InstallBotReq {
+		BotID       int64    `json:"bot_id"`
+		ConvID      int64    `json:"conv_id"`
+		Permissions []string `json:"permissions"`
+	}
+	InstallBotResp  {}
+	UninstallBotReq {
+		BotID  int64 `json:"bot_id"`
+		ConvID int64 `json:"conv_id"`
+	}
+	UninstallBotResp  {}
+	GetConvBotsReq {
+		ConvID int64 `path:"conv_id"`
+	}
+	InstalledBotItem {
+		BotID       int64    `json:"bot_id"`
+		Name        string   `json:"name"`
+		Avatar      string   `json:"avatar"`
+		Description string   `json:"description"`
+		Permissions []string `json:"permissions"`
+		InstalledAt int64    `json:"installed_at"`
+	}
+	GetConvBotsResp {
+		List []InstalledBotItem `json:"list"`
+	}
+	GetBotInstallationsReq {
+		BotID int64 `path:"bot_id"`
+	}
+	BotInstallationItem {
+		ConvID      int64    `json:"conv_id"`
+		ConvType    string   `json:"conv_type"`
+		GroupID     int64    `json:"group_id,omitempty"`
+		ConvName    string   `json:"conv_name"`
+		Permissions []string `json:"permissions"`
+		InstalledAt int64    `json:"installed_at"`
+	}
+	GetBotInstallationsResp {
+		List []BotInstallationItem `json:"list"`
+	}
+	// ========== OAuth2 授权流程 ==========
+	AuthorizeReq {
+		ClientID    string `form:"client_id"`
+		RedirectURI string `form:"redirect_uri"`
+		Scope       string `form:"scope"`
+		State       string `form:"state,optional"`
+		ConvID      int64  `form:"conv_id,optional"` // 安装到哪个会话
+	}
+	// 授权页面由前端渲染，此接口返回 Bot 信息供展示
+	AuthorizeResp {
+		Bot            BotInfo  `json:"bot"`
+		RequestedScope []string `json:"requested_scope"`
+		ConvID         int64    `json:"conv_id,omitempty"`
+	}
+	// 用户确认授权
+	ApproveAuthorizeReq {
+		ClientID    string `json:"client_id"`
+		RedirectURI string `json:"redirect_uri"`
+		Scope       string `json:"scope"`
+		State       string `json:"state,optional"`
+		ConvID      int64  `json:"conv_id,optional"`
+	}
+	ApproveAuthorizeResp {
+		RedirectURL string `json:"redirect_url"` // 带 code 的完整回调 URL
+	}
+	// Bot 用 code 换 token
+	BotTokenReq {
+		GrantType    string `form:"grant_type"` // authorization_code / refresh_token
+		ClientID     string `form:"client_id"`
+		ClientSecret string `form:"client_secret"`
+		Code         string `form:"code,optional"`
+		RedirectURI  string `form:"redirect_uri,optional"`
+		RefreshToken string `form:"refresh_token,optional"`
+	}
+	BotTokenResp {
+		AccessToken  string `json:"access_token"`
+		TokenType    string `json:"token_type"`
+		Scope        string `json:"scope"`
+		ExpiresIn    int64  `json:"expires_in"`
+		RefreshToken string `json:"refresh_token"`
+		BotID        int64  `json:"bot_id"`
+	}
+	// ========== Bot 调用的 API ==========
+	// 发送消息
+	BotSendMsgReq {
+		ConvID      int64  `json:"conv_id"`
+		MsgType     string `json:"msg_type"`
+		Content     string `json:"content"`
+		ContentType string `json:"content_type,optional"`
+		QuoteMsgID  int64  `json:"quote_msg_id,optional"`
+		Extra       string `json:"extra,optional"`
+	}
+	BotSendMsgResp {
+		MsgID     int64 `json:"msg_id"`
+		CreatedAt int64 `json:"created_at"`
+	}
+	// 回复消息（语法糖）
+	BotReplyMsgReq {
+		ConvID       int64  `json:"conv_id"`
+		ReplyToMsgID int64  `json:"reply_to_msg_id"`
+		MsgType      string `json:"msg_type"`
+		Content      string `json:"content"`
+		ContentType  string `json:"content_type,optional"`
+		Extra        string `json:"extra,optional"`
+	}
+	BotReplyMsgResp {
+		MsgID     int64 `json:"msg_id"`
+		CreatedAt int64 `json:"created_at"`
+	}
+	// 撤回消息
+	BotRecallMsgReq {
+		ConvID int64 `json:"conv_id"`
+		MsgID  int64 `json:"msg_id"`
+	}
+	BotRecallMsgResp  {}
+	// 获取消息
+	BotGetMsgReq {
+		ConvID int64 `path:"conv_id"`
+		MsgID  int64 `path:"msg_id"`
+	}
+	BotGetMsgResp {
+		MsgID       int64  `json:"msg_id"`
+		ConvID      int64  `json:"conv_id"`
+		SenderUID   int64  `json:"sender_uid"`
+		SenderName  string `json:"sender_name"`
+		MsgType     string `json:"msg_type"`
+		Content     string `json:"content"`
+		ContentType string `json:"content_type"`
+		QuoteMsgID  int64  `json:"quote_msg_id,omitempty"`
+		Recalled    bool   `json:"recalled"`
+		Edited      bool   `json:"edited"`
+		Extra       string `json:"extra,omitempty"`
+		CreatedAt   int64  `json:"created_at"`
+	}
+	// 获取会话信息
+	BotGetConvReq {
+		ConvID int64 `path:"conv_id"`
+	}
+	BotGetConvResp {
+		ConvID    int64  `json:"conv_id"`
+		Type      string `json:"type"`
+		GroupID   int64  `json:"group_id,omitempty"`
+		Name      string `json:"name"`
+		Avatar    string `json:"avatar"`
+		CreatedAt int64  `json:"created_at"`
+	}
+	// 获取会话成员
+	BotGetConvMembersReq {
+		ConvID int64 `path:"conv_id"`
+	}
+	BotConvMemberItem {
+		UID    int64  `json:"uid"`
+		Name   string `json:"name"`
+		Avatar string `json:"avatar"`
+		Role   string `json:"role,optional"` // 群聊中的角色
+		Nick   string `json:"nick,optional"` // 群昵称
+	}
+	BotGetConvMembersResp {
+		Members []BotConvMemberItem `json:"members"`
+	}
+	// 获取用户信息
+	BotGetUserReq {
+		UID int64 `path:"uid"`
+	}
+	BotGetUserResp {
+		UID    int64  `json:"uid"`
+		Name   string `json:"name"`
+		Avatar string `json:"avatar"`
+	}
+	// 上传文件
+	BotUploadFileResp {
+		FileID   string `json:"file_id"`
+		FileName string `json:"file_name"`
+		FileSize int64  `json:"file_size"`
+		URL      string `json:"url"`
+		MimeType string `json:"mime_type"`
+	}
+	// ========== 事件投递状态查询（开发者调试用） ==========
+	GetEventDeliveriesReq {
+		BotID     int64  `form:"bot_id"`
+		ConvID    int64  `form:"conv_id,optional"`
+		EventType string `form:"event_type,optional"`
+		Status    string `form:"status,optional"`
+		Page      int    `form:"page,default=1"`
+		Size      int    `form:"size,default=20"`
+	}
+	EventDeliveryItem {
+		EventID        string `json:"event_id"`
+		EventType      string `json:"event_type"`
+		ConvID         int64  `json:"conv_id"`
+		DeliveryMethod string `json:"delivery_method"`
+		Status         string `json:"status"`
+		RetryCount     int    `json:"retry_count"`
+		ResponseCode   int    `json:"response_code,omitempty"`
+		LastError      string `json:"last_error,omitempty"`
+		DeliveredAt    int64  `json:"delivered_at,omitempty"`
+		CreatedAt      int64  `json:"created_at"`
+	}
+	GetEventDeliveriesResp {
+		List  []EventDeliveryItem `json:"list"`
+		Total int64               `json:"total"`
+	}
+	// 重试失败的事件
+	RetryEventDeliveryReq {
+		EventID string `path:"event_id"`
+	}
+	RetryEventDeliveryResp  {}
+	// ========== Bot 限流配额 ==========
+	GetBotRateLimitReq {
+		BotID int64 `path:"bot_id"`
+	}
+	GetBotRateLimitResp {
+		MessagesPerMinute int `json:"messages_per_minute"`
+		MessagesPerDay    int `json:"messages_per_day"`
+		ApiCallsPerMinute int `json:"api_calls_per_minute"`
+	}
+	UpdateBotRateLimitReq {
+		BotID             int64 `json:"bot_id"`
+		MessagesPerMinute int   `json:"messages_per_minute,optional"`
+		MessagesPerDay    int   `json:"messages_per_day,optional"`
+		ApiCallsPerMinute int   `json:"api_calls_per_minute,optional"`
+	}
+	UpdateBotRateLimitResp  {}
+)
+
+// 开发者 API
+@server (
+	prefix:     /bot/developer/v1
+	group:      developer
+	middleware: AuthMiddleware
+)
+service bot-api {
+	@handler CreateBot
+	post /bots (CreateBotReq) returns (CreateBotResp)
+
+	@handler GetBot
+	get /bots/:bot_id (GetBotReq) returns (GetBotResp)
+
+	@handler ListMyBots
+	get /bots (ListMyBotsResp) returns (ListMyBotsResp)
+
+	@handler UpdateBot
+	put /bots (UpdateBotReq) returns (UpdateBotResp)
+
+	@handler DeleteBot
+	delete /bots (DeleteBotReq) returns (DeleteBotResp)
+
+	@handler RotateWebhookSecret
+	post /bots/webhook_secret (RotateWebhookSecretReq) returns (RotateWebhookSecretResp)
+
+	@handler RegenerateCredential
+	post /bots/credential (RegenerateCredentialReq) returns (RegenerateCredentialResp)
+
+	@handler GetBotInstallations
+	get /bots/:bot_id/installations (GetBotInstallationsReq) returns (GetBotInstallationsResp)
+
+	// 事件投递调试
+	@handler GetEventDeliveries
+	get /events/deliveries (GetEventDeliveriesReq) returns (GetEventDeliveriesResp)
+
+	@handler RetryEventDelivery
+	post /events/deliveries/:event_id/retry (RetryEventDeliveryReq) returns (RetryEventDeliveryResp)
+
+	// 限流配额
+	@handler GetBotRateLimit
+	get /bots/:bot_id/rate_limit (GetBotRateLimitReq) returns (GetBotRateLimitResp)
+
+	@handler UpdateBotRateLimit
+	put /bots/rate_limit (UpdateBotRateLimitReq) returns (UpdateBotRateLimitResp)
+}
+
+// Bot 安装管理
+@server (
+	prefix:     /bot/installation/v1
+	group:      installation
+	middleware: AuthMiddleware
+)
+service bot-api {
+	@handler InstallBot
+	post /install (InstallBotReq) returns (InstallBotResp)
+
+	@handler UninstallBot
+	post /uninstall (UninstallBotReq) returns (UninstallBotResp)
+
+	@handler GetConvBots
+	get /convs/:conv_id/bots (GetConvBotsReq) returns (GetConvBotsResp)
+}
+
+// OAuth2 授权流程
+@server (
+	prefix: /bot/oauth2
+	group:  oauth2
+)
+service bot-api {
+	// 获取授权页面信息（无需认证，前端用 client_id 查询）
+	@handler Authorize
+	get /authorize (AuthorizeReq) returns (AuthorizeResp)
+
+	// 用户确认授权（用户 token 认证）
+	@handler ApproveAuthorize
+	post /authorize (ApproveAuthorizeReq) returns (ApproveAuthorizeResp)
+
+	// Bot 用 code 换 token（Bot 凭证认证，不是用户 token）
+	@handler BotToken
+	post /token (BotTokenReq) returns (BotTokenResp)
+}
+
+// Bot 调用的 API
+@server (
+	prefix:     /bot/api/v1
+	group:      botapi
+	middleware: BotAuthMiddleware
+)
+service bot-api {
+	// 消息
+	@handler BotSendMsg
+	post /chat/messages (BotSendMsgReq) returns (BotSendMsgResp)
+
+	@handler BotReplyMsg
+	post /chat/messages/reply (BotReplyMsgReq) returns (BotReplyMsgResp)
+
+	@handler BotRecallMsg
+	delete /chat/messages (BotRecallMsgReq) returns (BotRecallMsgResp)
+
+	@handler BotGetMsg
+	get /chat/:conv_id/messages/:msg_id (BotGetMsgReq) returns (BotGetMsgResp)
+
+	// 会话
+	@handler BotGetConv
+	get /convs/:conv_id (BotGetConvReq) returns (BotGetConvResp)
+
+	@handler BotGetConvMembers
+	get /convs/:conv_id/members (BotGetConvMembersReq) returns (BotGetConvMembersResp)
+
+	// 用户
+	@handler BotGetUser
+	get /users/:uid (BotGetUserReq) returns (BotGetUserResp)
+
+	// 文件
+	@handler BotUploadFile
+	post /files/upload returns (BotUploadFileResp)
+}
+

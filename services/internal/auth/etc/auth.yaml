@@ -1,0 +1,32 @@
+Name: auth.rpc
+ListenOn: 0.0.0.0:8001
+Etcd:
+  Hosts:
+    - "etcd:2379"
+  Key: auth.rpc
+
+RedisAddr: "garnet:6379"
+MQAddr: "nats:4222"
+
+UserDB:
+  Host: "postgres"
+  Port: 5432
+  User: "kadmin"
+  Password: "nimdaP@ssW0rd"
+  DBName: "users"
+
+Opaque:
+  OPRFSeedFile: "etc/secret/oprf_seed.bin"
+  ServerPublicKeyFile: "etc/secret/server_public.bin"
+  ServerSecretKeyFile: "etc/secret/server_secret.bin"
+
+Snoyflake:
+  StartTime: "2026-05-01T00:00:00+08:00"
+  MachineID: 101
+
+TFATokenExpireSeconds: 300
+AccessTokenExpireSeconds: 86400
+RefreshTokenExpireSeconds: 604800
+MaxTokenRetries: 5
+SessionTokenLength: 32
+MaxUidRetries: 5

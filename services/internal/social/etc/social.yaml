@@ -1,0 +1,6 @@
+Name: social.rpc
+ListenOn: 0.0.0.0:8005
+Etcd:
+  Hosts:
+  - "etcd:2379"
+  Key: social.rpc
