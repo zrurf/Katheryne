@@ -1,13 +1,12 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package social
 
 import (
 	"context"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
+	"social/socialclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +26,32 @@ func NewInviteToGroupLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Inv
 }
 
 func (l *InviteToGroupLogic) InviteToGroup(req *types.InviteToGroupReq) (resp *types.InviteToGroupResp, err error) {
-	// todo: add your logic here and delete this line
+	uid := l.ctx.Value("uid").(int64)
+	groupId, err := strconv.ParseInt(req.GroupID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	inviteeUids := make([]int64, len(req.InviteeUIDs))
+	for i, s := range req.InviteeUIDs {
+		inviteeUids[i], err = strconv.ParseInt(s, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	}
+	result, err := l.svcCtx.SocialRpc.InviteToGroup(l.ctx, &socialclient.InviteToGroupReq{
+		GroupId:     groupId,
+		InviterUid:  uid,
+		InviteeUids: inviteeUids,
+		Message:     req.Message,
+	})
+	if err != nil {
+		l.Errorf("InviteToGroup RPC failed: %v", err)
+		return nil, err
+	}
 
-	return
+	failedUIDs := make([]string, len(result.FailedUids))
+	for i, uid := range result.FailedUids {
+		failedUIDs[i] = strconv.FormatInt(uid, 10)
+	}
+	return &types.InviteToGroupResp{FailedUIDs: failedUIDs}, nil
 }

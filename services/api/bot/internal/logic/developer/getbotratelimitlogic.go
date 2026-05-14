@@ -1,6 +1,3 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package developer
 
 import (
@@ -27,7 +24,9 @@ func NewGetBotRateLimitLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 }
 
 func (l *GetBotRateLimitLogic) GetBotRateLimit(req *types.GetBotRateLimitReq) (resp *types.GetBotRateLimitResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	return &types.GetBotRateLimitResp{
+		MessagesPerMinute: 60,
+		MessagesPerDay:    10000,
+		ApiCallsPerMinute: 120,
+	}, nil
 }

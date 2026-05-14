@@ -1,10 +1,9 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package developer
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"bot/internal/svc"
 	"bot/internal/types"
@@ -27,7 +26,12 @@ func NewGetBotInstallationsLogic(ctx context.Context, svcCtx *svc.ServiceContext
 }
 
 func (l *GetBotInstallationsLogic) GetBotInstallations(req *types.GetBotInstallationsReq) (resp *types.GetBotInstallationsResp, err error) {
-	// todo: add your logic here and delete this line
+	data, err := l.svcCtx.Redis.Get(l.ctx, fmt.Sprintf("bot_installations:%d", req.BotID)).Result()
+	if err != nil {
+		return &types.GetBotInstallationsResp{List: []types.BotInstallationItem{}}, nil
+	}
 
-	return
+	var list []types.BotInstallationItem
+	json.Unmarshal([]byte(data), &list)
+	return &types.GetBotInstallationsResp{List: list}, nil
 }

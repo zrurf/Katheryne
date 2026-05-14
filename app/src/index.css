@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-primary: #6366f1;
+    --color-primary-light: #818cf8;
+    --color-primary-dark: #4f46e5;
+    --color-bg: #0f0f13;
+    --color-bg-secondary: #1a1a23;
+    --color-bg-tertiary: #252532;
+    --color-surface: #1e1e2a;
+    --color-surface-hover: #2a2a3a;
+    --color-border: #2e2e3e;
+    --color-text: #e4e4ed;
+    --color-text-secondary: #9d9db0;
+    --color-text-muted: #6b6b80;
+    --color-success: #22c55e;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+    --color-info: #3b82f6;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    border-radius: 3px;
+  }
+
+  body {
+    @apply bg-[var(--color-bg)] text-[var(--color-text)] antialiased;
+    font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+}
+
+@theme {
+  --color-primary: #6366f1;
+  --color-primary-light: #818cf8;
+  --color-primary-dark: #4f46e5;
+  --color-bg: #0f0f13;
+  --color-bg-secondary: #1a1a23;
+  --color-bg-tertiary: #252532;
+  --color-surface: #1e1e2a;
+  --color-surface-hover: #2a2a3a;
+  --color-border: #2e2e3e;
+  --color-text: #e4e4ed;
+  --color-text-secondary: #9d9db0;
+  --color-text-muted: #6b6b80;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+}

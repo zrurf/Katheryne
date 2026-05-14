@@ -1,10 +1,11 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package oauth2
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
+	"fmt"
+	"time"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
@@ -27,7 +28,22 @@ func NewAuthorizeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Authori
 }
 
 func (l *AuthorizeLogic) Authorize(req *types.AuthorizeRequest) (resp *types.EmptyReponse, err error) {
-	// todo: add your logic here and delete this line
+	if req.ResponseType != "code" {
+		return nil, fmt.Errorf("unsupported response_type: %s", req.ResponseType)
+	}
 
-	return
+	codeBytes := make([]byte, 32)
+	if _, err := rand.Read(codeBytes); err != nil {
+		return nil, err
+	}
+	code := hex.EncodeToString(codeBytes)
+
+	key := fmt.Sprintf("oauth2:code:%s", code)
+	err = l.svcCtx.Redis.Set(l.ctx, key, req.ClientId, 10*time.Minute).Err()
+	if err != nil {
+		l.Errorf("Failed to store auth code: %v", err)
+		return nil, err
+	}
+
+	return &types.EmptyReponse{}, nil
 }

@@ -24,7 +24,36 @@ func NewGetGroupInvitesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 }
 
 func (l *GetGroupInvitesLogic) GetGroupInvites(in *social.GetGroupInvitesReq) (*social.GetGroupInvitesResp, error) {
-	// todo: add your logic here and delete this line
+	invites, err := l.svcCtx.SocialDao.ListGroupInvitesByInvitee(l.ctx, in.Uid)
+	if err != nil {
+		return nil, err
+	}
 
-	return &social.GetGroupInvitesResp{}, nil
+	list := make([]*social.GroupInviteItem, len(invites))
+	for i, inv := range invites {
+		group, _ := l.svcCtx.SocialDao.GetGroupById(l.ctx, inv.GroupId)
+		groupName := ""
+		groupAvatar := ""
+		if group != nil {
+			groupName = group.Name
+			groupAvatar = nullString(group.Avatar)
+		}
+		inviter, _ := l.svcCtx.UserDBDao.GetUserById(l.ctx, inv.Inviter)
+		inviterName := ""
+		if inviter != nil {
+			inviterName = inviter.Name
+		}
+		list[i] = &social.GroupInviteItem{
+			Id:          inv.Id,
+			GroupId:     inv.GroupId,
+			GroupName:   groupName,
+			GroupAvatar: groupAvatar,
+			InviterUid:  inv.Inviter,
+			InviterName: inviterName,
+			CreatedAt:   inv.CreatedAt.Unix(),
+		}
+	}
+	return &social.GetGroupInvitesResp{
+		List: list,
+	}, nil
 }

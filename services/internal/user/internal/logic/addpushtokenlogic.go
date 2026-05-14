@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 
+	"user/internal/dao"
 	"user/internal/svc"
 	"user/user"
 
@@ -24,7 +25,31 @@ func NewAddPushTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddP
 }
 
 func (l *AddPushTokenLogic) AddPushToken(in *user.AddPushTokenReq) (*user.AddPushTokenResp, error) {
-	// todo: add your logic here and delete this line
+	if in.Uid <= 0 || in.DeviceId == "" || in.Token == "" {
+		return &user.AddPushTokenResp{}, nil
+	}
+
+	// 写入设备表
+	dev := &dao.UserDevice{
+		UID:       in.Uid,
+		DeviceID:  in.DeviceId,
+		PushToken: &in.Token,
+	}
+	if in.Platform != "" {
+		dev.Platform = &in.Platform
+	}
+
+	err := l.svcCtx.UserDao.UpsertUserDevice(l.ctx, dev)
+	if err != nil {
+		l.Errorf("UpsertUserDevice error: %v", err)
+		return nil, err
+	}
+
+	// 同时写入 Redis 集合，方便快速获取推送令牌
+	go func() {
+		_ = l.svcCtx.RedisDao.AddPushToken(context.Background(), in.Uid, in.Token)
+		_ = l.svcCtx.RedisDao.DelDevicesCache(context.Background(), in.Uid)
+	}()
 
 	return &user.AddPushTokenResp{}, nil
 }

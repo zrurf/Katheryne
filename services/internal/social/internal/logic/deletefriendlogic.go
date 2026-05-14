@@ -24,7 +24,20 @@ func NewDeleteFriendLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Dele
 }
 
 func (l *DeleteFriendLogic) DeleteFriend(in *social.DeleteFriendReq) (*social.DeleteFriendResp, error) {
-	// todo: add your logic here and delete this line
+	err := l.svcCtx.SocialDao.DeleteFriendship(l.ctx, in.Uid, in.PeerUid)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
+
+	err = l.svcCtx.RedisDao.DelFriendshipCache(l.ctx, in.Uid)
+	if err != nil {
+		l.Logger.Error("del friendship cache error:", err)
+	}
+	err = l.svcCtx.RedisDao.DelFriendshipCache(l.ctx, in.PeerUid)
+	if err != nil {
+		l.Logger.Error("del friendship cache error:", err)
+	}
 
 	return &social.DeleteFriendResp{}, nil
 }

@@ -1,13 +1,12 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package social
 
 import (
 	"context"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
+	"social/socialclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +26,19 @@ func NewSendFriendRequestLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *SendFriendRequestLogic) SendFriendRequest(req *types.SendFriendRequest) (resp *types.SendFriendResponse, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	uid := l.ctx.Value("uid").(int64)
+	toUid, err := strconv.ParseInt(req.UID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	_, err = l.svcCtx.SocialRpc.SendFriendRequest(l.ctx, &socialclient.SendFriendReq{
+		Uid:     uid,
+		ToUid:   toUid,
+		Message: req.Message,
+	})
+	if err != nil {
+		l.Errorf("SendFriendRequest RPC failed: %v", err)
+		return nil, err
+	}
+	return &types.SendFriendResponse{Result: true}, nil
 }

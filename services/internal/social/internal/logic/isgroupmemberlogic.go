@@ -24,7 +24,9 @@ func NewIsGroupMemberLogic(ctx context.Context, svcCtx *svc.ServiceContext) *IsG
 }
 
 func (l *IsGroupMemberLogic) IsGroupMember(in *social.IsGroupMemberReq) (*social.IsGroupMemberResp, error) {
-	// todo: add your logic here and delete this line
-
-	return &social.IsGroupMemberResp{}, nil
+	member, err := l.svcCtx.SocialDao.GetGroupMember(l.ctx, in.GroupId, in.Uid)
+	if err != nil || member == nil {
+		return &social.IsGroupMemberResp{IsMember: false}, nil
+	}
+	return &social.IsGroupMemberResp{IsMember: true}, nil
 }

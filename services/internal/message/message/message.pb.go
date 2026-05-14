@@ -782,7 +782,9 @@ type SubmitReadReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ConvId        int64                  `protobuf:"varint,1,opt,name=conv_id,json=convId,proto3" json:"conv_id,omitempty"`
 	Uid           int64                  `protobuf:"varint,2,opt,name=uid,proto3" json:"uid,omitempty"`
-	LastReadMsgId int64                  `protobuf:"varint,3,opt,name=last_read_msg_id,json=lastReadMsgId,proto3" json:"last_read_msg_id,omitempty"` // 用户在该会话中最后一条已读的消息ID
+	LastReadMsgId int64                  `protobuf:"varint,3,opt,name=last_read_msg_id,json=lastReadMsgId,proto3" json:"last_read_msg_id,omitempty"` // 用户在该会话中最后一条已读的消息ID（兼容旧版）
+	StartMsgId    int64                  `protobuf:"varint,4,opt,name=start_msg_id,json=startMsgId,proto3" json:"start_msg_id,omitempty"`            // 已读区间起始消息ID
+	EndMsgId      int64                  `protobuf:"varint,5,opt,name=end_msg_id,json=endMsgId,proto3" json:"end_msg_id,omitempty"`                  // 已读区间结束消息ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -834,6 +836,20 @@ func (x *SubmitReadReq) GetUid() int64 {
 func (x *SubmitReadReq) GetLastReadMsgId() int64 {
 	if x != nil {
 		return x.LastReadMsgId
+	}
+	return 0
+}
+
+func (x *SubmitReadReq) GetStartMsgId() int64 {
+	if x != nil {
+		return x.StartMsgId
+	}
+	return 0
+}
+
+func (x *SubmitReadReq) GetEndMsgId() int64 {
+	if x != nil {
+		return x.EndMsgId
 	}
 	return 0
 }
@@ -1047,6 +1063,187 @@ func (x *GetReadMembersResp) GetTotal() int64 {
 	return 0
 }
 
+// 获取用户在某会话的所有已读区间
+type GetReadIntervalsReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ConvId        int64                  `protobuf:"varint,1,opt,name=conv_id,json=convId,proto3" json:"conv_id,omitempty"`
+	Uid           int64                  `protobuf:"varint,2,opt,name=uid,proto3" json:"uid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetReadIntervalsReq) Reset() {
+	*x = GetReadIntervalsReq{}
+	mi := &file_message_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetReadIntervalsReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReadIntervalsReq) ProtoMessage() {}
+
+func (x *GetReadIntervalsReq) ProtoReflect() protoreflect.Message {
+	mi := &file_message_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReadIntervalsReq.ProtoReflect.Descriptor instead.
+func (*GetReadIntervalsReq) Descriptor() ([]byte, []int) {
+	return file_message_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetReadIntervalsReq) GetConvId() int64 {
+	if x != nil {
+		return x.ConvId
+	}
+	return 0
+}
+
+func (x *GetReadIntervalsReq) GetUid() int64 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
+type ReadIntervalItem struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ConvId        int64                  `protobuf:"varint,2,opt,name=conv_id,json=convId,proto3" json:"conv_id,omitempty"`
+	Uid           int64                  `protobuf:"varint,3,opt,name=uid,proto3" json:"uid,omitempty"`
+	StartMsgId    int64                  `protobuf:"varint,4,opt,name=start_msg_id,json=startMsgId,proto3" json:"start_msg_id,omitempty"`
+	EndMsgId      int64                  `protobuf:"varint,5,opt,name=end_msg_id,json=endMsgId,proto3" json:"end_msg_id,omitempty"`
+	CreatedAt     int64                  `protobuf:"varint,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReadIntervalItem) Reset() {
+	*x = ReadIntervalItem{}
+	mi := &file_message_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReadIntervalItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReadIntervalItem) ProtoMessage() {}
+
+func (x *ReadIntervalItem) ProtoReflect() protoreflect.Message {
+	mi := &file_message_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReadIntervalItem.ProtoReflect.Descriptor instead.
+func (*ReadIntervalItem) Descriptor() ([]byte, []int) {
+	return file_message_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *ReadIntervalItem) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ReadIntervalItem) GetConvId() int64 {
+	if x != nil {
+		return x.ConvId
+	}
+	return 0
+}
+
+func (x *ReadIntervalItem) GetUid() int64 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
+func (x *ReadIntervalItem) GetStartMsgId() int64 {
+	if x != nil {
+		return x.StartMsgId
+	}
+	return 0
+}
+
+func (x *ReadIntervalItem) GetEndMsgId() int64 {
+	if x != nil {
+		return x.EndMsgId
+	}
+	return 0
+}
+
+func (x *ReadIntervalItem) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+type GetReadIntervalsResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*ReadIntervalItem    `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetReadIntervalsResp) Reset() {
+	*x = GetReadIntervalsResp{}
+	mi := &file_message_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetReadIntervalsResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReadIntervalsResp) ProtoMessage() {}
+
+func (x *GetReadIntervalsResp) ProtoReflect() protoreflect.Message {
+	mi := &file_message_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReadIntervalsResp.ProtoReflect.Descriptor instead.
+func (*GetReadIntervalsResp) Descriptor() ([]byte, []int) {
+	return file_message_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *GetReadIntervalsResp) GetList() []*ReadIntervalItem {
+	if x != nil {
+		return x.List
+	}
+	return nil
+}
+
 // 获取用户在某会话的未读数（精确计算）
 type GetUnreadCountReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1058,7 +1255,7 @@ type GetUnreadCountReq struct {
 
 func (x *GetUnreadCountReq) Reset() {
 	*x = GetUnreadCountReq{}
-	mi := &file_message_proto_msgTypes[16]
+	mi := &file_message_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1070,7 +1267,7 @@ func (x *GetUnreadCountReq) String() string {
 func (*GetUnreadCountReq) ProtoMessage() {}
 
 func (x *GetUnreadCountReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[16]
+	mi := &file_message_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1083,7 +1280,7 @@ func (x *GetUnreadCountReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUnreadCountReq.ProtoReflect.Descriptor instead.
 func (*GetUnreadCountReq) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{16}
+	return file_message_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetUnreadCountReq) GetConvId() int64 {
@@ -1109,7 +1306,7 @@ type GetUnreadCountResp struct {
 
 func (x *GetUnreadCountResp) Reset() {
 	*x = GetUnreadCountResp{}
-	mi := &file_message_proto_msgTypes[17]
+	mi := &file_message_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1121,7 +1318,7 @@ func (x *GetUnreadCountResp) String() string {
 func (*GetUnreadCountResp) ProtoMessage() {}
 
 func (x *GetUnreadCountResp) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[17]
+	mi := &file_message_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1134,7 +1331,7 @@ func (x *GetUnreadCountResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUnreadCountResp.ProtoReflect.Descriptor instead.
 func (*GetUnreadCountResp) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{17}
+	return file_message_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetUnreadCountResp) GetCount() int64 {
@@ -1155,7 +1352,7 @@ type BatchGetUnreadCountReq struct {
 
 func (x *BatchGetUnreadCountReq) Reset() {
 	*x = BatchGetUnreadCountReq{}
-	mi := &file_message_proto_msgTypes[18]
+	mi := &file_message_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1167,7 +1364,7 @@ func (x *BatchGetUnreadCountReq) String() string {
 func (*BatchGetUnreadCountReq) ProtoMessage() {}
 
 func (x *BatchGetUnreadCountReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[18]
+	mi := &file_message_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1180,7 +1377,7 @@ func (x *BatchGetUnreadCountReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchGetUnreadCountReq.ProtoReflect.Descriptor instead.
 func (*BatchGetUnreadCountReq) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{18}
+	return file_message_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *BatchGetUnreadCountReq) GetUid() int64 {
@@ -1207,7 +1404,7 @@ type ConvUnread struct {
 
 func (x *ConvUnread) Reset() {
 	*x = ConvUnread{}
-	mi := &file_message_proto_msgTypes[19]
+	mi := &file_message_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1219,7 +1416,7 @@ func (x *ConvUnread) String() string {
 func (*ConvUnread) ProtoMessage() {}
 
 func (x *ConvUnread) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[19]
+	mi := &file_message_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1232,7 +1429,7 @@ func (x *ConvUnread) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConvUnread.ProtoReflect.Descriptor instead.
 func (*ConvUnread) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{19}
+	return file_message_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ConvUnread) GetConvId() int64 {
@@ -1258,7 +1455,7 @@ type BatchGetUnreadCountResp struct {
 
 func (x *BatchGetUnreadCountResp) Reset() {
 	*x = BatchGetUnreadCountResp{}
-	mi := &file_message_proto_msgTypes[20]
+	mi := &file_message_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1270,7 +1467,7 @@ func (x *BatchGetUnreadCountResp) String() string {
 func (*BatchGetUnreadCountResp) ProtoMessage() {}
 
 func (x *BatchGetUnreadCountResp) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[20]
+	mi := &file_message_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1283,7 +1480,7 @@ func (x *BatchGetUnreadCountResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchGetUnreadCountResp.ProtoReflect.Descriptor instead.
 func (*BatchGetUnreadCountResp) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{20}
+	return file_message_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *BatchGetUnreadCountResp) GetList() []*ConvUnread {
@@ -1297,16 +1494,17 @@ func (x *BatchGetUnreadCountResp) GetList() []*ConvUnread {
 type SyncOfflineMsgsReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	LastSyncMsgId int64                  `protobuf:"varint,2,opt,name=last_sync_msg_id,json=lastSyncMsgId,proto3" json:"last_sync_msg_id,omitempty"` // 该设备上次同步到的最大 msg_id
-	DeviceId      string                 `protobuf:"bytes,3,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`                     // 设备唯一标识
-	Limit         int32                  `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`                                          // 每页条数，默认100
+	LastSyncMsgId int64                  `protobuf:"varint,2,opt,name=last_sync_msg_id,json=lastSyncMsgId,proto3" json:"last_sync_msg_id,omitempty"`
+	DeviceId      string                 `protobuf:"bytes,3,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	Limit         int32                  `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	ConvIds       []int64                `protobuf:"varint,5,rep,packed,name=conv_ids,json=convIds,proto3" json:"conv_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SyncOfflineMsgsReq) Reset() {
 	*x = SyncOfflineMsgsReq{}
-	mi := &file_message_proto_msgTypes[21]
+	mi := &file_message_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1318,7 +1516,7 @@ func (x *SyncOfflineMsgsReq) String() string {
 func (*SyncOfflineMsgsReq) ProtoMessage() {}
 
 func (x *SyncOfflineMsgsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[21]
+	mi := &file_message_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1331,7 +1529,7 @@ func (x *SyncOfflineMsgsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncOfflineMsgsReq.ProtoReflect.Descriptor instead.
 func (*SyncOfflineMsgsReq) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{21}
+	return file_message_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *SyncOfflineMsgsReq) GetUid() int64 {
@@ -1362,6 +1560,13 @@ func (x *SyncOfflineMsgsReq) GetLimit() int32 {
 	return 0
 }
 
+func (x *SyncOfflineMsgsReq) GetConvIds() []int64 {
+	if x != nil {
+		return x.ConvIds
+	}
+	return nil
+}
+
 type SyncOfflineMsgsResp struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Messages         []*MsgItem             `protobuf:"bytes,1,rep,name=messages,proto3" json:"messages,omitempty"`
@@ -1373,7 +1578,7 @@ type SyncOfflineMsgsResp struct {
 
 func (x *SyncOfflineMsgsResp) Reset() {
 	*x = SyncOfflineMsgsResp{}
-	mi := &file_message_proto_msgTypes[22]
+	mi := &file_message_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1385,7 +1590,7 @@ func (x *SyncOfflineMsgsResp) String() string {
 func (*SyncOfflineMsgsResp) ProtoMessage() {}
 
 func (x *SyncOfflineMsgsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[22]
+	mi := &file_message_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1398,7 +1603,7 @@ func (x *SyncOfflineMsgsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncOfflineMsgsResp.ProtoReflect.Descriptor instead.
 func (*SyncOfflineMsgsResp) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{22}
+	return file_message_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *SyncOfflineMsgsResp) GetMessages() []*MsgItem {
@@ -1432,7 +1637,7 @@ type GetLastMsgReq struct {
 
 func (x *GetLastMsgReq) Reset() {
 	*x = GetLastMsgReq{}
-	mi := &file_message_proto_msgTypes[23]
+	mi := &file_message_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1444,7 +1649,7 @@ func (x *GetLastMsgReq) String() string {
 func (*GetLastMsgReq) ProtoMessage() {}
 
 func (x *GetLastMsgReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[23]
+	mi := &file_message_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1457,7 +1662,7 @@ func (x *GetLastMsgReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLastMsgReq.ProtoReflect.Descriptor instead.
 func (*GetLastMsgReq) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{23}
+	return file_message_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *GetLastMsgReq) GetConvId() int64 {
@@ -1476,7 +1681,7 @@ type GetLastMsgResp struct {
 
 func (x *GetLastMsgResp) Reset() {
 	*x = GetLastMsgResp{}
-	mi := &file_message_proto_msgTypes[24]
+	mi := &file_message_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1488,7 +1693,7 @@ func (x *GetLastMsgResp) String() string {
 func (*GetLastMsgResp) ProtoMessage() {}
 
 func (x *GetLastMsgResp) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[24]
+	mi := &file_message_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1501,7 +1706,7 @@ func (x *GetLastMsgResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLastMsgResp.ProtoReflect.Descriptor instead.
 func (*GetLastMsgResp) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{24}
+	return file_message_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *GetLastMsgResp) GetMsg() *MsgItem {
@@ -1525,7 +1730,7 @@ type UpdateConvLastMsgReq struct {
 
 func (x *UpdateConvLastMsgReq) Reset() {
 	*x = UpdateConvLastMsgReq{}
-	mi := &file_message_proto_msgTypes[25]
+	mi := &file_message_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1537,7 +1742,7 @@ func (x *UpdateConvLastMsgReq) String() string {
 func (*UpdateConvLastMsgReq) ProtoMessage() {}
 
 func (x *UpdateConvLastMsgReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[25]
+	mi := &file_message_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1550,7 +1755,7 @@ func (x *UpdateConvLastMsgReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateConvLastMsgReq.ProtoReflect.Descriptor instead.
 func (*UpdateConvLastMsgReq) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{25}
+	return file_message_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *UpdateConvLastMsgReq) GetConvId() int64 {
@@ -1596,7 +1801,7 @@ type UpdateConvLastMsgResp struct {
 
 func (x *UpdateConvLastMsgResp) Reset() {
 	*x = UpdateConvLastMsgResp{}
-	mi := &file_message_proto_msgTypes[26]
+	mi := &file_message_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1608,7 +1813,7 @@ func (x *UpdateConvLastMsgResp) String() string {
 func (*UpdateConvLastMsgResp) ProtoMessage() {}
 
 func (x *UpdateConvLastMsgResp) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[26]
+	mi := &file_message_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1621,7 +1826,7 @@ func (x *UpdateConvLastMsgResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateConvLastMsgResp.ProtoReflect.Descriptor instead.
 func (*UpdateConvLastMsgResp) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{26}
+	return file_message_proto_rawDescGZIP(), []int{29}
 }
 
 var File_message_proto protoreflect.FileDescriptor
@@ -1690,11 +1895,15 @@ const file_message_proto_rawDesc = "" +
 	"\x04size\x18\a \x01(\x05R\x04size\"P\n" +
 	"\x12SearchMessagesResp\x12$\n" +
 	"\x04list\x18\x01 \x03(\v2\x10.message.MsgItemR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"c\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"\xa3\x01\n" +
 	"\rSubmitReadReq\x12\x17\n" +
 	"\aconv_id\x18\x01 \x01(\x03R\x06convId\x12\x10\n" +
 	"\x03uid\x18\x02 \x01(\x03R\x03uid\x12'\n" +
-	"\x10last_read_msg_id\x18\x03 \x01(\x03R\rlastReadMsgId\"\x10\n" +
+	"\x10last_read_msg_id\x18\x03 \x01(\x03R\rlastReadMsgId\x12 \n" +
+	"\fstart_msg_id\x18\x04 \x01(\x03R\n" +
+	"startMsgId\x12\x1c\n" +
+	"\n" +
+	"end_msg_id\x18\x05 \x01(\x03R\bendMsgId\"\x10\n" +
 	"\x0eSubmitReadResp\"C\n" +
 	"\x11GetReadMembersReq\x12\x17\n" +
 	"\aconv_id\x18\x01 \x01(\x03R\x06convId\x12\x15\n" +
@@ -1706,7 +1915,22 @@ const file_message_proto_rawDesc = "" +
 	"\aread_at\x18\x04 \x01(\x03R\x06readAt\"W\n" +
 	"\x12GetReadMembersResp\x12+\n" +
 	"\x04list\x18\x01 \x03(\v2\x17.message.ReadMemberItemR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\">\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"@\n" +
+	"\x13GetReadIntervalsReq\x12\x17\n" +
+	"\aconv_id\x18\x01 \x01(\x03R\x06convId\x12\x10\n" +
+	"\x03uid\x18\x02 \x01(\x03R\x03uid\"\xac\x01\n" +
+	"\x10ReadIntervalItem\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\aconv_id\x18\x02 \x01(\x03R\x06convId\x12\x10\n" +
+	"\x03uid\x18\x03 \x01(\x03R\x03uid\x12 \n" +
+	"\fstart_msg_id\x18\x04 \x01(\x03R\n" +
+	"startMsgId\x12\x1c\n" +
+	"\n" +
+	"end_msg_id\x18\x05 \x01(\x03R\bendMsgId\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\x03R\tcreatedAt\"E\n" +
+	"\x14GetReadIntervalsResp\x12-\n" +
+	"\x04list\x18\x01 \x03(\v2\x19.message.ReadIntervalItemR\x04list\">\n" +
 	"\x11GetUnreadCountReq\x12\x17\n" +
 	"\aconv_id\x18\x01 \x01(\x03R\x06convId\x12\x10\n" +
 	"\x03uid\x18\x02 \x01(\x03R\x03uid\"*\n" +
@@ -1720,12 +1944,13 @@ const file_message_proto_rawDesc = "" +
 	"\aconv_id\x18\x01 \x01(\x03R\x06convId\x12\x14\n" +
 	"\x05count\x18\x02 \x01(\x03R\x05count\"B\n" +
 	"\x17BatchGetUnreadCountResp\x12'\n" +
-	"\x04list\x18\x01 \x03(\v2\x13.message.ConvUnreadR\x04list\"\x82\x01\n" +
+	"\x04list\x18\x01 \x03(\v2\x13.message.ConvUnreadR\x04list\"\x9d\x01\n" +
 	"\x12SyncOfflineMsgsReq\x12\x10\n" +
 	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12'\n" +
 	"\x10last_sync_msg_id\x18\x02 \x01(\x03R\rlastSyncMsgId\x12\x1b\n" +
 	"\tdevice_id\x18\x03 \x01(\tR\bdeviceId\x12\x14\n" +
-	"\x05limit\x18\x04 \x01(\x05R\x05limit\"\x8e\x01\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\x12\x19\n" +
+	"\bconv_ids\x18\x05 \x03(\x03R\aconvIds\"\x8e\x01\n" +
 	"\x13SyncOfflineMsgsResp\x12,\n" +
 	"\bmessages\x18\x01 \x03(\v2\x10.message.MsgItemR\bmessages\x12\x19\n" +
 	"\bhas_more\x18\x02 \x01(\bR\ahasMore\x12.\n" +
@@ -1741,7 +1966,7 @@ const file_message_proto_rawDesc = "" +
 	"\x06sender\x18\x04 \x01(\x03R\x06sender\x12\x1d\n" +
 	"\n" +
 	"created_at\x18\x05 \x01(\x03R\tcreatedAt\"\x17\n" +
-	"\x15UpdateConvLastMsgResp2\xf2\x06\n" +
+	"\x15UpdateConvLastMsgResp2\xc3\a\n" +
 	"\amessage\x12@\n" +
 	"\vSendMessage\x12\x17.message.SendMessageReq\x1a\x18.message.SendMessageResp\x12F\n" +
 	"\rRecallMessage\x12\x19.message.RecallMessageReq\x1a\x1a.message.RecallMessageResp\x12@\n" +
@@ -1750,7 +1975,8 @@ const file_message_proto_rawDesc = "" +
 	"\x0eSearchMessages\x12\x1a.message.SearchMessagesReq\x1a\x1b.message.SearchMessagesResp\x12=\n" +
 	"\n" +
 	"SubmitRead\x12\x16.message.SubmitReadReq\x1a\x17.message.SubmitReadResp\x12I\n" +
-	"\x0eGetReadMembers\x12\x1a.message.GetReadMembersReq\x1a\x1b.message.GetReadMembersResp\x12I\n" +
+	"\x0eGetReadMembers\x12\x1a.message.GetReadMembersReq\x1a\x1b.message.GetReadMembersResp\x12O\n" +
+	"\x10GetReadIntervals\x12\x1c.message.GetReadIntervalsReq\x1a\x1d.message.GetReadIntervalsResp\x12I\n" +
 	"\x0eGetUnreadCount\x12\x1a.message.GetUnreadCountReq\x1a\x1b.message.GetUnreadCountResp\x12X\n" +
 	"\x13BatchGetUnreadCount\x12\x1f.message.BatchGetUnreadCountReq\x1a .message.BatchGetUnreadCountResp\x12L\n" +
 	"\x0fSyncOfflineMsgs\x12\x1b.message.SyncOfflineMsgsReq\x1a\x1c.message.SyncOfflineMsgsResp\x12=\n" +
@@ -1770,7 +1996,7 @@ func file_message_proto_rawDescGZIP() []byte {
 	return file_message_proto_rawDescData
 }
 
-var file_message_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_message_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_message_proto_goTypes = []any{
 	(*SendMessageReq)(nil),          // 0: message.SendMessageReq
 	(*SendMessageResp)(nil),         // 1: message.SendMessageResp
@@ -1788,54 +2014,60 @@ var file_message_proto_goTypes = []any{
 	(*GetReadMembersReq)(nil),       // 13: message.GetReadMembersReq
 	(*ReadMemberItem)(nil),          // 14: message.ReadMemberItem
 	(*GetReadMembersResp)(nil),      // 15: message.GetReadMembersResp
-	(*GetUnreadCountReq)(nil),       // 16: message.GetUnreadCountReq
-	(*GetUnreadCountResp)(nil),      // 17: message.GetUnreadCountResp
-	(*BatchGetUnreadCountReq)(nil),  // 18: message.BatchGetUnreadCountReq
-	(*ConvUnread)(nil),              // 19: message.ConvUnread
-	(*BatchGetUnreadCountResp)(nil), // 20: message.BatchGetUnreadCountResp
-	(*SyncOfflineMsgsReq)(nil),      // 21: message.SyncOfflineMsgsReq
-	(*SyncOfflineMsgsResp)(nil),     // 22: message.SyncOfflineMsgsResp
-	(*GetLastMsgReq)(nil),           // 23: message.GetLastMsgReq
-	(*GetLastMsgResp)(nil),          // 24: message.GetLastMsgResp
-	(*UpdateConvLastMsgReq)(nil),    // 25: message.UpdateConvLastMsgReq
-	(*UpdateConvLastMsgResp)(nil),   // 26: message.UpdateConvLastMsgResp
+	(*GetReadIntervalsReq)(nil),     // 16: message.GetReadIntervalsReq
+	(*ReadIntervalItem)(nil),        // 17: message.ReadIntervalItem
+	(*GetReadIntervalsResp)(nil),    // 18: message.GetReadIntervalsResp
+	(*GetUnreadCountReq)(nil),       // 19: message.GetUnreadCountReq
+	(*GetUnreadCountResp)(nil),      // 20: message.GetUnreadCountResp
+	(*BatchGetUnreadCountReq)(nil),  // 21: message.BatchGetUnreadCountReq
+	(*ConvUnread)(nil),              // 22: message.ConvUnread
+	(*BatchGetUnreadCountResp)(nil), // 23: message.BatchGetUnreadCountResp
+	(*SyncOfflineMsgsReq)(nil),      // 24: message.SyncOfflineMsgsReq
+	(*SyncOfflineMsgsResp)(nil),     // 25: message.SyncOfflineMsgsResp
+	(*GetLastMsgReq)(nil),           // 26: message.GetLastMsgReq
+	(*GetLastMsgResp)(nil),          // 27: message.GetLastMsgResp
+	(*UpdateConvLastMsgReq)(nil),    // 28: message.UpdateConvLastMsgReq
+	(*UpdateConvLastMsgResp)(nil),   // 29: message.UpdateConvLastMsgResp
 }
 var file_message_proto_depIdxs = []int32{
 	7,  // 0: message.GetMessagesResp.list:type_name -> message.MsgItem
 	7,  // 1: message.SearchMessagesResp.list:type_name -> message.MsgItem
 	14, // 2: message.GetReadMembersResp.list:type_name -> message.ReadMemberItem
-	19, // 3: message.BatchGetUnreadCountResp.list:type_name -> message.ConvUnread
-	7,  // 4: message.SyncOfflineMsgsResp.messages:type_name -> message.MsgItem
-	7,  // 5: message.GetLastMsgResp.msg:type_name -> message.MsgItem
-	0,  // 6: message.message.SendMessage:input_type -> message.SendMessageReq
-	2,  // 7: message.message.RecallMessage:input_type -> message.RecallMessageReq
-	4,  // 8: message.message.EditMessage:input_type -> message.EditMessageReq
-	6,  // 9: message.message.GetMessages:input_type -> message.GetMessagesReq
-	9,  // 10: message.message.SearchMessages:input_type -> message.SearchMessagesReq
-	11, // 11: message.message.SubmitRead:input_type -> message.SubmitReadReq
-	13, // 12: message.message.GetReadMembers:input_type -> message.GetReadMembersReq
-	16, // 13: message.message.GetUnreadCount:input_type -> message.GetUnreadCountReq
-	18, // 14: message.message.BatchGetUnreadCount:input_type -> message.BatchGetUnreadCountReq
-	21, // 15: message.message.SyncOfflineMsgs:input_type -> message.SyncOfflineMsgsReq
-	23, // 16: message.message.GetLastMsg:input_type -> message.GetLastMsgReq
-	25, // 17: message.message.UpdateConvLastMsg:input_type -> message.UpdateConvLastMsgReq
-	1,  // 18: message.message.SendMessage:output_type -> message.SendMessageResp
-	3,  // 19: message.message.RecallMessage:output_type -> message.RecallMessageResp
-	5,  // 20: message.message.EditMessage:output_type -> message.EditMessageResp
-	8,  // 21: message.message.GetMessages:output_type -> message.GetMessagesResp
-	10, // 22: message.message.SearchMessages:output_type -> message.SearchMessagesResp
-	12, // 23: message.message.SubmitRead:output_type -> message.SubmitReadResp
-	15, // 24: message.message.GetReadMembers:output_type -> message.GetReadMembersResp
-	17, // 25: message.message.GetUnreadCount:output_type -> message.GetUnreadCountResp
-	20, // 26: message.message.BatchGetUnreadCount:output_type -> message.BatchGetUnreadCountResp
-	22, // 27: message.message.SyncOfflineMsgs:output_type -> message.SyncOfflineMsgsResp
-	24, // 28: message.message.GetLastMsg:output_type -> message.GetLastMsgResp
-	26, // 29: message.message.UpdateConvLastMsg:output_type -> message.UpdateConvLastMsgResp
-	18, // [18:30] is the sub-list for method output_type
-	6,  // [6:18] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	17, // 3: message.GetReadIntervalsResp.list:type_name -> message.ReadIntervalItem
+	22, // 4: message.BatchGetUnreadCountResp.list:type_name -> message.ConvUnread
+	7,  // 5: message.SyncOfflineMsgsResp.messages:type_name -> message.MsgItem
+	7,  // 6: message.GetLastMsgResp.msg:type_name -> message.MsgItem
+	0,  // 7: message.message.SendMessage:input_type -> message.SendMessageReq
+	2,  // 8: message.message.RecallMessage:input_type -> message.RecallMessageReq
+	4,  // 9: message.message.EditMessage:input_type -> message.EditMessageReq
+	6,  // 10: message.message.GetMessages:input_type -> message.GetMessagesReq
+	9,  // 11: message.message.SearchMessages:input_type -> message.SearchMessagesReq
+	11, // 12: message.message.SubmitRead:input_type -> message.SubmitReadReq
+	13, // 13: message.message.GetReadMembers:input_type -> message.GetReadMembersReq
+	16, // 14: message.message.GetReadIntervals:input_type -> message.GetReadIntervalsReq
+	19, // 15: message.message.GetUnreadCount:input_type -> message.GetUnreadCountReq
+	21, // 16: message.message.BatchGetUnreadCount:input_type -> message.BatchGetUnreadCountReq
+	24, // 17: message.message.SyncOfflineMsgs:input_type -> message.SyncOfflineMsgsReq
+	26, // 18: message.message.GetLastMsg:input_type -> message.GetLastMsgReq
+	28, // 19: message.message.UpdateConvLastMsg:input_type -> message.UpdateConvLastMsgReq
+	1,  // 20: message.message.SendMessage:output_type -> message.SendMessageResp
+	3,  // 21: message.message.RecallMessage:output_type -> message.RecallMessageResp
+	5,  // 22: message.message.EditMessage:output_type -> message.EditMessageResp
+	8,  // 23: message.message.GetMessages:output_type -> message.GetMessagesResp
+	10, // 24: message.message.SearchMessages:output_type -> message.SearchMessagesResp
+	12, // 25: message.message.SubmitRead:output_type -> message.SubmitReadResp
+	15, // 26: message.message.GetReadMembers:output_type -> message.GetReadMembersResp
+	18, // 27: message.message.GetReadIntervals:output_type -> message.GetReadIntervalsResp
+	20, // 28: message.message.GetUnreadCount:output_type -> message.GetUnreadCountResp
+	23, // 29: message.message.BatchGetUnreadCount:output_type -> message.BatchGetUnreadCountResp
+	25, // 30: message.message.SyncOfflineMsgs:output_type -> message.SyncOfflineMsgsResp
+	27, // 31: message.message.GetLastMsg:output_type -> message.GetLastMsgResp
+	29, // 32: message.message.UpdateConvLastMsg:output_type -> message.UpdateConvLastMsgResp
+	20, // [20:33] is the sub-list for method output_type
+	7,  // [7:20] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_message_proto_init() }
@@ -1849,7 +2081,7 @@ func file_message_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_message_proto_rawDesc), len(file_message_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   27,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

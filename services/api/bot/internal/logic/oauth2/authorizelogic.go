@@ -1,10 +1,10 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package oauth2
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"strings"
 
 	"bot/internal/svc"
 	"bot/internal/types"
@@ -27,7 +27,30 @@ func NewAuthorizeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Authori
 }
 
 func (l *AuthorizeLogic) Authorize(req *types.AuthorizeReq) (resp *types.AuthorizeResp, err error) {
-	// todo: add your logic here and delete this line
+	var bot types.BotInfo
+	botData, err := l.svcCtx.Redis.HGetAll(l.ctx, "bots").Result()
+	if err != nil {
+		return nil, fmt.Errorf("bot not found")
+	}
 
-	return
+	for _, data := range botData {
+		var b types.BotInfo
+		json.Unmarshal([]byte(data), &b)
+		if b.ClientID == req.ClientID {
+			bot = b
+			break
+		}
+	}
+
+	if bot.BotID == 0 {
+		return nil, fmt.Errorf("bot not found")
+	}
+
+	scopes := strings.Split(req.Scope, ",")
+
+	return &types.AuthorizeResp{
+		Bot:            bot,
+		RequestedScope: scopes,
+		ConvID:         req.ConvID,
+	}, nil
 }

@@ -4,7 +4,7 @@
 package types
 
 type AddBlacklistReq struct {
-	UID int64 `json:"uid"`
+	UID string `json:"uid"`
 }
 
 type AddBlacklistResp struct {
@@ -12,8 +12,8 @@ type AddBlacklistResp struct {
 }
 
 type AnnouncementItem struct {
-	ID        int64  `json:"id"`
-	UID       int64  `json:"uid"`
+	ID        string `json:"id"`
+	UID       string `json:"uid"`
 	Name      string `json:"name"`
 	Content   string `json:"content"`
 	Pinned    bool   `json:"pinned"`
@@ -29,7 +29,7 @@ type AuthorizeRequest struct {
 }
 
 type ClearUnreadReq struct {
-	ConvID int64 `json:"conv_id"`
+	ConvID string `json:"conv_id"`
 }
 
 type ClearUnreadResp struct {
@@ -41,22 +41,24 @@ type CompleteUploadRequest struct {
 }
 
 type ConversationItem struct {
-	ConvID         int64  `json:"conv_id"`
+	ConvID         string `json:"conv_id"`
 	Type           string `json:"type"` // SINGLE / GROUP
 	Name           string `json:"name"`
 	Avatar         string `json:"avatar"`
-	GroupID        int64  `json:"group_id,omitempty"`
-	LastMsgID      int64  `json:"last_msg_id,omitempty"`
+	GroupID        string `json:"group_id,omitempty"`
+	LastMsgID      string `json:"last_msg_id,omitempty"`
 	LastMsgSnippet string `json:"last_msg_snippet,omitempty"`
 	LastMsgTime    int64  `json:"last_msg_time,omitempty"`
-	LastMsgSender  int64  `json:"last_msg_sender,omitempty"`
+	LastMsgSender  string `json:"last_msg_sender,omitempty"`
 	UnreadCount    int64  `json:"unread_count"`
 	Mute           bool   `json:"mute"`
 	Pinned         bool   `json:"pinned"`
+	Uid            string `json:"uid,omitempty"`
+	PeerUid        string `json:"peer_uid,omitempty"`
 }
 
 type CreateAnnouncementReq struct {
-	GroupID int64  `json:"group_id"`
+	GroupID string `json:"group_id"`
 	Content string `json:"content"`
 }
 
@@ -65,26 +67,26 @@ type CreateAnnouncementResp struct {
 }
 
 type CreateGroupReq struct {
-	Name       string  `json:"name"`
-	Avatar     string  `json:"avatar,optional"`
-	MemberUIDs []int64 `json:"member_uids,optional"`
-	VerifyMode string  `json:"verify_mode,default=NONE"`
+	Name       string   `json:"name"`
+	Avatar     string   `json:"avatar,optional"`
+	MemberUIDs []string `json:"member_uids,optional"`
+	VerifyMode string   `json:"verify_mode,default=NONE"`
 }
 
 type CreateGroupResp struct {
-	GroupID int64 `json:"group_id"`
-	ConvID  int64 `json:"conv_id"`
+	GroupID string `json:"group_id"`
+	ConvID  string `json:"conv_id"`
 }
 
 type DeleteConversationReq struct {
-	ConvID int64 `json:"conv_id"`
+	ConvID string `json:"conv_id"`
 }
 
 type DeleteConversationResp struct {
 }
 
 type DeleteFriendReq struct {
-	UID int64 `json:"uid"`
+	UID string `json:"uid"`
 }
 
 type DeleteFriendResp struct {
@@ -92,8 +94,8 @@ type DeleteFriendResp struct {
 }
 
 type EditMessageReq struct {
-	ConvID  int64  `json:"conv_id"`
-	MsgID   int64  `json:"msg_id"`
+	ConvID  string `json:"conv_id"`
+	MsgID   string `json:"msg_id"`
 	Content string `json:"content"`
 }
 
@@ -104,7 +106,7 @@ type EmptyReponse struct {
 }
 
 type FriendItem struct {
-	UID       int64  `json:"uid"`
+	UID       string `json:"uid"`
 	Name      string `json:"name"`
 	Avatar    string `json:"avatar"`
 	Remark    string `json:"remark"`
@@ -114,8 +116,8 @@ type FriendItem struct {
 }
 
 type FriendRequestItem struct {
-	ID        int64  `json:"id"`
-	UID       int64  `json:"uid"`
+	ID        string `json:"id"`
+	UID       string `json:"uid"`
 	Name      string `json:"name"`
 	Avatar    string `json:"avatar"`
 	Message   string `json:"message"`
@@ -124,9 +126,9 @@ type FriendRequestItem struct {
 }
 
 type GetAnnouncementsReq struct {
-	GroupID int64 `path:"group_id"`
-	Page    int   `form:"page,default=1"`
-	Size    int   `form:"size,default=20"`
+	GroupID string `path:"group_id"`
+	Page    int    `form:"page,default=1"`
+	Size    int    `form:"size,default=20"`
 }
 
 type GetAnnouncementsResp struct {
@@ -139,17 +141,18 @@ type GetBlacklistResp struct {
 }
 
 type GetConversationReq struct {
-	ConvID int64 `path:"conv_id"`
+	ConvID string `path:"conv_id"`
 }
 
 type GetConversationResp struct {
-	ConvID  int64  `json:"conv_id"`
+	ConvID  string `json:"conv_id"`
 	Type    string `json:"type"`
 	Name    string `json:"name"`
 	Avatar  string `json:"avatar"`
-	GroupID int64  `json:"group_id,omitempty"`
+	GroupID string `json:"group_id,omitempty"`
 	Mute    bool   `json:"mute"`
 	Pinned  bool   `json:"pinned"`
+	PeerUid string `json:"peer_uid,omitempty"`
 }
 
 type GetConversationsReq struct {
@@ -179,7 +182,7 @@ type GetFriendsResp struct {
 }
 
 type GetGroupInfoReq struct {
-	GroupID int64 `path:"group_id"`
+	GroupID string `path:"group_id"`
 }
 
 type GetGroupInvitesReq struct {
@@ -190,7 +193,7 @@ type GetGroupInvitesResp struct {
 }
 
 type GetGroupJoinRequestsReq struct {
-	GroupID int64  `path:"group_id"`
+	GroupID string `path:"group_id"`
 	Status  string `form:"status,optional"`
 }
 
@@ -199,7 +202,7 @@ type GetGroupJoinRequestsResp struct {
 }
 
 type GetGroupMembersReq struct {
-	GroupID int64  `path:"group_id"`
+	GroupID string `path:"group_id"`
 	Role    string `form:"role,optional"`
 }
 
@@ -208,8 +211,8 @@ type GetGroupMembersResp struct {
 }
 
 type GetMessageReadMembersReq struct {
-	ConvID int64 `path:"conv_id"`
-	MsgID  int64 `path:"msg_id"`
+	ConvID string `path:"conv_id"`
+	MsgID  string `path:"msg_id"`
 }
 
 type GetMessageReadMembersResp struct {
@@ -218,8 +221,8 @@ type GetMessageReadMembersResp struct {
 }
 
 type GetMessagesReq struct {
-	ConvID    int64  `path:"conv_id"`
-	Cursor    int64  `form:"cursor,optional"` // 上一页最后一条消息 ID，空=最新
+	ConvID    string `path:"conv_id"`
+	Cursor    string `form:"cursor,optional"` // 上一页最后一条消息 ID，空=最新
 	Limit     int    `form:"limit,default=30"`
 	Direction string `form:"direction,default=before"` // before / after
 }
@@ -230,12 +233,12 @@ type GetMessagesResp struct {
 }
 
 type GetOrCreateSingleConvReq struct {
-	PeerUID int64 `json:"peer_uid"`
+	PeerUID string `json:"peer_uid"`
 }
 
 type GetOrCreateSingleConvResp struct {
-	ConvID  int64 `json:"conv_id"`
-	Created bool  `json:"created"`
+	ConvID  string `json:"conv_id"`
+	Created bool   `json:"created"`
 }
 
 type GetTotalUnreadResp struct {
@@ -243,10 +246,10 @@ type GetTotalUnreadResp struct {
 }
 
 type GroupInfoResp struct {
-	GroupID     int64  `json:"group_id"`
+	GroupID     string `json:"group_id"`
 	Name        string `json:"name"`
 	Avatar      string `json:"avatar"`
-	Owner       int64  `json:"owner"`
+	Owner       string `json:"owner"`
 	MemberCount int    `json:"member_count"`
 	Status      string `json:"status"`
 	VerifyMode  string `json:"verify_mode"`
@@ -254,19 +257,19 @@ type GroupInfoResp struct {
 }
 
 type GroupInviteItem struct {
-	ID          int64  `json:"id"`
-	GroupID     int64  `json:"group_id"`
+	ID          string `json:"id"`
+	GroupID     string `json:"group_id"`
 	GroupName   string `json:"group_name"`
 	GroupAvatar string `json:"group_avatar"`
-	InviterUID  int64  `json:"inviter_uid"`
+	InviterUID  string `json:"inviter_uid"`
 	InviterName string `json:"inviter_name"`
 	Message     string `json:"message"`
 	CreatedAt   int64  `json:"created_at"`
 }
 
 type GroupJoinRequestItem struct {
-	ID        int64  `json:"id"`
-	UID       int64  `json:"uid"`
+	ID        string `json:"id"`
+	UID       string `json:"uid"`
 	Name      string `json:"name"`
 	Avatar    string `json:"avatar"`
 	Message   string `json:"message"`
@@ -275,7 +278,7 @@ type GroupJoinRequestItem struct {
 }
 
 type GroupMemberItem struct {
-	UID       int64  `json:"uid"`
+	UID       string `json:"uid"`
 	Name      string `json:"name"`
 	Avatar    string `json:"avatar"`
 	Role      string `json:"role"`
@@ -285,7 +288,7 @@ type GroupMemberItem struct {
 }
 
 type HandleFriendRequest struct {
-	ReqID  int64  `path:"id"`
+	ReqID  string `path:"id"`
 	Action string `json:"action"` // accept / reject
 }
 
@@ -294,7 +297,7 @@ type HandleFriendResponse struct {
 }
 
 type HandleGroupInviteReq struct {
-	ID     int64  `path:"id"`
+	ID     string `path:"id"`
 	Action string `json:"action"` // accept / reject
 }
 
@@ -303,7 +306,7 @@ type HandleGroupInviteResp struct {
 }
 
 type HandleGroupJoinReq struct {
-	ReqID  int64  `path:"id"`
+	ReqID  string `path:"id"`
 	Action string `json:"action"` // accept / reject
 }
 
@@ -324,17 +327,17 @@ type InitiateUploadResponse struct {
 }
 
 type InviteToGroupReq struct {
-	GroupID     int64   `json:"group_id"`
-	InviteeUIDs []int64 `json:"invitee_uids"`
-	Message     string  `json:"message,optional"`
+	GroupID     string   `json:"group_id"`
+	InviteeUIDs []string `json:"invitee_uids"`
+	Message     string   `json:"message,optional"`
 }
 
 type InviteToGroupResp struct {
-	FailedUIDs []int64 `json:"failed_uids"`
+	FailedUIDs []string `json:"failed_uids"`
 }
 
 type JoinGroupReq struct {
-	GroupID int64  `json:"group_id"`
+	GroupID string `json:"group_id"`
 	Message string `json:"message,optional"`
 }
 
@@ -343,8 +346,8 @@ type JoinGroupResp struct {
 }
 
 type KickMemberReq struct {
-	GroupID int64 `json:"group_id"`
-	UID     int64 `json:"uid"`
+	GroupID string `json:"group_id"`
+	UID     string `json:"uid"`
 }
 
 type KickMemberResp struct {
@@ -352,7 +355,7 @@ type KickMemberResp struct {
 }
 
 type LeaveGroupReq struct {
-	GroupID int64 `json:"group_id"`
+	GroupID string `json:"group_id"`
 }
 
 type LeaveGroupResp struct {
@@ -365,7 +368,7 @@ type LoginFinalizeRequest struct {
 }
 
 type LoginFinalizeResponse struct {
-	UID          int64  `json:"uid"`
+	UID          string `json:"uid"`
 	Need2FA      bool   `json:"need_2fa"`            // 是否需要进行二次验证
 	TFAToken     string `json:"tfa_token,omitempty"` // 二次验证临时令牌
 	AccessToken  string `json:"access_token,omitempty"`
@@ -388,15 +391,15 @@ type LogoutRequest struct {
 }
 
 type MessageItem struct {
-	ID           int64  `json:"id"`
-	ConvID       int64  `json:"conv_id"`
-	Sender       int64  `json:"sender"`
+	ID           string `json:"id"`
+	ConvID       string `json:"conv_id"`
+	Sender       string `json:"sender"`
 	SenderName   string `json:"sender_name"`
 	SenderAvatar string `json:"sender_avatar"`
 	Type         string `json:"type"`
 	Content      string `json:"content"`
 	ContentType  string `json:"content_type"`
-	QuoteMsgID   int64  `json:"quote_msg_id,omitempty"`
+	QuoteMsgID   string `json:"quote_msg_id,omitempty"`
 	QuoteContent string `json:"quote_content,omitempty"`
 	Recalled     bool   `json:"recalled"`
 	Edited       bool   `json:"edited"`
@@ -405,9 +408,9 @@ type MessageItem struct {
 }
 
 type MuteMemberReq struct {
-	GroupID  int64 `json:"group_id"`
-	UID      int64 `json:"uid"`
-	Duration int   `json:"duration"` // 秒
+	GroupID  string `json:"group_id"`
+	UID      string `json:"uid"`
+	Duration int    `json:"duration"` // 秒
 }
 
 type MuteMemberResp struct {
@@ -420,15 +423,15 @@ type PartInfo struct {
 }
 
 type ReadMemberItem struct {
-	UID    int64  `json:"uid"`
+	UID    string `json:"uid"`
 	Name   string `json:"name"`
 	Avatar string `json:"avatar"`
 	ReadAt int64  `json:"read_at"`
 }
 
 type RecallMessageReq struct {
-	ConvID int64 `json:"conv_id"`
-	MsgID  int64 `json:"msg_id"`
+	ConvID string `json:"conv_id"`
+	MsgID  string `json:"msg_id"`
 }
 
 type RecallMessageResp struct {
@@ -467,7 +470,7 @@ type RegisterInitResponse struct {
 }
 
 type RemoveBlacklistReq struct {
-	UID int64 `json:"uid"`
+	UID string `json:"uid"`
 }
 
 type RemoveBlacklistResp struct {
@@ -476,8 +479,8 @@ type RemoveBlacklistResp struct {
 
 type SearchMessagesReq struct {
 	Keyword   string `form:"keyword"`
-	ConvID    int64  `form:"conv_id,optional"`
-	Sender    int64  `form:"sender,optional"`
+	ConvID    string `form:"conv_id,optional"`
+	Sender    string `form:"sender,optional"`
 	StartTime int64  `form:"start_time,optional"`
 	EndTime   int64  `form:"end_time,optional"`
 	Page      int    `form:"page,default=1"`
@@ -490,7 +493,7 @@ type SearchMessagesResp struct {
 }
 
 type SendFriendRequest struct {
-	UID     int64  `json:"uid"`
+	UID     string `json:"uid"`
 	Message string `json:"message,optional"`
 }
 
@@ -498,17 +501,33 @@ type SendFriendResponse struct {
 	Result bool `json:"result"`
 }
 
+type SendMessageReq struct {
+	ConvID      string `json:"conv_id"`
+	Receiver    string `json:"receiver,optional"`
+	Type        string `json:"type,default=text"`
+	Content     string `json:"content"`
+	ContentType string `json:"content_type,default=text"`
+	QuoteMsgID  string `json:"quote_msg_id,optional"`
+	Extra       string `json:"extra,optional"`
+}
+
+type SendMessageResp struct {
+	MsgID     string `json:"msg_id"`
+	ConvID    string `json:"conv_id"`
+	CreatedAt int64  `json:"created_at"`
+}
+
 type SetConvMuteReq struct {
-	ConvID int64 `json:"conv_id"`
-	Mute   bool  `json:"mute"`
+	ConvID string `json:"conv_id"`
+	Mute   bool   `json:"mute"`
 }
 
 type SetConvMuteResp struct {
 }
 
 type SetConvPinReq struct {
-	ConvID int64 `json:"conv_id"`
-	Pinned bool  `json:"pinned"`
+	ConvID string `json:"conv_id"`
+	Pinned bool   `json:"pinned"`
 }
 
 type SetConvPinResp struct {
@@ -516,14 +535,14 @@ type SetConvPinResp struct {
 
 type SyncOfflineMessagesReq struct {
 	DeviceID      string `form:"device_id"`
-	LastSyncMsgID int64  `form:"last_sync_msg_id,optional"`
+	LastSyncMsgID string `form:"last_sync_msg_id,optional"`
 	Limit         int    `form:"limit,default=100"`
 }
 
 type SyncOfflineMessagesResp struct {
 	List             []MessageItem `json:"list"`
 	HasMore          bool          `json:"has_more"`
-	NewLastSyncMsgID int64         `json:"new_last_sync_msg_id"`
+	NewLastSyncMsgID string        `json:"new_last_sync_msg_id"`
 }
 
 type TFAVerifyRequest struct {
@@ -532,7 +551,7 @@ type TFAVerifyRequest struct {
 }
 
 type TFAVerifyResponse struct {
-	UID          int64  `json:"uid"`
+	UID          string `json:"uid"`
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	ExpiresAt    int64  `json:"expires_at"`
@@ -557,8 +576,8 @@ type TokenResponse struct {
 }
 
 type TransferOwnerReq struct {
-	GroupID  int64 `json:"group_id"`
-	NewOwner int64 `json:"new_owner"`
+	GroupID  string `json:"group_id"`
+	NewOwner string `json:"new_owner"`
 }
 
 type TransferOwnerResp struct {
@@ -566,7 +585,7 @@ type TransferOwnerResp struct {
 }
 
 type UpdateFriendRemarkReq struct {
-	UID       int64  `json:"uid"`
+	UID       string `json:"uid"`
 	Remark    string `json:"remark"`
 	GroupName string `json:"group_name,optional"`
 }
@@ -576,7 +595,7 @@ type UpdateFriendRemarkResp struct {
 }
 
 type UpdateGroupReq struct {
-	GroupID    int64  `json:"group_id"`
+	GroupID    string `json:"group_id"`
 	Name       string `json:"name,optional"`
 	Avatar     string `json:"avatar,optional"`
 	VerifyMode string `json:"verify_mode,optional"`
@@ -605,12 +624,12 @@ type UploadResponse struct {
 }
 
 type UserInfoRequest struct {
-	Uid           int64  `path:"uid"`
+	Uid           string `path:"uid"`
 	Authorization string `header:"Authorization"`
 }
 
 type UserInfoResponse struct {
-	UID       int64  `json:"uid"`
+	UID       string `json:"uid"`
 	Name      string `json:"name"`
 	Avatar    string `json:"avatar"`
 	Status    string `json:"status"`

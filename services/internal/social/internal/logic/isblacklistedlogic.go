@@ -24,7 +24,11 @@ func NewIsBlacklistedLogic(ctx context.Context, svcCtx *svc.ServiceContext) *IsB
 }
 
 func (l *IsBlacklistedLogic) IsBlacklisted(in *social.IsBlacklistedReq) (*social.IsBlacklistedResp, error) {
-	// todo: add your logic here and delete this line
+	ok, err := l.svcCtx.SocialDao.IsBlacklisted(l.ctx, in.Uid, in.PeerUid)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
 
-	return &social.IsBlacklistedResp{}, nil
+	return &social.IsBlacklistedResp{Blacklisted: ok}, nil
 }

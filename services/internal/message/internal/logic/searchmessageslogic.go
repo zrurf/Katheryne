@@ -24,7 +24,19 @@ func NewSearchMessagesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Se
 }
 
 func (l *SearchMessagesLogic) SearchMessages(in *message.SearchMessagesReq) (*message.SearchMessagesResp, error) {
-	// todo: add your logic here and delete this line
+	msgs, total, err := l.svcCtx.MessageDao.SearchMessages(l.ctx, in.Keyword, in.ConvId, in.Sender, in.StartTime, in.EndTime, in.Page, in.Size)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
 
-	return &message.SearchMessagesResp{}, nil
+	list := make([]*message.MsgItem, len(msgs))
+	for i, m := range msgs {
+		list[i] = toMsgItem(m)
+	}
+
+	return &message.SearchMessagesResp{
+		List:  list,
+		Total: total,
+	}, nil
 }

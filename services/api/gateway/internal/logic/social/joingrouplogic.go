@@ -1,13 +1,12 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package social
 
 import (
 	"context"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
+	"social/socialclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +26,19 @@ func NewJoinGroupLogic(ctx context.Context, svcCtx *svc.ServiceContext) *JoinGro
 }
 
 func (l *JoinGroupLogic) JoinGroup(req *types.JoinGroupReq) (resp *types.JoinGroupResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	uid := l.ctx.Value("uid").(int64)
+	groupId, err := strconv.ParseInt(req.GroupID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	_, err = l.svcCtx.SocialRpc.JoinGroup(l.ctx, &socialclient.JoinGroupReq{
+		GroupId: groupId,
+		Uid:     uid,
+		Message: req.Message,
+	})
+	if err != nil {
+		l.Errorf("JoinGroup RPC failed: %v", err)
+		return nil, err
+	}
+	return &types.JoinGroupResp{Result: true}, nil
 }

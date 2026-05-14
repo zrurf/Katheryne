@@ -1,13 +1,12 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package social
 
 import (
 	"context"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
+	"social/socialclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +26,19 @@ func NewHandleFriendRequestLogic(ctx context.Context, svcCtx *svc.ServiceContext
 }
 
 func (l *HandleFriendRequestLogic) HandleFriendRequest(req *types.HandleFriendRequest) (resp *types.HandleFriendResponse, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	uid := l.ctx.Value("uid").(int64)
+	reqId, err := strconv.ParseInt(req.ReqID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	_, err = l.svcCtx.SocialRpc.HandleFriendRequest(l.ctx, &socialclient.HandleFriendReq{
+		ReqId:      reqId,
+		HandlerUid: uid,
+		Action:     req.Action,
+	})
+	if err != nil {
+		l.Errorf("HandleFriendRequest RPC failed: %v", err)
+		return nil, err
+	}
+	return &types.HandleFriendResponse{Result: true}, nil
 }

@@ -25,7 +25,23 @@ func NewAbortMultipartUploadLogic(ctx context.Context, svcCtx *svc.ServiceContex
 
 // 取消上传
 func (l *AbortMultipartUploadLogic) AbortMultipartUpload(in *oss.AbortUploadReq) (*oss.AbortUploadResp, error) {
-	// todo: add your logic here and delete this line
+	if in.UploadId == "" || in.ObjectKey == "" {
+		return &oss.AbortUploadResp{}, nil
+	}
+
+	// 调用 RustFS 取消分片上传
+	err := l.svcCtx.Storage.AbortMultipartUpload(l.ctx, in.UploadId, in.ObjectKey)
+	if err != nil {
+		l.Errorf("AbortMultipartUpload error: %v", err)
+		// 即使底层报错也继续清理本地缓存
+	}
+
+	// 清理 Redis 缓存
+	go func() {
+		_ = l.svcCtx.RedisDao.DelUploadMeta(context.Background(), in.UploadId)
+		_ = l.svcCtx.RedisDao.DelParts(context.Background(), in.UploadId)
+		_ = l.svcCtx.RedisDao.DelURLCache(context.Background(), in.ObjectKey)
+	}()
 
 	return &oss.AbortUploadResp{}, nil
 }

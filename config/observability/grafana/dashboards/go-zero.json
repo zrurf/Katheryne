@@ -57,7 +57,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus"
       },
       "description": "",
       "fieldConfig": {
@@ -137,7 +137,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum(rate(rpc_client_requests_code_total{namespace=~\"$Namespace\",app=~\"$Service\",pod=~\"$Pod\"}[1m])) by (app, code)",
@@ -153,7 +153,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus"
       },
       "description": "",
       "fieldConfig": {
@@ -233,7 +233,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum(rate(rpc_server_requests_code_total{namespace=~\"$Namespace\",app=~\"$Service\",pod=~\"$Pod\"}[1m])) by (app, code)",
@@ -249,7 +249,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -337,7 +337,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum(rate(rpc_client_requests_duration_ms_sum{namespace=~\"$Namespace\",app=~\"$Service\",pod=~\"$Pod\"}[1m]) / rate(rpc_client_requests_duration_ms_count{namespace=~\"$Namespace\",app=~\"$Service\",pod=~\"$Pod\"}[1m])) by (app, method)",
@@ -353,7 +353,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -441,7 +441,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum(rate(rpc_server_requests_duration_ms_sum{namespace=~\"$Namespace\",app=~\"$Service\",pod=~\"$Pod\"}[1m]) / rate(rpc_server_requests_duration_ms_count{namespace=~\"$Namespace\",app=~\"$Service\",pod=~\"$Pod\"}[1m])) by (app, method)",
@@ -457,7 +457,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus"
       },
       "description": "",
       "fieldConfig": {
@@ -537,7 +537,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum(rate(http_server_requests_code_total{namespace=~\"$Namespace\",app=~\"$Service\",pod=~\"$Pod\"}[1m])) by (app, code, method, path)",
@@ -553,7 +553,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -640,7 +640,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum(rate(http_server_requests_duration_ms_sum{namespace=~\"$Namespace\",app=~\"$Service\",pod=~\"$Pod\"}[1m]) / rate(http_server_requests_duration_ms_count{namespace=~\"$Namespace\",app=~\"$Service\",pod=~\"$Pod\"}[1m])) by (app, method, path)",
@@ -667,7 +667,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "prometheus"
         },
         "definition": "label_values(kube_pod_info,namespace)",
         "hide": 0,
@@ -691,7 +691,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "prometheus"
         },
         "definition": "label_values(kube_service_info{namespace=~\"$Namespace\"},service)",
         "hide": 0,
@@ -715,7 +715,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "prometheus"
         },
         "definition": "label_values(kube_pod_container_info{namespace=~\"$Namespace\"},pod)",
         "hide": 0,

@@ -16,6 +16,8 @@ import (
 type (
 	AddConvMembersReq         = conversation.AddConvMembersReq
 	AddConvMembersResp        = conversation.AddConvMembersResp
+	ClearUnreadReq            = conversation.ClearUnreadReq
+	ClearUnreadResp           = conversation.ClearUnreadResp
 	ConversationItem          = conversation.ConversationItem
 	CreateGroupConvReq        = conversation.CreateGroupConvReq
 	CreateGroupConvResp       = conversation.CreateGroupConvResp
@@ -29,12 +31,18 @@ type (
 	GetConversationsResp      = conversation.GetConversationsResp
 	GetOrCreateSingleConvReq  = conversation.GetOrCreateSingleConvReq
 	GetOrCreateSingleConvResp = conversation.GetOrCreateSingleConvResp
+	GetTotalUnreadReq         = conversation.GetTotalUnreadReq
+	GetTotalUnreadResp        = conversation.GetTotalUnreadResp
 	RemoveConvMembersReq      = conversation.RemoveConvMembersReq
 	RemoveConvMembersResp     = conversation.RemoveConvMembersResp
 	SetConvMuteReq            = conversation.SetConvMuteReq
 	SetConvMuteResp           = conversation.SetConvMuteResp
 	SetConvPinReq             = conversation.SetConvPinReq
 	SetConvPinResp            = conversation.SetConvPinResp
+	UpdateLastMessageReq      = conversation.UpdateLastMessageReq
+	UpdateLastMessageResp     = conversation.UpdateLastMessageResp
+	IncrementUnreadReq        = conversation.IncrementUnreadReq
+	IncrementUnreadResp       = conversation.IncrementUnreadResp
 
 	Conversation interface {
 		GetConversations(ctx context.Context, in *GetConversationsReq, opts ...grpc.CallOption) (*GetConversationsResp, error)
@@ -47,6 +55,10 @@ type (
 		AddConvMembers(ctx context.Context, in *AddConvMembersReq, opts ...grpc.CallOption) (*AddConvMembersResp, error)
 		RemoveConvMembers(ctx context.Context, in *RemoveConvMembersReq, opts ...grpc.CallOption) (*RemoveConvMembersResp, error)
 		GetConvMembers(ctx context.Context, in *GetConvMembersReq, opts ...grpc.CallOption) (*GetConvMembersResp, error)
+		ClearUnread(ctx context.Context, in *ClearUnreadReq, opts ...grpc.CallOption) (*ClearUnreadResp, error)
+		GetTotalUnread(ctx context.Context, in *GetTotalUnreadReq, opts ...grpc.CallOption) (*GetTotalUnreadResp, error)
+		UpdateLastMessage(ctx context.Context, in *UpdateLastMessageReq, opts ...grpc.CallOption) (*UpdateLastMessageResp, error)
+		IncrementUnread(ctx context.Context, in *IncrementUnreadReq, opts ...grpc.CallOption) (*IncrementUnreadResp, error)
 	}
 
 	defaultConversation struct {
@@ -108,4 +120,24 @@ func (m *defaultConversation) RemoveConvMembers(ctx context.Context, in *RemoveC
 func (m *defaultConversation) GetConvMembers(ctx context.Context, in *GetConvMembersReq, opts ...grpc.CallOption) (*GetConvMembersResp, error) {
 	client := conversation.NewConversationClient(m.cli.Conn())
 	return client.GetConvMembers(ctx, in, opts...)
+}
+
+func (m *defaultConversation) ClearUnread(ctx context.Context, in *ClearUnreadReq, opts ...grpc.CallOption) (*ClearUnreadResp, error) {
+	client := conversation.NewConversationClient(m.cli.Conn())
+	return client.ClearUnread(ctx, in, opts...)
+}
+
+func (m *defaultConversation) GetTotalUnread(ctx context.Context, in *GetTotalUnreadReq, opts ...grpc.CallOption) (*GetTotalUnreadResp, error) {
+	client := conversation.NewConversationClient(m.cli.Conn())
+	return client.GetTotalUnread(ctx, in, opts...)
+}
+
+func (m *defaultConversation) UpdateLastMessage(ctx context.Context, in *UpdateLastMessageReq, opts ...grpc.CallOption) (*UpdateLastMessageResp, error) {
+	client := conversation.NewConversationClient(m.cli.Conn())
+	return client.UpdateLastMessage(ctx, in, opts...)
+}
+
+func (m *defaultConversation) IncrementUnread(ctx context.Context, in *IncrementUnreadReq, opts ...grpc.CallOption) (*IncrementUnreadResp, error) {
+	client := conversation.NewConversationClient(m.cli.Conn())
+	return client.IncrementUnread(ctx, in, opts...)
 }

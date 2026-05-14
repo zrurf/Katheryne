@@ -1,6 +1,3 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package oss
 
 import (
@@ -8,6 +5,7 @@ import (
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
+	"oss/ossclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +25,18 @@ func NewInitiateUploadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *In
 }
 
 func (l *InitiateUploadLogic) InitiateUpload(req *types.InitiateUploadRequest) (resp *types.InitiateUploadResponse, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	result, err := l.svcCtx.OssRpc.InitiateMultipartUpload(l.ctx, &ossclient.InitiateUploadReq{
+		FileName:    req.FileName,
+		ContentType: req.ContentType,
+		TotalSize:   req.TotalSize,
+	})
+	if err != nil {
+		l.Errorf("InitiateMultipartUpload RPC failed: %v", err)
+		return nil, err
+	}
+	return &types.InitiateUploadResponse{
+		UploadID:  result.UploadId,
+		Bucket:    result.Bucket,
+		ObjectKey: result.ObjectKey,
+	}, nil
 }

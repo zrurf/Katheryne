@@ -1,11 +1,9 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package conversation
 
 import (
 	"context"
 
+	"conversation/conversationclient"
 	"gateway/internal/svc"
 	"gateway/internal/types"
 
@@ -27,7 +25,13 @@ func NewGetTotalUnreadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 }
 
 func (l *GetTotalUnreadLogic) GetTotalUnread() (resp *types.GetTotalUnreadResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	uid := l.ctx.Value("uid").(int64)
+	result, err := l.svcCtx.ConversationRpc.GetTotalUnread(l.ctx, &conversationclient.GetTotalUnreadReq{
+		Uid: uid,
+	})
+	if err != nil {
+		l.Errorf("GetTotalUnread RPC failed: %v", err)
+		return nil, err
+	}
+	return &types.GetTotalUnreadResp{Count: result.Count}, nil
 }

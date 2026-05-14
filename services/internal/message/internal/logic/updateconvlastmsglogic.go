@@ -24,7 +24,10 @@ func NewUpdateConvLastMsgLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *UpdateConvLastMsgLogic) UpdateConvLastMsg(in *message.UpdateConvLastMsgReq) (*message.UpdateConvLastMsgResp, error) {
-	// todo: add your logic here and delete this line
+	err := l.svcCtx.RedisDao.SetLastMsgCache(l.ctx, in.ConvId, in.MsgId, in.Snippet, in.Sender, in.CreatedAt)
+	if err != nil {
+		l.Logger.Error("set last msg cache error:", err)
+	}
 
 	return &message.UpdateConvLastMsgResp{}, nil
 }

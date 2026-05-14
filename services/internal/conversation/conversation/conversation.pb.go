@@ -35,6 +35,8 @@ type ConversationItem struct {
 	UnreadCount    int64                  `protobuf:"varint,10,opt,name=unread_count,json=unreadCount,proto3" json:"unread_count,omitempty"`
 	Mute           bool                   `protobuf:"varint,11,opt,name=mute,proto3" json:"mute,omitempty"`
 	Pinned         bool                   `protobuf:"varint,12,opt,name=pinned,proto3" json:"pinned,omitempty"`
+	Uid            int64                  `protobuf:"varint,13,opt,name=uid,proto3" json:"uid,omitempty"`
+	PeerUid        int64                  `protobuf:"varint,14,opt,name=peer_uid,json=peerUid,proto3" json:"peer_uid,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -151,6 +153,20 @@ func (x *ConversationItem) GetPinned() bool {
 		return x.Pinned
 	}
 	return false
+}
+
+func (x *ConversationItem) GetUid() int64 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
+func (x *ConversationItem) GetPeerUid() int64 {
+	if x != nil {
+		return x.PeerUid
+	}
+	return 0
 }
 
 type GetConversationsReq struct {
@@ -348,6 +364,7 @@ func (x *GetOrCreateSingleConvResp) GetCreated() bool {
 type GetConversationReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ConvId        int64                  `protobuf:"varint,1,opt,name=conv_id,json=convId,proto3" json:"conv_id,omitempty"`
+	Uid           int64                  `protobuf:"varint,2,opt,name=uid,proto3" json:"uid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -389,6 +406,13 @@ func (x *GetConversationReq) GetConvId() int64 {
 	return 0
 }
 
+func (x *GetConversationReq) GetUid() int64 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
 type GetConversationResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ConvId        int64                  `protobuf:"varint,1,opt,name=conv_id,json=convId,proto3" json:"conv_id,omitempty"`
@@ -398,6 +422,8 @@ type GetConversationResp struct {
 	GroupId       int64                  `protobuf:"varint,5,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	Mute          bool                   `protobuf:"varint,6,opt,name=mute,proto3" json:"mute,omitempty"`
 	Pinned        bool                   `protobuf:"varint,7,opt,name=pinned,proto3" json:"pinned,omitempty"`
+	Uid           int64                  `protobuf:"varint,8,opt,name=uid,proto3" json:"uid,omitempty"`
+	PeerUid       int64                  `protobuf:"varint,9,opt,name=peer_uid,json=peerUid,proto3" json:"peer_uid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -479,6 +505,20 @@ func (x *GetConversationResp) GetPinned() bool {
 		return x.Pinned
 	}
 	return false
+}
+
+func (x *GetConversationResp) GetUid() int64 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
+func (x *GetConversationResp) GetPeerUid() int64 {
+	if x != nil {
+		return x.PeerUid
+	}
+	return 0
 }
 
 type DeleteConversationReq struct {
@@ -761,7 +801,6 @@ func (*SetConvPinResp) Descriptor() ([]byte, []int) {
 	return file_conversation_proto_rawDescGZIP(), []int{12}
 }
 
-// 创建群聊会话（群创建时调用）
 type CreateGroupConvReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GroupId       int64                  `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
@@ -874,7 +913,6 @@ func (x *CreateGroupConvResp) GetConvId() int64 {
 	return 0
 }
 
-// 添加会话成员（入群时调用）
 type AddConvMembersReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ConvId        int64                  `protobuf:"varint,1,opt,name=conv_id,json=convId,proto3" json:"conv_id,omitempty"`
@@ -963,7 +1001,6 @@ func (*AddConvMembersResp) Descriptor() ([]byte, []int) {
 	return file_conversation_proto_rawDescGZIP(), []int{16}
 }
 
-// 移除会话成员（退群/踢出时调用）
 type RemoveConvMembersReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ConvId        int64                  `protobuf:"varint,1,opt,name=conv_id,json=convId,proto3" json:"conv_id,omitempty"`
@@ -1052,7 +1089,6 @@ func (*RemoveConvMembersResp) Descriptor() ([]byte, []int) {
 	return file_conversation_proto_rawDescGZIP(), []int{18}
 }
 
-// 获取会话所有活跃成员
 type GetConvMembersReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ConvId        int64                  `protobuf:"varint,1,opt,name=conv_id,json=convId,proto3" json:"conv_id,omitempty"`
@@ -1141,11 +1177,377 @@ func (x *GetConvMembersResp) GetUids() []int64 {
 	return nil
 }
 
+type ClearUnreadReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ConvId        int64                  `protobuf:"varint,1,opt,name=conv_id,json=convId,proto3" json:"conv_id,omitempty"`
+	Uid           int64                  `protobuf:"varint,2,opt,name=uid,proto3" json:"uid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClearUnreadReq) Reset() {
+	*x = ClearUnreadReq{}
+	mi := &file_conversation_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClearUnreadReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClearUnreadReq) ProtoMessage() {}
+
+func (x *ClearUnreadReq) ProtoReflect() protoreflect.Message {
+	mi := &file_conversation_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClearUnreadReq.ProtoReflect.Descriptor instead.
+func (*ClearUnreadReq) Descriptor() ([]byte, []int) {
+	return file_conversation_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ClearUnreadReq) GetConvId() int64 {
+	if x != nil {
+		return x.ConvId
+	}
+	return 0
+}
+
+func (x *ClearUnreadReq) GetUid() int64 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
+type ClearUnreadResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClearUnreadResp) Reset() {
+	*x = ClearUnreadResp{}
+	mi := &file_conversation_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClearUnreadResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClearUnreadResp) ProtoMessage() {}
+
+func (x *ClearUnreadResp) ProtoReflect() protoreflect.Message {
+	mi := &file_conversation_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClearUnreadResp.ProtoReflect.Descriptor instead.
+func (*ClearUnreadResp) Descriptor() ([]byte, []int) {
+	return file_conversation_proto_rawDescGZIP(), []int{22}
+}
+
+type GetTotalUnreadReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTotalUnreadReq) Reset() {
+	*x = GetTotalUnreadReq{}
+	mi := &file_conversation_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTotalUnreadReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTotalUnreadReq) ProtoMessage() {}
+
+func (x *GetTotalUnreadReq) ProtoReflect() protoreflect.Message {
+	mi := &file_conversation_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTotalUnreadReq.ProtoReflect.Descriptor instead.
+func (*GetTotalUnreadReq) Descriptor() ([]byte, []int) {
+	return file_conversation_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *GetTotalUnreadReq) GetUid() int64 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
+type GetTotalUnreadResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Count         int64                  `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTotalUnreadResp) Reset() {
+	*x = GetTotalUnreadResp{}
+	mi := &file_conversation_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTotalUnreadResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTotalUnreadResp) ProtoMessage() {}
+
+func (x *GetTotalUnreadResp) ProtoReflect() protoreflect.Message {
+	mi := &file_conversation_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTotalUnreadResp.ProtoReflect.Descriptor instead.
+func (*GetTotalUnreadResp) Descriptor() ([]byte, []int) {
+	return file_conversation_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *GetTotalUnreadResp) GetCount() int64 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+type UpdateLastMessageReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ConvId        int64                  `protobuf:"varint,1,opt,name=conv_id,json=convId,proto3" json:"conv_id,omitempty"`
+	MsgId         int64                  `protobuf:"varint,2,opt,name=msg_id,json=msgId,proto3" json:"msg_id,omitempty"`
+	Snippet       string                 `protobuf:"bytes,3,opt,name=snippet,proto3" json:"snippet,omitempty"`
+	Sender        int64                  `protobuf:"varint,4,opt,name=sender,proto3" json:"sender,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateLastMessageReq) Reset() {
+	*x = UpdateLastMessageReq{}
+	mi := &file_conversation_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateLastMessageReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateLastMessageReq) ProtoMessage() {}
+
+func (x *UpdateLastMessageReq) ProtoReflect() protoreflect.Message {
+	mi := &file_conversation_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateLastMessageReq.ProtoReflect.Descriptor instead.
+func (*UpdateLastMessageReq) Descriptor() ([]byte, []int) {
+	return file_conversation_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *UpdateLastMessageReq) GetConvId() int64 {
+	if x != nil {
+		return x.ConvId
+	}
+	return 0
+}
+
+func (x *UpdateLastMessageReq) GetMsgId() int64 {
+	if x != nil {
+		return x.MsgId
+	}
+	return 0
+}
+
+func (x *UpdateLastMessageReq) GetSnippet() string {
+	if x != nil {
+		return x.Snippet
+	}
+	return ""
+}
+
+func (x *UpdateLastMessageReq) GetSender() int64 {
+	if x != nil {
+		return x.Sender
+	}
+	return 0
+}
+
+type UpdateLastMessageResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateLastMessageResp) Reset() {
+	*x = UpdateLastMessageResp{}
+	mi := &file_conversation_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateLastMessageResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateLastMessageResp) ProtoMessage() {}
+
+func (x *UpdateLastMessageResp) ProtoReflect() protoreflect.Message {
+	mi := &file_conversation_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateLastMessageResp.ProtoReflect.Descriptor instead.
+func (*UpdateLastMessageResp) Descriptor() ([]byte, []int) {
+	return file_conversation_proto_rawDescGZIP(), []int{26}
+}
+
+type IncrementUnreadReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ConvId        int64                  `protobuf:"varint,1,opt,name=conv_id,json=convId,proto3" json:"conv_id,omitempty"`
+	Uids          []int64                `protobuf:"varint,2,rep,packed,name=uids,proto3" json:"uids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IncrementUnreadReq) Reset() {
+	*x = IncrementUnreadReq{}
+	mi := &file_conversation_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IncrementUnreadReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IncrementUnreadReq) ProtoMessage() {}
+
+func (x *IncrementUnreadReq) ProtoReflect() protoreflect.Message {
+	mi := &file_conversation_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (*IncrementUnreadReq) Descriptor() ([]byte, []int) {
+	return file_conversation_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *IncrementUnreadReq) GetConvId() int64 {
+	if x != nil {
+		return x.ConvId
+	}
+	return 0
+}
+
+func (x *IncrementUnreadReq) GetUids() []int64 {
+	if x != nil {
+		return x.Uids
+	}
+	return nil
+}
+
+type IncrementUnreadResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IncrementUnreadResp) Reset() {
+	*x = IncrementUnreadResp{}
+	mi := &file_conversation_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IncrementUnreadResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IncrementUnreadResp) ProtoMessage() {}
+
+func (x *IncrementUnreadResp) ProtoReflect() protoreflect.Message {
+	mi := &file_conversation_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (*IncrementUnreadResp) Descriptor() ([]byte, []int) {
+	return file_conversation_proto_rawDescGZIP(), []int{28}
+}
+
 var File_conversation_proto protoreflect.FileDescriptor
 
 const file_conversation_proto_rawDesc = "" +
 	"\n" +
-	"\x12conversation.proto\x12\fconversation\"\xeb\x02\n" +
+	"\x12conversation.proto\x12\fconversation\"\x98\x03\n" +
 	"\x10ConversationItem\x12\x17\n" +
 	"\aconv_id\x18\x01 \x01(\x03R\x06convId\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x12\n" +
@@ -1159,7 +1561,9 @@ const file_conversation_proto_rawDesc = "" +
 	"\funread_count\x18\n" +
 	" \x01(\x03R\vunreadCount\x12\x12\n" +
 	"\x04mute\x18\v \x01(\bR\x04mute\x12\x16\n" +
-	"\x06pinned\x18\f \x01(\bR\x06pinned\"'\n" +
+	"\x06pinned\x18\f \x01(\bR\x06pinned\x12\x10\n" +
+	"\x03uid\x18\r \x01(\x03R\x03uid\x12\x19\n" +
+	"\bpeer_uid\x18\x0e \x01(\x03R\apeerUid\"'\n" +
 	"\x13GetConversationsReq\x12\x10\n" +
 	"\x03uid\x18\x01 \x01(\x03R\x03uid\"J\n" +
 	"\x14GetConversationsResp\x122\n" +
@@ -1169,9 +1573,10 @@ const file_conversation_proto_rawDesc = "" +
 	"\bpeer_uid\x18\x02 \x01(\x03R\apeerUid\"N\n" +
 	"\x19GetOrCreateSingleConvResp\x12\x17\n" +
 	"\aconv_id\x18\x01 \x01(\x03R\x06convId\x12\x18\n" +
-	"\acreated\x18\x02 \x01(\bR\acreated\"-\n" +
+	"\acreated\x18\x02 \x01(\bR\acreated\"?\n" +
 	"\x12GetConversationReq\x12\x17\n" +
-	"\aconv_id\x18\x01 \x01(\x03R\x06convId\"\xb5\x01\n" +
+	"\aconv_id\x18\x01 \x01(\x03R\x06convId\x12\x10\n" +
+	"\x03uid\x18\x02 \x01(\x03R\x03uid\"\xe2\x01\n" +
 	"\x13GetConversationResp\x12\x17\n" +
 	"\aconv_id\x18\x01 \x01(\x03R\x06convId\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x12\n" +
@@ -1179,7 +1584,9 @@ const file_conversation_proto_rawDesc = "" +
 	"\x06avatar\x18\x04 \x01(\tR\x06avatar\x12\x19\n" +
 	"\bgroup_id\x18\x05 \x01(\x03R\agroupId\x12\x12\n" +
 	"\x04mute\x18\x06 \x01(\bR\x04mute\x12\x16\n" +
-	"\x06pinned\x18\a \x01(\bR\x06pinned\"B\n" +
+	"\x06pinned\x18\a \x01(\bR\x06pinned\x12\x10\n" +
+	"\x03uid\x18\b \x01(\x03R\x03uid\x12\x19\n" +
+	"\bpeer_uid\x18\t \x01(\x03R\apeerUid\"B\n" +
 	"\x15DeleteConversationReq\x12\x17\n" +
 	"\aconv_id\x18\x01 \x01(\x03R\x06convId\x12\x10\n" +
 	"\x03uid\x18\x02 \x01(\x03R\x03uid\"\x18\n" +
@@ -1213,7 +1620,21 @@ const file_conversation_proto_rawDesc = "" +
 	"\x11GetConvMembersReq\x12\x17\n" +
 	"\aconv_id\x18\x01 \x01(\x03R\x06convId\"(\n" +
 	"\x12GetConvMembersResp\x12\x12\n" +
-	"\x04uids\x18\x01 \x03(\x03R\x04uids2\x81\a\n" +
+	"\x04uids\x18\x01 \x03(\x03R\x04uids\";\n" +
+	"\x0eClearUnreadReq\x12\x17\n" +
+	"\aconv_id\x18\x01 \x01(\x03R\x06convId\x12\x10\n" +
+	"\x03uid\x18\x02 \x01(\x03R\x03uid\"\x11\n" +
+	"\x0fClearUnreadResp\"%\n" +
+	"\x11GetTotalUnreadReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\"*\n" +
+	"\x12GetTotalUnreadResp\x12\x14\n" +
+	"\x05count\x18\x01 \x01(\x03R\x05count\"x\n" +
+	"\x14UpdateLastMessageReq\x12\x17\n" +
+	"\aconv_id\x18\x01 \x01(\x03R\x06convId\x12\x15\n" +
+	"\x06msg_id\x18\x02 \x01(\x03R\x05msgId\x12\x18\n" +
+	"\asnippet\x18\x03 \x01(\tR\asnippet\x12\x16\n" +
+	"\x06sender\x18\x04 \x01(\x03R\x06sender\"\x17\n" +
+	"\x15UpdateLastMessageResp2\x80\t\n" +
 	"\fconversation\x12Y\n" +
 	"\x10GetConversations\x12!.conversation.GetConversationsReq\x1a\".conversation.GetConversationsResp\x12h\n" +
 	"\x15GetOrCreateSingleConv\x12&.conversation.GetOrCreateSingleConvReq\x1a'.conversation.GetOrCreateSingleConvResp\x12V\n" +
@@ -1225,7 +1646,10 @@ const file_conversation_proto_rawDesc = "" +
 	"\x0fCreateGroupConv\x12 .conversation.CreateGroupConvReq\x1a!.conversation.CreateGroupConvResp\x12S\n" +
 	"\x0eAddConvMembers\x12\x1f.conversation.AddConvMembersReq\x1a .conversation.AddConvMembersResp\x12\\\n" +
 	"\x11RemoveConvMembers\x12\".conversation.RemoveConvMembersReq\x1a#.conversation.RemoveConvMembersResp\x12S\n" +
-	"\x0eGetConvMembers\x12\x1f.conversation.GetConvMembersReq\x1a .conversation.GetConvMembersRespB\x10Z\x0e./conversationb\x06proto3"
+	"\x0eGetConvMembers\x12\x1f.conversation.GetConvMembersReq\x1a .conversation.GetConvMembersResp\x12J\n" +
+	"\vClearUnread\x12\x1c.conversation.ClearUnreadReq\x1a\x1d.conversation.ClearUnreadResp\x12S\n" +
+	"\x0eGetTotalUnread\x12\x1f.conversation.GetTotalUnreadReq\x1a .conversation.GetTotalUnreadResp\x12\\\n" +
+	"\x11UpdateLastMessage\x12\".conversation.UpdateLastMessageReq\x1a#.conversation.UpdateLastMessageRespB\x10Z\x0e./conversationb\x06proto3"
 
 var (
 	file_conversation_proto_rawDescOnce sync.Once
@@ -1239,7 +1663,7 @@ func file_conversation_proto_rawDescGZIP() []byte {
 	return file_conversation_proto_rawDescData
 }
 
-var file_conversation_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_conversation_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_conversation_proto_goTypes = []any{
 	(*ConversationItem)(nil),          // 0: conversation.ConversationItem
 	(*GetConversationsReq)(nil),       // 1: conversation.GetConversationsReq
@@ -1262,6 +1686,12 @@ var file_conversation_proto_goTypes = []any{
 	(*RemoveConvMembersResp)(nil),     // 18: conversation.RemoveConvMembersResp
 	(*GetConvMembersReq)(nil),         // 19: conversation.GetConvMembersReq
 	(*GetConvMembersResp)(nil),        // 20: conversation.GetConvMembersResp
+	(*ClearUnreadReq)(nil),            // 21: conversation.ClearUnreadReq
+	(*ClearUnreadResp)(nil),           // 22: conversation.ClearUnreadResp
+	(*GetTotalUnreadReq)(nil),         // 23: conversation.GetTotalUnreadReq
+	(*GetTotalUnreadResp)(nil),        // 24: conversation.GetTotalUnreadResp
+	(*UpdateLastMessageReq)(nil),      // 25: conversation.UpdateLastMessageReq
+	(*UpdateLastMessageResp)(nil),     // 26: conversation.UpdateLastMessageResp
 }
 var file_conversation_proto_depIdxs = []int32{
 	0,  // 0: conversation.GetConversationsResp.list:type_name -> conversation.ConversationItem
@@ -1275,18 +1705,24 @@ var file_conversation_proto_depIdxs = []int32{
 	15, // 8: conversation.conversation.AddConvMembers:input_type -> conversation.AddConvMembersReq
 	17, // 9: conversation.conversation.RemoveConvMembers:input_type -> conversation.RemoveConvMembersReq
 	19, // 10: conversation.conversation.GetConvMembers:input_type -> conversation.GetConvMembersReq
-	2,  // 11: conversation.conversation.GetConversations:output_type -> conversation.GetConversationsResp
-	4,  // 12: conversation.conversation.GetOrCreateSingleConv:output_type -> conversation.GetOrCreateSingleConvResp
-	6,  // 13: conversation.conversation.GetConversation:output_type -> conversation.GetConversationResp
-	8,  // 14: conversation.conversation.DeleteConversation:output_type -> conversation.DeleteConversationResp
-	10, // 15: conversation.conversation.SetConvMute:output_type -> conversation.SetConvMuteResp
-	12, // 16: conversation.conversation.SetConvPin:output_type -> conversation.SetConvPinResp
-	14, // 17: conversation.conversation.CreateGroupConv:output_type -> conversation.CreateGroupConvResp
-	16, // 18: conversation.conversation.AddConvMembers:output_type -> conversation.AddConvMembersResp
-	18, // 19: conversation.conversation.RemoveConvMembers:output_type -> conversation.RemoveConvMembersResp
-	20, // 20: conversation.conversation.GetConvMembers:output_type -> conversation.GetConvMembersResp
-	11, // [11:21] is the sub-list for method output_type
-	1,  // [1:11] is the sub-list for method input_type
+	21, // 11: conversation.conversation.ClearUnread:input_type -> conversation.ClearUnreadReq
+	23, // 12: conversation.conversation.GetTotalUnread:input_type -> conversation.GetTotalUnreadReq
+	25, // 13: conversation.conversation.UpdateLastMessage:input_type -> conversation.UpdateLastMessageReq
+	2,  // 14: conversation.conversation.GetConversations:output_type -> conversation.GetConversationsResp
+	4,  // 15: conversation.conversation.GetOrCreateSingleConv:output_type -> conversation.GetOrCreateSingleConvResp
+	6,  // 16: conversation.conversation.GetConversation:output_type -> conversation.GetConversationResp
+	8,  // 17: conversation.conversation.DeleteConversation:output_type -> conversation.DeleteConversationResp
+	10, // 18: conversation.conversation.SetConvMute:output_type -> conversation.SetConvMuteResp
+	12, // 19: conversation.conversation.SetConvPin:output_type -> conversation.SetConvPinResp
+	14, // 20: conversation.conversation.CreateGroupConv:output_type -> conversation.CreateGroupConvResp
+	16, // 21: conversation.conversation.AddConvMembers:output_type -> conversation.AddConvMembersResp
+	18, // 22: conversation.conversation.RemoveConvMembers:output_type -> conversation.RemoveConvMembersResp
+	20, // 23: conversation.conversation.GetConvMembers:output_type -> conversation.GetConvMembersResp
+	22, // 24: conversation.conversation.ClearUnread:output_type -> conversation.ClearUnreadResp
+	24, // 25: conversation.conversation.GetTotalUnread:output_type -> conversation.GetTotalUnreadResp
+	26, // 26: conversation.conversation.UpdateLastMessage:output_type -> conversation.UpdateLastMessageResp
+	14, // [14:27] is the sub-list for method output_type
+	1,  // [1:14] is the sub-list for method input_type
 	1,  // [1:1] is the sub-list for extension type_name
 	1,  // [1:1] is the sub-list for extension extendee
 	0,  // [0:1] is the sub-list for field type_name
@@ -1303,7 +1739,7 @@ func file_conversation_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_conversation_proto_rawDesc), len(file_conversation_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   21,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

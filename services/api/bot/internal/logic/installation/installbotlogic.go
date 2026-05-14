@@ -1,10 +1,10 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package installation
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"time"
 
 	"bot/internal/svc"
 	"bot/internal/types"
@@ -27,7 +27,25 @@ func NewInstallBotLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Instal
 }
 
 func (l *InstallBotLogic) InstallBot(req *types.InstallBotReq) (resp *types.InstallBotResp, err error) {
-	// todo: add your logic here and delete this line
+	key := fmt.Sprintf("bot_installations:%d", req.BotID)
 
-	return
+	var list []types.BotInstallationItem
+	data, err := l.svcCtx.Redis.Get(l.ctx, key).Result()
+	if err == nil {
+		json.Unmarshal([]byte(data), &list)
+	}
+
+	list = append(list, types.BotInstallationItem{
+		ConvID:      req.ConvID,
+		Permissions: req.Permissions,
+		InstalledAt: time.Now().Unix(),
+	})
+
+	data2, _ := json.Marshal(list)
+	l.svcCtx.Redis.Set(l.ctx, key, data2, 0)
+
+	convKey := fmt.Sprintf("conv_bots:%d", req.ConvID)
+	l.svcCtx.Redis.SAdd(l.ctx, convKey, req.BotID)
+
+	return &types.InstallBotResp{}, nil
 }

@@ -1,10 +1,8 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package botapi
 
 import (
 	"context"
+	"time"
 
 	"bot/internal/svc"
 	"bot/internal/types"
@@ -27,7 +25,9 @@ func NewBotReplyMsgLogic(ctx context.Context, svcCtx *svc.ServiceContext) *BotRe
 }
 
 func (l *BotReplyMsgLogic) BotReplyMsg(req *types.BotReplyMsgReq) (resp *types.BotReplyMsgResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	msgID := time.Now().UnixNano()
+	return &types.BotReplyMsgResp{
+		MsgID:     msgID,
+		CreatedAt: time.Now().Unix(),
+	}, nil
 }

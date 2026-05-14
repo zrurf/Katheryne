@@ -24,7 +24,29 @@ func NewGetFriendsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetFri
 }
 
 func (l *GetFriendsLogic) GetFriends(in *social.GetFriendsReq) (*social.GetFriendsResp, error) {
-	// todo: add your logic here and delete this line
+	list, err := l.svcCtx.SocialDao.ListFriends(l.ctx, in.Uid, in.Group)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
 
-	return &social.GetFriendsResp{}, nil
+	items := make([]*social.FriendItem, len(list))
+	for i, f := range list {
+		user, err := l.svcCtx.UserDBDao.GetUserById(l.ctx, f.PeerUid)
+		name := ""
+		avatar := ""
+		if err == nil && user != nil {
+			name = user.Name
+			avatar = nullString(user.Avatar)
+		}
+		items[i] = &social.FriendItem{
+			Uid:       f.PeerUid,
+			Name:      name,
+			Avatar:    avatar,
+			Remark:    nullString(f.Remark),
+			GroupName: nullString(f.GroupName),
+		}
+	}
+
+	return &social.GetFriendsResp{List: items}, nil
 }

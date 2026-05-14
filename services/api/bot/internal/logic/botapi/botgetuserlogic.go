@@ -1,6 +1,3 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package botapi
 
 import (
@@ -27,7 +24,9 @@ func NewBotGetUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *BotGet
 }
 
 func (l *BotGetUserLogic) BotGetUser(req *types.BotGetUserReq) (resp *types.BotGetUserResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	return &types.BotGetUserResp{
+		UID:    req.UID,
+		Name:   "",
+		Avatar: "",
+	}, nil
 }

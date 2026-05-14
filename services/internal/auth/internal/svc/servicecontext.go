@@ -6,6 +6,8 @@ import (
 	"auth/internal/module"
 	"context"
 	"crypto"
+	"fmt"
+	"net/url"
 	"os"
 	"time"
 
@@ -31,17 +33,19 @@ type ServiceContext struct {
 
 func NewServiceContext(c config.Config) *ServiceContext {
 
-	dbConfig, err := pgxpool.ParseConfig("")
-	if err != nil {
-		panic(err)
+	if c.UserDB.Host == "" || c.UserDB.User == "" || c.UserDB.DBName == "" {
+		panic(fmt.Sprintf("database config is incomplete: host=%q user=%q dbname=%q", c.UserDB.Host, c.UserDB.User, c.UserDB.DBName))
 	}
-	dbConfig.ConnConfig.User = c.UserDB.User
-	dbConfig.ConnConfig.Password = c.UserDB.Password
-	dbConfig.ConnConfig.Host = c.UserDB.Host
-	dbConfig.ConnConfig.Port = uint16(c.UserDB.Port)
-	dbConfig.ConnConfig.Database = c.UserDB.DBName
 
-	dbPool, err := pgxpool.New(context.Background(), dbConfig.ConnString())
+	connString := (&url.URL{
+		Scheme:   "postgres",
+		User:     url.UserPassword(c.UserDB.User, c.UserDB.Password),
+		Host:     fmt.Sprintf("%s:%d", c.UserDB.Host, c.UserDB.Port),
+		Path:     c.UserDB.DBName,
+		RawQuery: "sslmode=disable",
+	}).String()
+
+	dbPool, err := pgxpool.New(context.Background(), connString)
 	if err != nil {
 		panic(err)
 	}
@@ -90,7 +94,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		startTime = time.UnixMilli(0)
 	}
 
-	sonyflake.NewSonyflake(sonyflake.Settings{
+	sf := sonyflake.NewSonyflake(sonyflake.Settings{
 		StartTime: startTime,
 		MachineID: func() (uint16, error) {
 			return c.Snoyflake.MachineID, nil
@@ -104,5 +108,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		OpaqueSvc:  opaqueSvc,
 		UserDao:    userDao,
 		SessionDao: sessionDao,
+		SonyFlake:  sf,
 	}
 }

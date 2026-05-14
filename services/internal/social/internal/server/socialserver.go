@@ -172,3 +172,48 @@ func (s *SocialServer) GetGroupInvites(ctx context.Context, in *social.GetGroupI
 	l := logic.NewGetGroupInvitesLogic(ctx, s.svcCtx)
 	return l.GetGroupInvites(in)
 }
+
+func (s *SocialServer) SetGroupAnnouncement(ctx context.Context, in *social.SetGroupAnnouncementReq) (*social.SetGroupAnnouncementResp, error) {
+	l := logic.NewSetGroupAnnouncementLogic(ctx, s.svcCtx)
+	return l.SetGroupAnnouncement(in)
+}
+
+func (s *SocialServer) GetGroupAnnouncement(ctx context.Context, in *social.GetGroupAnnouncementReq) (*social.GetGroupAnnouncementResp, error) {
+	l := logic.NewGetGroupAnnouncementLogic(ctx, s.svcCtx)
+	return l.GetGroupAnnouncement(in)
+}
+
+func (s *SocialServer) GetUserInfo(ctx context.Context, in *social.GetUserInfoReq) (*social.GetUserInfoResp, error) {
+	l := logic.NewGetUserInfoLogic(ctx, s.svcCtx)
+	return l.GetUserInfo(in)
+}
+
+func (s *SocialServer) UpdateUserInfo(ctx context.Context, in *social.UpdateUserInfoReq) (*social.UpdateUserInfoResp, error) {
+	l := logic.NewUpdateUserInfoLogic(ctx, s.svcCtx)
+	return l.UpdateUserInfo(in)
+}
+
+func (s *SocialServer) SearchUser(ctx context.Context, in *social.SearchUserReq) (*social.SearchUserResp, error) {
+	l := logic.NewSearchUserLogic(ctx, s.svcCtx)
+	return l.SearchUser(in)
+}
+
+func (s *SocialServer) GetUserProfile(ctx context.Context, in *social.GetUserProfileReq) (*social.GetUserProfileResp, error) {
+	l := logic.NewGetUserProfileLogic(ctx, s.svcCtx)
+	return l.GetUserProfile(in)
+}
+
+func (s *SocialServer) GetUserGroups(ctx context.Context, in *social.GetUserGroupsReq) (*social.GetUserGroupsResp, error) {
+	l := logic.NewGetUserGroupsLogic(ctx, s.svcCtx)
+	return l.GetUserGroups(in)
+}
+
+func (s *SocialServer) GetOnlineStatus(ctx context.Context, in *social.GetOnlineStatusReq) (*social.GetOnlineStatusResp, error) {
+	l := logic.NewGetOnlineStatusLogic(ctx, s.svcCtx)
+	return l.GetOnlineStatus(in)
+}
+
+func (s *SocialServer) UpdateOnlineStatus(ctx context.Context, in *social.UpdateOnlineStatusReq) (*social.UpdateOnlineStatusResp, error) {
+	l := logic.NewUpdateOnlineStatusLogic(ctx, s.svcCtx)
+	return l.UpdateOnlineStatus(in)
+}

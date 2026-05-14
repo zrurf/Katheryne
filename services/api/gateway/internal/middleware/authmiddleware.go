@@ -15,16 +15,9 @@ type AuthMiddleware struct {
 	redis *redis.Client
 }
 
-func NewAuthMiddleware(redisAddr string) *AuthMiddleware {
-	redis := redis.NewClient(&redis.Options{
-		Addr: redisAddr,
-	})
-	_, err := redis.Ping(context.Background()).Result()
-	if err != nil {
-		return nil
-	}
+func NewAuthMiddleware(redisClient *redis.Client) *AuthMiddleware {
 	return &AuthMiddleware{
-		redis: redis,
+		redis: redisClient,
 	}
 }
 

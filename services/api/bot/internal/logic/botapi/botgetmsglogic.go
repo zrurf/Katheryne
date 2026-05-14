@@ -1,6 +1,3 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package botapi
 
 import (
@@ -27,7 +24,14 @@ func NewBotGetMsgLogic(ctx context.Context, svcCtx *svc.ServiceContext) *BotGetM
 }
 
 func (l *BotGetMsgLogic) BotGetMsg(req *types.BotGetMsgReq) (resp *types.BotGetMsgResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	return &types.BotGetMsgResp{
+		MsgID:       req.MsgID,
+		ConvID:      req.ConvID,
+		SenderUID:   0,
+		SenderName:  "",
+		MsgType:     "text",
+		Content:     "",
+		ContentType: "text/plain",
+		CreatedAt:   0,
+	}, nil
 }

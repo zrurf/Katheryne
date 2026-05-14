@@ -1,11 +1,10 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package conversation
 
 import (
 	"context"
+	"strconv"
 
+	"conversation/conversationclient"
 	"gateway/internal/svc"
 	"gateway/internal/types"
 
@@ -27,7 +26,19 @@ func NewSetConvPinLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SetCon
 }
 
 func (l *SetConvPinLogic) SetConvPin(req *types.SetConvPinReq) (resp *types.SetConvPinResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	uid := l.ctx.Value("uid").(int64)
+	convId, err := strconv.ParseInt(req.ConvID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	_, err = l.svcCtx.ConversationRpc.SetConvPin(l.ctx, &conversationclient.SetConvPinReq{
+		ConvId: convId,
+		Uid:    uid,
+		Pinned: req.Pinned,
+	})
+	if err != nil {
+		l.Errorf("SetConvPin RPC failed: %v", err)
+		return nil, err
+	}
+	return &types.SetConvPinResp{}, nil
 }

@@ -1,13 +1,12 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package social
 
 import (
 	"context"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
+	"social/socialclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +26,32 @@ func NewGetGroupJoinRequestsLogic(ctx context.Context, svcCtx *svc.ServiceContex
 }
 
 func (l *GetGroupJoinRequestsLogic) GetGroupJoinRequests(req *types.GetGroupJoinRequestsReq) (resp *types.GetGroupJoinRequestsResp, err error) {
-	// todo: add your logic here and delete this line
+	groupId, err := strconv.ParseInt(req.GroupID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	result, err := l.svcCtx.SocialRpc.GetGroupJoinRequests(l.ctx, &socialclient.GetGroupJoinRequestsReq{
+		GroupId: groupId,
+		Status:  req.Status,
+	})
+	if err != nil {
+		l.Errorf("GetGroupJoinRequests RPC failed: %v", err)
+		return nil, err
+	}
 
-	return
+	list := make([]types.GroupJoinRequestItem, len(result.List))
+	for i, item := range result.List {
+		list[i] = types.GroupJoinRequestItem{
+			ID:        strconv.FormatInt(item.Id, 10),
+			UID:       strconv.FormatInt(item.Uid, 10),
+			Name:      item.Name,
+			Avatar:    item.Avatar,
+			Message:   item.Message,
+			Status:    item.Status,
+			CreatedAt: item.CreatedAt,
+		}
+	}
+	return &types.GetGroupJoinRequestsResp{
+		List: list,
+	}, nil
 }

@@ -4,3 +4,25 @@ Etcd:
   Hosts:
   - "etcd:2379"
   Key: user.rpc
+
+Telemetry:
+  Name: user.rpc
+  Endpoint: otel-collector:4317
+  Batcher: otlpgrpc
+  Sampler: 1.0
+
+DevServer:
+  Enable: true
+  Port: 6065
+  MetricsPath: /metrics
+  HealthPath: /healthz
+
+RedisAddr: "garnet:6379"
+MQAddr: "nats:4222"
+
+UserDB:
+  Host: "postgres"
+  Port: 5432
+  User: "kadmin"
+  Password: "nimdaP@ssW0rd"
+  DBName: "users"

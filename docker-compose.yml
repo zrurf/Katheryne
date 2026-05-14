@@ -20,6 +20,30 @@ services:
         condition: service_started
       garnet:
         condition: service_started
+      etcd:
+        condition: service_started
+
+  # WebSocket 网关
+  ws_gateway:
+    build:
+      context: .
+      dockerfile: services/api/ws-gateway/Dockerfile
+    container_name: ws-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    networks:
+      - public
+      - internal
+    depends_on:
+      postgres:
+        condition: service_started
+      garnet:
+        condition: service_started
+      etcd:
+        condition: service_started
 
   # 服务
   auth_services:
@@ -30,6 +54,132 @@ services:
     restart: unless-stopped
     expose:
       - "8001"
+      - "6061"
+    env_file:
+      - .env
+    networks:
+      - internal
+    depends_on:
+      postgres:
+        condition: service_started
+      garnet:
+        condition: service_started
+      etcd:
+        condition: service_started
+
+  social_services:
+    build:
+      context: .
+      dockerfile: services/internal/social/Dockerfile
+    container_name: social-services
+    restart: unless-stopped
+    expose:
+      - "8002"
+      - "6062"
+    env_file:
+      - .env
+    networks:
+      - internal
+    depends_on:
+      postgres:
+        condition: service_started
+      garnet:
+        condition: service_started
+      etcd:
+        condition: service_started
+
+  message_services:
+    build:
+      context: .
+      dockerfile: services/internal/message/Dockerfile
+    container_name: message-services
+    restart: unless-stopped
+    expose:
+      - "8003"
+      - "6063"
+    env_file:
+      - .env
+    networks:
+      - internal
+    depends_on:
+      postgres:
+        condition: service_started
+      garnet:
+        condition: service_started
+      etcd:
+        condition: service_started
+
+  conversation_services:
+    build:
+      context: .
+      dockerfile: services/internal/conversation/Dockerfile
+    container_name: conversation-services
+    restart: unless-stopped
+    expose:
+      - "8004"
+      - "6064"
+    env_file:
+      - .env
+    networks:
+      - internal
+    depends_on:
+      postgres:
+        condition: service_started
+      garnet:
+        condition: service_started
+      etcd:
+        condition: service_started
+
+  oss_services:
+    build:
+      context: .
+      dockerfile: services/internal/oss/Dockerfile
+    container_name: oss-services
+    restart: unless-stopped
+    expose:
+      - "8005"
+      - "6066"
+    env_file:
+      - .env
+    networks:
+      - internal
+    depends_on:
+      postgres:
+        condition: service_started
+      garnet:
+        condition: service_started
+      etcd:
+        condition: service_started
+
+  user_services:
+    build:
+      context: .
+      dockerfile: services/internal/user/Dockerfile
+    container_name: user-services
+    restart: unless-stopped
+    expose:
+      - "8006"
+      - "6067"
+    env_file:
+      - .env
+    networks:
+      - internal
+    depends_on:
+      postgres:
+        condition: service_started
+      garnet:
+        condition: service_started
+      etcd:
+        condition: service_started
+
+  bot_api:
+    build:
+      context: .
+      dockerfile: services/api/bot/Dockerfile
+    container_name: bot-api
+    restart: unless-stopped
+    expose:
+      - "8007"
     env_file:
       - .env
     networks:
@@ -44,7 +194,7 @@ services:
 
   # 内存数据库
   garnet:
-    image: "ghcr.io/microsoft/garnet-alpine:1.1.6"
+    image: "ghcr.io/microsoft/garnet-alpine:1.1.7"
     container_name: garnet
     ulimits:
       memlock: -1
@@ -57,7 +207,7 @@ services:
 
   # 消息队列
   nats:
-    image: "nats:2.12.7-alpine3.22"
+    image: "nats:2.14.0-alpine3.22"
     container_name: nats
     expose:
       - "4222"
@@ -119,7 +269,7 @@ services:
 
   # 对象存储 RustFS
   rustfs:
-    image: rustfs/rustfs:1.0.0-alpha.99
+    image: rustfs/rustfs:1.0.0-beta.2
     container_name: rustfs
     environment:
       - RUSTFS_VOLUMES=/data/rustfs
@@ -187,7 +337,7 @@ services:
       - internal
 
   tempo:
-    image: grafana/tempo:r250-4c65030
+    image: grafana/tempo:r251-49bcd72
     container_name: tempo
     user: "10001"
     command: [ "-config.file=/etc/tempo.yaml" ]

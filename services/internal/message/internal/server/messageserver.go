@@ -58,6 +58,11 @@ func (s *MessageServer) GetReadMembers(ctx context.Context, in *message.GetReadM
 	return l.GetReadMembers(in)
 }
 
+func (s *MessageServer) GetReadIntervals(ctx context.Context, in *message.GetReadIntervalsReq) (*message.GetReadIntervalsResp, error) {
+	l := logic.NewGetReadIntervalsLogic(ctx, s.svcCtx)
+	return l.GetReadIntervals(in)
+}
+
 func (s *MessageServer) GetUnreadCount(ctx context.Context, in *message.GetUnreadCountReq) (*message.GetUnreadCountResp, error) {
 	l := logic.NewGetUnreadCountLogic(ctx, s.svcCtx)
 	return l.GetUnreadCount(in)

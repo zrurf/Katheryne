@@ -24,7 +24,20 @@ func NewUpdateLastLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *U
 }
 
 func (l *UpdateLastLoginLogic) UpdateLastLogin(in *user.UpdateLastLoginReq) (*user.UpdateLastLoginResp, error) {
-	// todo: add your logic here and delete this line
+	if in.Uid <= 0 {
+		return &user.UpdateLastLoginResp{}, nil
+	}
+
+	err := l.svcCtx.UserDao.UpdateLastLogin(l.ctx, in.Uid)
+	if err != nil {
+		l.Errorf("UpdateLastLogin error: %v", err)
+		return nil, err
+	}
+
+	// 删除缓存，让下次读取时刷新 last_login
+	go func() {
+		_ = l.svcCtx.RedisDao.DelUserCache(context.Background(), in.Uid)
+	}()
 
 	return &user.UpdateLastLoginResp{}, nil
 }

@@ -1,13 +1,12 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package social
 
 import (
 	"context"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
+	"social/socialclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +26,23 @@ func NewKickMemberLogic(ctx context.Context, svcCtx *svc.ServiceContext) *KickMe
 }
 
 func (l *KickMemberLogic) KickMember(req *types.KickMemberReq) (resp *types.KickMemberResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	uid := l.ctx.Value("uid").(int64)
+	groupId, err := strconv.ParseInt(req.GroupID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	targetUid, err := strconv.ParseInt(req.UID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	_, err = l.svcCtx.SocialRpc.KickMember(l.ctx, &socialclient.KickMemberReq{
+		GroupId:     groupId,
+		OperatorUid: uid,
+		TargetUid:   targetUid,
+	})
+	if err != nil {
+		l.Errorf("KickMember RPC failed: %v", err)
+		return nil, err
+	}
+	return &types.KickMemberResp{Result: true}, nil
 }

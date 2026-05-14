@@ -1,13 +1,12 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package social
 
 import (
 	"context"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
+	"social/socialclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +26,19 @@ func NewCreateAnnouncementLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 }
 
 func (l *CreateAnnouncementLogic) CreateAnnouncement(req *types.CreateAnnouncementReq) (resp *types.CreateAnnouncementResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	uid := l.ctx.Value("uid").(int64)
+	groupId, err := strconv.ParseInt(req.GroupID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	_, err = l.svcCtx.SocialRpc.CreateAnnouncement(l.ctx, &socialclient.CreateAnnouncementReq{
+		GroupId: groupId,
+		Uid:     uid,
+		Content: req.Content,
+	})
+	if err != nil {
+		l.Errorf("CreateAnnouncement RPC failed: %v", err)
+		return nil, err
+	}
+	return &types.CreateAnnouncementResp{Result: true}, nil
 }

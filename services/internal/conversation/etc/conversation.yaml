@@ -4,3 +4,25 @@ Etcd:
   Hosts:
   - "etcd:2379"
   Key: conversation.rpc
+
+Telemetry:
+  Name: conversation.rpc
+  Endpoint: otel-collector:4317
+  Batcher: otlpgrpc
+  Sampler: 1.0
+
+DevServer:
+  Enable: true
+  Port: 6064
+  MetricsPath: /metrics
+  HealthPath: /healthz
+
+RedisAddr: "garnet:6379"
+MQAddr: "nats:4222"
+
+SocialDB:
+  Host: "postgres"
+  Port: 5432
+  User: "kadmin"
+  Password: "nimdaP@ssW0rd"
+  DBName: "im_social"

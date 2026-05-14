@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"encoding/binary"
 	"fmt"
 	"strconv"
 	"time"
@@ -52,8 +51,7 @@ func (l *LoginInitLogic) LoginInit(in *auth.LoginInitReq) (*auth.LoginInitResp, 
 		return nil, errors.New(-1, "Internal Server Error")
 	}
 
-	var credId = make([]byte, 8)
-	binary.BigEndian.PutUint64(credId, xxhash3.HashString(in.Phone))
+	var credId = []byte(in.Phone)
 
 	// 构造 ClientRecord
 	clientRecord := &opaque.ClientRecord{

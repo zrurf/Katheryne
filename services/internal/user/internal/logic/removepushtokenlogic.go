@@ -24,7 +24,20 @@ func NewRemovePushTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *R
 }
 
 func (l *RemovePushTokenLogic) RemovePushToken(in *user.RemovePushTokenReq) (*user.RemovePushTokenResp, error) {
-	// todo: add your logic here and delete this line
+	if in.Uid <= 0 || in.DeviceId == "" {
+		return &user.RemovePushTokenResp{}, nil
+	}
+
+	err := l.svcCtx.UserDao.RemoveUserDevice(l.ctx, in.Uid, in.DeviceId)
+	if err != nil {
+		l.Errorf("RemoveUserDevice error: %v", err)
+		return nil, err
+	}
+
+	// 删除相关缓存
+	go func() {
+		_ = l.svcCtx.RedisDao.DelDevicesCache(context.Background(), in.Uid)
+	}()
 
 	return &user.RemovePushTokenResp{}, nil
 }

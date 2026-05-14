@@ -24,7 +24,23 @@ func NewSubmitReadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Submit
 }
 
 func (l *SubmitReadLogic) SubmitRead(in *message.SubmitReadReq) (*message.SubmitReadResp, error) {
-	// todo: add your logic here and delete this line
+	startMsgId := in.StartMsgId
+	endMsgId := in.EndMsgId
+	if startMsgId <= 0 || endMsgId <= 0 {
+		startMsgId = in.LastReadMsgId
+		endMsgId = in.LastReadMsgId
+	}
+
+	err := l.svcCtx.MessageDao.SubmitReadInterval(l.ctx, in.ConvId, in.Uid, startMsgId, endMsgId)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
+
+	err = l.svcCtx.RedisDao.DelUnreadCache(l.ctx, in.Uid, in.ConvId)
+	if err != nil {
+		l.Logger.Error("del unread cache error:", err)
+	}
 
 	return &message.SubmitReadResp{}, nil
 }

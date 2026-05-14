@@ -78,7 +78,9 @@ message SearchMessagesResp {
 message SubmitReadReq {
   int64 conv_id = 1;
   int64 uid = 2;
-  int64 last_read_msg_id = 3;   // 用户在该会话中最后一条已读的消息ID
+  int64 last_read_msg_id = 3;   // 用户在该会话中最后一条已读的消息ID（兼容旧版）
+  int64 start_msg_id = 4;       // 已读区间起始消息ID
+  int64 end_msg_id = 5;         // 已读区间结束消息ID
 }
 message SubmitReadResp {}
 
@@ -96,6 +98,23 @@ message ReadMemberItem {
 message GetReadMembersResp {
   repeated ReadMemberItem list = 1;
   int64 total = 2;
+}
+
+// 获取用户在某会话的所有已读区间
+message GetReadIntervalsReq {
+  int64 conv_id = 1;
+  int64 uid = 2;
+}
+message ReadIntervalItem {
+  int64 id = 1;
+  int64 conv_id = 2;
+  int64 uid = 3;
+  int64 start_msg_id = 4;
+  int64 end_msg_id = 5;
+  int64 created_at = 6;
+}
+message GetReadIntervalsResp {
+  repeated ReadIntervalItem list = 1;
 }
 
 // 获取用户在某会话的未读数（精确计算）
@@ -119,9 +138,10 @@ message BatchGetUnreadCountResp { repeated ConvUnread list = 1; }
 // 离线同步：获取用户所有会话的未读消息
 message SyncOfflineMsgsReq {
   int64 uid = 1;
-  int64 last_sync_msg_id = 2;   // 该设备上次同步到的最大 msg_id
-  string device_id = 3;         // 设备唯一标识
-  int32 limit = 4;              // 每页条数，默认100
+  int64 last_sync_msg_id = 2;
+  string device_id = 3;
+  int32 limit = 4;
+  repeated int64 conv_ids = 5;
 }
 message SyncOfflineMsgsResp {
   repeated MsgItem messages = 1;
@@ -151,6 +171,7 @@ service message {
   rpc SearchMessages(SearchMessagesReq) returns (SearchMessagesResp);
   rpc SubmitRead(SubmitReadReq) returns (SubmitReadResp);
   rpc GetReadMembers(GetReadMembersReq) returns (GetReadMembersResp);
+  rpc GetReadIntervals(GetReadIntervalsReq) returns (GetReadIntervalsResp);
   rpc GetUnreadCount(GetUnreadCountReq) returns (GetUnreadCountResp);
   rpc BatchGetUnreadCount(BatchGetUnreadCountReq) returns (BatchGetUnreadCountResp);
   rpc SyncOfflineMsgs(SyncOfflineMsgsReq) returns (SyncOfflineMsgsResp);

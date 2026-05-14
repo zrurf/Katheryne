@@ -23,9 +23,10 @@ func NewCreateAnnouncementLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 	}
 }
 
-// 群公告
 func (l *CreateAnnouncementLogic) CreateAnnouncement(in *social.CreateAnnouncementReq) (*social.CreateAnnouncementResp, error) {
-	// todo: add your logic here and delete this line
-
+	_, err := l.svcCtx.SocialDao.InsertAnnouncement(l.ctx, in.GroupId, in.Uid, in.Content)
+	if err != nil {
+		return nil, err
+	}
 	return &social.CreateAnnouncementResp{}, nil
 }

@@ -2,12 +2,10 @@ package logic
 
 import (
 	"context"
-	"encoding/binary"
 
 	"auth/auth"
 	"auth/internal/svc"
 
-	"github.com/bytedance/gopkg/util/xxhash3"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/x/errors"
 )
@@ -37,8 +35,7 @@ func (l *RegisterInitLogic) RegisterInit(in *auth.RegisterInitReq) (*auth.Regist
 		}, errors.New(104, "Request Error")
 	}
 
-	var credId = make([]byte, 8)
-	binary.BigEndian.PutUint64(credId, xxhash3.HashString(in.Phone))
+	var credId = []byte(in.Phone)
 
 	serverPubKey := l.svcCtx.OpaqueSvc.GetServerPublicKey()
 

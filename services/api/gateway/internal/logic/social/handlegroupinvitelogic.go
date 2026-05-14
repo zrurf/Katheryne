@@ -1,13 +1,12 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package social
 
 import (
 	"context"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
+	"social/socialclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +26,19 @@ func NewHandleGroupInviteLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *HandleGroupInviteLogic) HandleGroupInvite(req *types.HandleGroupInviteReq) (resp *types.HandleGroupInviteResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	uid := l.ctx.Value("uid").(int64)
+	inviteId, err := strconv.ParseInt(req.ID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	_, err = l.svcCtx.SocialRpc.HandleGroupInvite(l.ctx, &socialclient.HandleGroupInviteReq{
+		InviteId: inviteId,
+		Uid:      uid,
+		Action:   req.Action,
+	})
+	if err != nil {
+		l.Errorf("HandleGroupInvite RPC failed: %v", err)
+		return nil, err
+	}
+	return &types.HandleGroupInviteResp{Result: true}, nil
 }

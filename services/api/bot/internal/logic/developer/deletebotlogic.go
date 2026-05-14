@@ -1,10 +1,8 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package developer
 
 import (
 	"context"
+	"fmt"
 
 	"bot/internal/svc"
 	"bot/internal/types"
@@ -27,7 +25,10 @@ func NewDeleteBotLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeleteB
 }
 
 func (l *DeleteBotLogic) DeleteBot(req *types.DeleteBotReq) (resp *types.DeleteBotResp, err error) {
-	// todo: add your logic here and delete this line
+	uid := l.ctx.Value("uid").(int64)
 
-	return
+	l.svcCtx.Redis.HDel(l.ctx, "bots", fmt.Sprintf("%d", req.BotID))
+	l.svcCtx.Redis.SRem(l.ctx, fmt.Sprintf("user_bots:%d", uid), req.BotID)
+
+	return &types.DeleteBotResp{}, nil
 }

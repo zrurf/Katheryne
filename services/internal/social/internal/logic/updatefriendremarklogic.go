@@ -24,7 +24,11 @@ func NewUpdateFriendRemarkLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 }
 
 func (l *UpdateFriendRemarkLogic) UpdateFriendRemark(in *social.UpdateFriendRemarkReq) (*social.UpdateFriendRemarkResp, error) {
-	// todo: add your logic here and delete this line
+	err := l.svcCtx.SocialDao.UpdateFriendRemark(l.ctx, in.Uid, in.PeerUid, in.Remark, in.GroupName)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
 
 	return &social.UpdateFriendRemarkResp{}, nil
 }

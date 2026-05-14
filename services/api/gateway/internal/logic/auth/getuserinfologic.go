@@ -5,6 +5,7 @@ package auth
 
 import (
 	"context"
+	"strconv"
 	"strings"
 	"user/userclient"
 
@@ -37,8 +38,13 @@ func (l *GetUserInfoLogic) GetUserInfo(req *types.UserInfoRequest) (resp *types.
 		token = parts[1]
 	}
 
+	uid, err := strconv.ParseInt(req.Uid, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
 	r, err := l.svcCtx.UserRpc.GetUserByUID(l.ctx, &userclient.GetUserByUIDReq{
-		Uid:   req.Uid,
+		Uid:   uid,
 		Token: token,
 	})
 
@@ -48,7 +54,7 @@ func (l *GetUserInfoLogic) GetUserInfo(req *types.UserInfoRequest) (resp *types.
 	}
 
 	return &types.UserInfoResponse{
-		UID:       r.User.Uid,
+		UID:       strconv.FormatInt(r.User.Uid, 10),
 		Name:      r.User.Name,
 		Avatar:    r.User.Avatar,
 		Status:    r.User.Status,

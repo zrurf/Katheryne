@@ -24,7 +24,18 @@ func NewGetBlacklistLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetB
 }
 
 func (l *GetBlacklistLogic) GetBlacklist(in *social.GetBlacklistReq) (*social.GetBlacklistResp, error) {
-	// todo: add your logic here and delete this line
+	list, err := l.svcCtx.SocialDao.GetBlacklist(l.ctx, in.Uid)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
 
-	return &social.GetBlacklistResp{}, nil
+	items := make([]*social.FriendItem, len(list))
+	for i, b := range list {
+		items[i] = &social.FriendItem{
+			Uid: b.PeerUid,
+		}
+	}
+
+	return &social.GetBlacklistResp{List: items}, nil
 }

@@ -1,13 +1,12 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package social
 
 import (
 	"context"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
+	"social/socialclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +26,26 @@ func NewGetFriendsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetFri
 }
 
 func (l *GetFriendsLogic) GetFriends(req *types.GetFriendsReq) (resp *types.GetFriendsResp, err error) {
-	// todo: add your logic here and delete this line
+	uid := l.ctx.Value("uid").(int64)
+	result, err := l.svcCtx.SocialRpc.GetFriends(l.ctx, &socialclient.GetFriendsReq{
+		Uid:   uid,
+		Group: req.Group,
+	})
+	if err != nil {
+		l.Errorf("GetFriends RPC failed: %v", err)
+		return nil, err
+	}
 
-	return
+	list := make([]types.FriendItem, len(result.List))
+	for i, item := range result.List {
+		list[i] = types.FriendItem{
+			UID:       strconv.FormatInt(item.Uid, 10),
+			Name:      item.Name,
+			Avatar:    item.Avatar,
+			Remark:    item.Remark,
+			Status:    item.Status,
+			GroupName: item.GroupName,
+		}
+	}
+	return &types.GetFriendsResp{List: list}, nil
 }

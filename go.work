@@ -3,6 +3,7 @@ go 1.26.2
 use (
 	./services/api/bot
 	./services/api/gateway
+	./services/api/ws-gateway
 	./services/internal/auth
 	./services/internal/conversation
 	./services/internal/message

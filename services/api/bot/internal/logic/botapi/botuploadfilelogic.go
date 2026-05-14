@@ -1,6 +1,3 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package botapi
 
 import (
@@ -27,7 +24,11 @@ func NewBotUploadFileLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Bot
 }
 
 func (l *BotUploadFileLogic) BotUploadFile() (resp *types.BotUploadFileResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	return &types.BotUploadFileResp{
+		FileID:   "",
+		FileName: "",
+		FileSize: 0,
+		URL:      "",
+		MimeType: "",
+	}, nil
 }

@@ -1,11 +1,10 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package conversation
 
 import (
 	"context"
+	"strconv"
 
+	"conversation/conversationclient"
 	"gateway/internal/svc"
 	"gateway/internal/types"
 
@@ -27,7 +26,21 @@ func NewGetOrCreateSingleConvLogic(ctx context.Context, svcCtx *svc.ServiceConte
 }
 
 func (l *GetOrCreateSingleConvLogic) GetOrCreateSingleConv(req *types.GetOrCreateSingleConvReq) (resp *types.GetOrCreateSingleConvResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	uid := l.ctx.Value("uid").(int64)
+	peerUid, err := strconv.ParseInt(req.PeerUID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	result, err := l.svcCtx.ConversationRpc.GetOrCreateSingleConv(l.ctx, &conversationclient.GetOrCreateSingleConvReq{
+		Uid:     uid,
+		PeerUid: peerUid,
+	})
+	if err != nil {
+		l.Errorf("GetOrCreateSingleConv RPC failed: %v", err)
+		return nil, err
+	}
+	return &types.GetOrCreateSingleConvResp{
+		ConvID:  strconv.FormatInt(result.ConvId, 10),
+		Created: result.Created,
+	}, nil
 }

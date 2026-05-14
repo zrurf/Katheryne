@@ -143,6 +143,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: message.SearchMessagesHandler(serverCtx),
 				},
 				{
+					Method:  http.MethodPost,
+					Path:    "/send",
+					Handler: message.SendMessageHandler(serverCtx),
+				},
+				{
 					Method:  http.MethodGet,
 					Path:    "/sync",
 					Handler: message.SyncOfflineMessagesHandler(serverCtx),

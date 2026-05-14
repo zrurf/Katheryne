@@ -6,6 +6,7 @@ package auth
 import (
 	"auth/authclient"
 	"context"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
@@ -37,7 +38,7 @@ func (l *TFAVerifyLogic) TFAVerify(req *types.TFAVerifyRequest) (resp *types.TFA
 		return nil, err
 	}
 	return &types.TFAVerifyResponse{
-		UID:          result.Uid,
+		UID:          strconv.FormatInt(result.Uid, 10),
 		AccessToken:  result.AccessToken,
 		ExpiresAt:    result.ExpiresAt,
 		RefreshToken: result.RefreshToken,

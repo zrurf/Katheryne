@@ -5,6 +5,18 @@ Etcd:
     - "etcd:2379"
   Key: auth.rpc
 
+Telemetry:
+  Name: auth.rpc
+  Endpoint: otel-collector:4317
+  Batcher: otlpgrpc
+  Sampler: 1.0
+
+DevServer:
+  Enable: true
+  Port: 6061
+  MetricsPath: /metrics
+  HealthPath: /healthz
+
 RedisAddr: "garnet:6379"
 MQAddr: "nats:4222"
 

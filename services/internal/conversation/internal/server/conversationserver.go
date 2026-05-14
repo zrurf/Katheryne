@@ -72,3 +72,23 @@ func (s *ConversationServer) GetConvMembers(ctx context.Context, in *conversatio
 	l := logic.NewGetConvMembersLogic(ctx, s.svcCtx)
 	return l.GetConvMembers(in)
 }
+
+func (s *ConversationServer) ClearUnread(ctx context.Context, in *conversation.ClearUnreadReq) (*conversation.ClearUnreadResp, error) {
+	l := logic.NewClearUnreadLogic(ctx, s.svcCtx)
+	return l.ClearUnread(in)
+}
+
+func (s *ConversationServer) GetTotalUnread(ctx context.Context, in *conversation.GetTotalUnreadReq) (*conversation.GetTotalUnreadResp, error) {
+	l := logic.NewGetTotalUnreadLogic(ctx, s.svcCtx)
+	return l.GetTotalUnread(in)
+}
+
+func (s *ConversationServer) UpdateLastMessage(ctx context.Context, in *conversation.UpdateLastMessageReq) (*conversation.UpdateLastMessageResp, error) {
+	l := logic.NewUpdateLastMessageLogic(ctx, s.svcCtx)
+	return l.UpdateLastMessage(in)
+}
+
+func (s *ConversationServer) IncrementUnread(ctx context.Context, in *conversation.IncrementUnreadReq) (*conversation.IncrementUnreadResp, error) {
+	l := logic.NewIncrementUnreadLogic(ctx, s.svcCtx)
+	return l.IncrementUnread(in)
+}

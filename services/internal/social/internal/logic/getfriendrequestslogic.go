@@ -24,7 +24,34 @@ func NewGetFriendRequestsLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *GetFriendRequestsLogic) GetFriendRequests(in *social.GetFriendRequestsReq) (*social.GetFriendRequestsResp, error) {
-	// todo: add your logic here and delete this line
+	list, total, err := l.svcCtx.SocialDao.ListFriendRequests(l.ctx, in.Uid, in.Type, in.Page, in.Size)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
 
-	return &social.GetFriendRequestsResp{}, nil
+	items := make([]*social.FriendRequestItem, len(list))
+	for i, r := range list {
+		name := ""
+		avatar := ""
+		user, err := l.svcCtx.UserDBDao.GetUserById(l.ctx, r.Uid)
+		if err == nil && user != nil {
+			name = user.Name
+			avatar = nullString(user.Avatar)
+		}
+		items[i] = &social.FriendRequestItem{
+			Id:        r.Id,
+			Uid:       r.Uid,
+			Name:      name,
+			Avatar:    avatar,
+			Message:   nullString(r.Message),
+			Status:    r.Status,
+			CreatedAt: r.CreatedAt.UnixMilli(),
+		}
+	}
+
+	return &social.GetFriendRequestsResp{
+		List:  items,
+		Total: total,
+	}, nil
 }

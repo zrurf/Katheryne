@@ -23,9 +23,25 @@ func NewInviteToGroupLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Inv
 	}
 }
 
-// 邀请进群
 func (l *InviteToGroupLogic) InviteToGroup(in *social.InviteToGroupReq) (*social.InviteToGroupResp, error) {
-	// todo: add your logic here and delete this line
+	isMember, err := l.svcCtx.SocialDao.GetGroupMember(l.ctx, in.GroupId, in.InviterUid)
+	if err != nil || isMember == nil {
+		return &social.InviteToGroupResp{}, nil
+	}
 
-	return &social.InviteToGroupResp{}, nil
+	var failedUids []int64
+	for _, inviteeUid := range in.InviteeUids {
+		existingMember, _ := l.svcCtx.SocialDao.GetGroupMember(l.ctx, in.GroupId, inviteeUid)
+		if existingMember != nil {
+			failedUids = append(failedUids, inviteeUid)
+			continue
+		}
+		_, err = l.svcCtx.SocialDao.InsertGroupInvite(l.ctx, in.GroupId, in.InviterUid, inviteeUid, in.Message)
+		if err != nil {
+			l.Logger.Errorf("InsertGroupInvite failed: groupId=%d, invitee=%d, err=%v", in.GroupId, inviteeUid, err)
+			failedUids = append(failedUids, inviteeUid)
+		}
+	}
+
+	return &social.InviteToGroupResp{FailedUids: failedUids}, nil
 }

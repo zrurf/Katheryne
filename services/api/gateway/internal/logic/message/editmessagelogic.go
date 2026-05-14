@@ -1,13 +1,12 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package message
 
 import (
 	"context"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
+	"message/messageclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +26,24 @@ func NewEditMessageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *EditM
 }
 
 func (l *EditMessageLogic) EditMessage(req *types.EditMessageReq) (resp *types.EditMessageResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	uid := l.ctx.Value("uid").(int64)
+	convId, err := strconv.ParseInt(req.ConvID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	msgId, err := strconv.ParseInt(req.MsgID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	_, err = l.svcCtx.MessageRpc.EditMessage(l.ctx, &messageclient.EditMessageReq{
+		ConvId:  convId,
+		MsgId:   msgId,
+		Content: req.Content,
+		Editor:  uid,
+	})
+	if err != nil {
+		l.Errorf("EditMessage RPC failed: %v", err)
+		return nil, err
+	}
+	return &types.EditMessageResp{}, nil
 }

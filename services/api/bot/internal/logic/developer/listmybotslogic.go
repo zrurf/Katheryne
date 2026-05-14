@@ -1,10 +1,9 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package developer
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"bot/internal/svc"
 	"bot/internal/types"
@@ -26,8 +25,24 @@ func NewListMyBotsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListMy
 	}
 }
 
-func (l *ListMyBotsLogic) ListMyBots(req *types.ListMyBotsResp) (resp *types.ListMyBotsResp, err error) {
-	// todo: add your logic here and delete this line
+func (l *ListMyBotsLogic) ListMyBots() (resp *types.ListMyBotsResp, err error) {
+	uid := l.ctx.Value("uid").(int64)
 
-	return
+	botIDs, err := l.svcCtx.Redis.SMembers(l.ctx, fmt.Sprintf("user_bots:%d", uid)).Result()
+	if err != nil {
+		return &types.ListMyBotsResp{List: []types.BotInfo{}}, nil
+	}
+
+	var list []types.BotInfo
+	for _, id := range botIDs {
+		data, err := l.svcCtx.Redis.HGet(l.ctx, "bots", id).Result()
+		if err != nil {
+			continue
+		}
+		var bot types.BotInfo
+		json.Unmarshal([]byte(data), &bot)
+		list = append(list, bot)
+	}
+
+	return &types.ListMyBotsResp{List: list}, nil
 }

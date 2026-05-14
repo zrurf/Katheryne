@@ -24,7 +24,29 @@ func NewGetAnnouncementsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *GetAnnouncementsLogic) GetAnnouncements(in *social.GetAnnouncementsReq) (*social.GetAnnouncementsResp, error) {
-	// todo: add your logic here and delete this line
+	announcements, total, err := l.svcCtx.SocialDao.ListAnnouncements(l.ctx, in.GroupId, in.Page, in.Size)
+	if err != nil {
+		return nil, err
+	}
 
-	return &social.GetAnnouncementsResp{}, nil
+	list := make([]*social.AnnouncementItem, len(announcements))
+	for i, a := range announcements {
+		name := ""
+		user, err := l.svcCtx.UserDBDao.GetUserById(l.ctx, a.Uid)
+		if err == nil && user != nil {
+			name = user.Name
+		}
+		list[i] = &social.AnnouncementItem{
+			Id:        a.Id,
+			Uid:       a.Uid,
+			Name:      name,
+			Content:   a.Content,
+			Pinned:    a.Pinned,
+			CreatedAt: a.CreatedAt.UnixMilli(),
+		}
+	}
+	return &social.GetAnnouncementsResp{
+		List:  list,
+		Total: total,
+	}, nil
 }

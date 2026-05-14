@@ -38,7 +38,7 @@ func NewOpaqueService(config *OpaqueConfig) (*OpaqueService, error) {
 		PrivateKey:     privateKey,
 		PublicKeyBytes: config.ServerPublicKey,
 		OPRFGlobalSeed: config.OprfSeed,
-		Identity:       []byte("quiver"),
+		Identity:       []byte("katheryne"),
 	})
 
 	if err != nil {

@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"errors"
 
 	"social/internal/svc"
 	"social/social"
@@ -23,9 +24,25 @@ func NewSendFriendRequestLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 	}
 }
 
-// 好友
 func (l *SendFriendRequestLogic) SendFriendRequest(in *social.SendFriendReq) (*social.SendFriendResp, error) {
-	// todo: add your logic here and delete this line
+	if in.Uid == in.ToUid {
+		return nil, errors.New("不能添加自己为好友")
+	}
 
-	return &social.SendFriendResp{}, nil
+	isFriend, err := l.svcCtx.SocialDao.IsFriend(l.ctx, in.Uid, in.ToUid)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
+	if isFriend {
+		return nil, errors.New("已经是好友")
+	}
+
+	req, err := l.svcCtx.SocialDao.InsertFriendRequest(l.ctx, in.Uid, in.ToUid, in.Message)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
+
+	return &social.SendFriendResp{ReqId: req.Id}, nil
 }

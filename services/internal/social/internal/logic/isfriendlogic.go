@@ -24,7 +24,11 @@ func NewIsFriendLogic(ctx context.Context, svcCtx *svc.ServiceContext) *IsFriend
 }
 
 func (l *IsFriendLogic) IsFriend(in *social.IsFriendReq) (*social.IsFriendResp, error) {
-	// todo: add your logic here and delete this line
+	ok, err := l.svcCtx.SocialDao.IsFriend(l.ctx, in.Uid, in.PeerUid)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
 
-	return &social.IsFriendResp{}, nil
+	return &social.IsFriendResp{IsFriend: ok}, nil
 }

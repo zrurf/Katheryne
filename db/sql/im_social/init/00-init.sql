@@ -112,8 +112,63 @@ CREATE TABLE IF NOT EXISTS "group_announcement" (
     "updated_at" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+-- 群邀请
+CREATE TABLE IF NOT EXISTS "group_invites" (
+    "id"         BIGSERIAL PRIMARY KEY,
+    "group_id"   BIGINT NOT NULL,
+    "inviter"    BIGINT NOT NULL,
+    "invitee"    BIGINT NOT NULL,
+    "message"    TEXT,
+    "status"     VARCHAR(16) NOT NULL DEFAULT 'pending',
+    "created_at" TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT "group_invites_status_check" CHECK ("status" IN ('pending', 'accepted', 'rejected')),
+    CONSTRAINT "group_invites_unique" UNIQUE ("group_id", "invitee")
+);
+
+CREATE INDEX IF NOT EXISTS "idx_group_invites_invitee" ON "group_invites" ("invitee");
+
+-- 群加群申请
+CREATE TABLE IF NOT EXISTS "group_join_requests" (
+    "id"         BIGSERIAL PRIMARY KEY,
+    "group_id"   BIGINT NOT NULL,
+    "uid"        BIGINT NOT NULL,
+    "message"    TEXT,
+    "status"     VARCHAR(16) NOT NULL DEFAULT 'pending',
+    "created_at" TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT "group_join_requests_status_check" CHECK ("status" IN ('pending', 'accepted', 'rejected')),
+    CONSTRAINT "group_join_requests_unique" UNIQUE ("group_id", "uid")
+);
+
+CREATE INDEX IF NOT EXISTS "idx_group_join_requests_group_id" ON "group_join_requests" ("group_id");
+
+-- 用户未读消息数
+CREATE TABLE IF NOT EXISTS "user_unread" (
+    "uid" BIGINT NOT NULL,
+    "conv_id" BIGINT NOT NULL,
+    "unread_count" BIGINT NOT NULL DEFAULT 0,
+    "updated_at" TIMESTAMP NOT NULL DEFAULT NOW(),
+    PRIMARY KEY ("uid", "conv_id")
+);
+
+-- 好友申请表
+CREATE TABLE IF NOT EXISTS "friend_requests" (
+    "id"         BIGSERIAL PRIMARY KEY,
+    "uid"        BIGINT NOT NULL,
+    "to_uid"     BIGINT NOT NULL,
+    "message"    TEXT,
+    "status"     VARCHAR(16) NOT NULL DEFAULT 'pending',
+    "created_at" TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT "friend_requests_status_check" CHECK ("status" IN ('pending', 'accepted', 'rejected')),
+    CONSTRAINT "friend_requests_unique" UNIQUE ("uid", "to_uid")
+);
+
+CREATE INDEX IF NOT EXISTS "idx_friend_requests_uid" ON "friend_requests" ("uid");
+CREATE INDEX IF NOT EXISTS "idx_friend_requests_to_uid" ON "friend_requests" ("to_uid");
+
 CREATE INDEX IF NOT EXISTS "idx_friendship_uid" ON "friendship" ("uid");
 CREATE INDEX IF NOT EXISTS "idx_friendship_peer_uid" ON "friendship" ("peer_uid");
+CREATE INDEX IF NOT EXISTS "idx_user_unread_uid" ON "user_unread" ("uid");
+CREATE INDEX IF NOT EXISTS "idx_user_unread_conv_id" ON "user_unread" ("conv_id");
 CREATE INDEX IF NOT EXISTS "idx_blacklist_uid" ON "blacklist" ("uid");
 CREATE INDEX IF NOT EXISTS "idx_blacklist_peer_uid" ON "blacklist" ("peer_uid");
 CREATE INDEX IF NOT EXISTS "idx_groups_group_id" ON "groups" ("group_id");

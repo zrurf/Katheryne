@@ -4,3 +4,25 @@ Etcd:
   Hosts:
   - "etcd:2379"
   Key: oss.rpc
+
+Telemetry:
+  Name: oss.rpc
+  Endpoint: otel-collector:4317
+  Batcher: otlpgrpc
+  Sampler: 1.0
+
+DevServer:
+  Enable: true
+  Port: 6066
+  MetricsPath: /metrics
+  HealthPath: /healthz
+
+RedisAddr: "garnet:6379"
+
+RustFS:
+  Endpoint: "http://rustfs:9000"
+  AccessKey: "kadmin"
+  SecretKey: "nimdaP@ssW0rd"
+  Bucket: "aim-files"
+  Region: "us-east-1"
+  UseSSL: false

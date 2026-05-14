@@ -1,13 +1,12 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package social
 
 import (
 	"context"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
+	"social/socialclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +26,20 @@ func NewUpdateFriendRemarkLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 }
 
 func (l *UpdateFriendRemarkLogic) UpdateFriendRemark(req *types.UpdateFriendRemarkReq) (resp *types.UpdateFriendRemarkResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	uid := l.ctx.Value("uid").(int64)
+	peerUid, err := strconv.ParseInt(req.UID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	_, err = l.svcCtx.SocialRpc.UpdateFriendRemark(l.ctx, &socialclient.UpdateFriendRemarkReq{
+		Uid:       uid,
+		PeerUid:   peerUid,
+		Remark:    req.Remark,
+		GroupName: req.GroupName,
+	})
+	if err != nil {
+		l.Errorf("UpdateFriendRemark RPC failed: %v", err)
+		return nil, err
+	}
+	return &types.UpdateFriendRemarkResp{Result: true}, nil
 }

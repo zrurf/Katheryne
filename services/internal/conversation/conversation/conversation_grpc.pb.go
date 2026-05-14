@@ -8,6 +8,7 @@ package conversation
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -29,6 +30,10 @@ const (
 	Conversation_AddConvMembers_FullMethodName        = "/conversation.conversation/AddConvMembers"
 	Conversation_RemoveConvMembers_FullMethodName     = "/conversation.conversation/RemoveConvMembers"
 	Conversation_GetConvMembers_FullMethodName        = "/conversation.conversation/GetConvMembers"
+	Conversation_ClearUnread_FullMethodName           = "/conversation.conversation/ClearUnread"
+	Conversation_GetTotalUnread_FullMethodName        = "/conversation.conversation/GetTotalUnread"
+	Conversation_UpdateLastMessage_FullMethodName     = "/conversation.conversation/UpdateLastMessage"
+	Conversation_IncrementUnread_FullMethodName       = "/conversation.conversation/IncrementUnread"
 )
 
 // ConversationClient is the client API for Conversation service.
@@ -45,6 +50,10 @@ type ConversationClient interface {
 	AddConvMembers(ctx context.Context, in *AddConvMembersReq, opts ...grpc.CallOption) (*AddConvMembersResp, error)
 	RemoveConvMembers(ctx context.Context, in *RemoveConvMembersReq, opts ...grpc.CallOption) (*RemoveConvMembersResp, error)
 	GetConvMembers(ctx context.Context, in *GetConvMembersReq, opts ...grpc.CallOption) (*GetConvMembersResp, error)
+	ClearUnread(ctx context.Context, in *ClearUnreadReq, opts ...grpc.CallOption) (*ClearUnreadResp, error)
+	GetTotalUnread(ctx context.Context, in *GetTotalUnreadReq, opts ...grpc.CallOption) (*GetTotalUnreadResp, error)
+	UpdateLastMessage(ctx context.Context, in *UpdateLastMessageReq, opts ...grpc.CallOption) (*UpdateLastMessageResp, error)
+	IncrementUnread(ctx context.Context, in *IncrementUnreadReq, opts ...grpc.CallOption) (*IncrementUnreadResp, error)
 }
 
 type conversationClient struct {
@@ -155,6 +164,46 @@ func (c *conversationClient) GetConvMembers(ctx context.Context, in *GetConvMemb
 	return out, nil
 }
 
+func (c *conversationClient) ClearUnread(ctx context.Context, in *ClearUnreadReq, opts ...grpc.CallOption) (*ClearUnreadResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClearUnreadResp)
+	err := c.cc.Invoke(ctx, Conversation_ClearUnread_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *conversationClient) GetTotalUnread(ctx context.Context, in *GetTotalUnreadReq, opts ...grpc.CallOption) (*GetTotalUnreadResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetTotalUnreadResp)
+	err := c.cc.Invoke(ctx, Conversation_GetTotalUnread_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *conversationClient) UpdateLastMessage(ctx context.Context, in *UpdateLastMessageReq, opts ...grpc.CallOption) (*UpdateLastMessageResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateLastMessageResp)
+	err := c.cc.Invoke(ctx, Conversation_UpdateLastMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *conversationClient) IncrementUnread(ctx context.Context, in *IncrementUnreadReq, opts ...grpc.CallOption) (*IncrementUnreadResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(IncrementUnreadResp)
+	err := c.cc.Invoke(ctx, Conversation_IncrementUnread_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ConversationServer is the server API for Conversation service.
 // All implementations must embed UnimplementedConversationServer
 // for forward compatibility.
@@ -169,6 +218,10 @@ type ConversationServer interface {
 	AddConvMembers(context.Context, *AddConvMembersReq) (*AddConvMembersResp, error)
 	RemoveConvMembers(context.Context, *RemoveConvMembersReq) (*RemoveConvMembersResp, error)
 	GetConvMembers(context.Context, *GetConvMembersReq) (*GetConvMembersResp, error)
+	ClearUnread(context.Context, *ClearUnreadReq) (*ClearUnreadResp, error)
+	GetTotalUnread(context.Context, *GetTotalUnreadReq) (*GetTotalUnreadResp, error)
+	UpdateLastMessage(context.Context, *UpdateLastMessageReq) (*UpdateLastMessageResp, error)
+	IncrementUnread(context.Context, *IncrementUnreadReq) (*IncrementUnreadResp, error)
 	mustEmbedUnimplementedConversationServer()
 }
 
@@ -208,6 +261,18 @@ func (UnimplementedConversationServer) RemoveConvMembers(context.Context, *Remov
 }
 func (UnimplementedConversationServer) GetConvMembers(context.Context, *GetConvMembersReq) (*GetConvMembersResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetConvMembers not implemented")
+}
+func (UnimplementedConversationServer) ClearUnread(context.Context, *ClearUnreadReq) (*ClearUnreadResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method ClearUnread not implemented")
+}
+func (UnimplementedConversationServer) GetTotalUnread(context.Context, *GetTotalUnreadReq) (*GetTotalUnreadResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetTotalUnread not implemented")
+}
+func (UnimplementedConversationServer) UpdateLastMessage(context.Context, *UpdateLastMessageReq) (*UpdateLastMessageResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateLastMessage not implemented")
+}
+func (UnimplementedConversationServer) IncrementUnread(context.Context, *IncrementUnreadReq) (*IncrementUnreadResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method IncrementUnread not implemented")
 }
 func (UnimplementedConversationServer) mustEmbedUnimplementedConversationServer() {}
 func (UnimplementedConversationServer) testEmbeddedByValue()                      {}
@@ -410,6 +475,78 @@ func _Conversation_GetConvMembers_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Conversation_ClearUnread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClearUnreadReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConversationServer).ClearUnread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Conversation_ClearUnread_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConversationServer).ClearUnread(ctx, req.(*ClearUnreadReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Conversation_GetTotalUnread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTotalUnreadReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConversationServer).GetTotalUnread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Conversation_GetTotalUnread_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConversationServer).GetTotalUnread(ctx, req.(*GetTotalUnreadReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Conversation_UpdateLastMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateLastMessageReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConversationServer).UpdateLastMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Conversation_UpdateLastMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConversationServer).UpdateLastMessage(ctx, req.(*UpdateLastMessageReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Conversation_IncrementUnread_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IncrementUnreadReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConversationServer).IncrementUnread(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Conversation_IncrementUnread_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConversationServer).IncrementUnread(ctx, req.(*IncrementUnreadReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Conversation_ServiceDesc is the grpc.ServiceDesc for Conversation service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -456,6 +593,22 @@ var Conversation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetConvMembers",
 			Handler:    _Conversation_GetConvMembers_Handler,
+		},
+		{
+			MethodName: "ClearUnread",
+			Handler:    _Conversation_ClearUnread_Handler,
+		},
+		{
+			MethodName: "GetTotalUnread",
+			Handler:    _Conversation_GetTotalUnread_Handler,
+		},
+		{
+			MethodName: "UpdateLastMessage",
+			Handler:    _Conversation_UpdateLastMessage_Handler,
+		},
+		{
+			MethodName: "IncrementUnread",
+			Handler:    _Conversation_IncrementUnread_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

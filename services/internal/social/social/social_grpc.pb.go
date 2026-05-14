@@ -45,9 +45,18 @@ const (
 	Social_IsGroupMuted_FullMethodName           = "/social.social/IsGroupMuted"
 	Social_CreateAnnouncement_FullMethodName     = "/social.social/CreateAnnouncement"
 	Social_GetAnnouncements_FullMethodName       = "/social.social/GetAnnouncements"
+	Social_SetGroupAnnouncement_FullMethodName   = "/social.social/SetGroupAnnouncement"
+	Social_GetGroupAnnouncement_FullMethodName   = "/social.social/GetGroupAnnouncement"
 	Social_InviteToGroup_FullMethodName          = "/social.social/InviteToGroup"
 	Social_HandleGroupInvite_FullMethodName      = "/social.social/HandleGroupInvite"
 	Social_GetGroupInvites_FullMethodName        = "/social.social/GetGroupInvites"
+	Social_GetUserInfo_FullMethodName            = "/social.social/GetUserInfo"
+	Social_UpdateUserInfo_FullMethodName         = "/social.social/UpdateUserInfo"
+	Social_SearchUser_FullMethodName             = "/social.social/SearchUser"
+	Social_GetUserProfile_FullMethodName         = "/social.social/GetUserProfile"
+	Social_GetUserGroups_FullMethodName          = "/social.social/GetUserGroups"
+	Social_GetOnlineStatus_FullMethodName        = "/social.social/GetOnlineStatus"
+	Social_UpdateOnlineStatus_FullMethodName     = "/social.social/UpdateOnlineStatus"
 )
 
 // SocialClient is the client API for Social service.
@@ -86,10 +95,22 @@ type SocialClient interface {
 	// 群公告
 	CreateAnnouncement(ctx context.Context, in *CreateAnnouncementReq, opts ...grpc.CallOption) (*CreateAnnouncementResp, error)
 	GetAnnouncements(ctx context.Context, in *GetAnnouncementsReq, opts ...grpc.CallOption) (*GetAnnouncementsResp, error)
+	SetGroupAnnouncement(ctx context.Context, in *SetGroupAnnouncementReq, opts ...grpc.CallOption) (*SetGroupAnnouncementResp, error)
+	GetGroupAnnouncement(ctx context.Context, in *GetGroupAnnouncementReq, opts ...grpc.CallOption) (*GetGroupAnnouncementResp, error)
 	// 邀请进群
 	InviteToGroup(ctx context.Context, in *InviteToGroupReq, opts ...grpc.CallOption) (*InviteToGroupResp, error)
 	HandleGroupInvite(ctx context.Context, in *HandleGroupInviteReq, opts ...grpc.CallOption) (*HandleGroupInviteResp, error)
 	GetGroupInvites(ctx context.Context, in *GetGroupInvitesReq, opts ...grpc.CallOption) (*GetGroupInvitesResp, error)
+	// 用户
+	GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserInfoResp, error)
+	UpdateUserInfo(ctx context.Context, in *UpdateUserInfoReq, opts ...grpc.CallOption) (*UpdateUserInfoResp, error)
+	SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error)
+	GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...grpc.CallOption) (*GetUserProfileResp, error)
+	// 用户群组
+	GetUserGroups(ctx context.Context, in *GetUserGroupsReq, opts ...grpc.CallOption) (*GetUserGroupsResp, error)
+	// 在线状态
+	GetOnlineStatus(ctx context.Context, in *GetOnlineStatusReq, opts ...grpc.CallOption) (*GetOnlineStatusResp, error)
+	UpdateOnlineStatus(ctx context.Context, in *UpdateOnlineStatusReq, opts ...grpc.CallOption) (*UpdateOnlineStatusResp, error)
 }
 
 type socialClient struct {
@@ -360,6 +381,26 @@ func (c *socialClient) GetAnnouncements(ctx context.Context, in *GetAnnouncement
 	return out, nil
 }
 
+func (c *socialClient) SetGroupAnnouncement(ctx context.Context, in *SetGroupAnnouncementReq, opts ...grpc.CallOption) (*SetGroupAnnouncementResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetGroupAnnouncementResp)
+	err := c.cc.Invoke(ctx, Social_SetGroupAnnouncement_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socialClient) GetGroupAnnouncement(ctx context.Context, in *GetGroupAnnouncementReq, opts ...grpc.CallOption) (*GetGroupAnnouncementResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetGroupAnnouncementResp)
+	err := c.cc.Invoke(ctx, Social_GetGroupAnnouncement_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *socialClient) InviteToGroup(ctx context.Context, in *InviteToGroupReq, opts ...grpc.CallOption) (*InviteToGroupResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(InviteToGroupResp)
@@ -384,6 +425,76 @@ func (c *socialClient) GetGroupInvites(ctx context.Context, in *GetGroupInvitesR
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetGroupInvitesResp)
 	err := c.cc.Invoke(ctx, Social_GetGroupInvites_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socialClient) GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserInfoResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserInfoResp)
+	err := c.cc.Invoke(ctx, Social_GetUserInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socialClient) UpdateUserInfo(ctx context.Context, in *UpdateUserInfoReq, opts ...grpc.CallOption) (*UpdateUserInfoResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateUserInfoResp)
+	err := c.cc.Invoke(ctx, Social_UpdateUserInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socialClient) SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SearchUserResp)
+	err := c.cc.Invoke(ctx, Social_SearchUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socialClient) GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...grpc.CallOption) (*GetUserProfileResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserProfileResp)
+	err := c.cc.Invoke(ctx, Social_GetUserProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socialClient) GetUserGroups(ctx context.Context, in *GetUserGroupsReq, opts ...grpc.CallOption) (*GetUserGroupsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserGroupsResp)
+	err := c.cc.Invoke(ctx, Social_GetUserGroups_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socialClient) GetOnlineStatus(ctx context.Context, in *GetOnlineStatusReq, opts ...grpc.CallOption) (*GetOnlineStatusResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetOnlineStatusResp)
+	err := c.cc.Invoke(ctx, Social_GetOnlineStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socialClient) UpdateOnlineStatus(ctx context.Context, in *UpdateOnlineStatusReq, opts ...grpc.CallOption) (*UpdateOnlineStatusResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateOnlineStatusResp)
+	err := c.cc.Invoke(ctx, Social_UpdateOnlineStatus_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -426,10 +537,22 @@ type SocialServer interface {
 	// 群公告
 	CreateAnnouncement(context.Context, *CreateAnnouncementReq) (*CreateAnnouncementResp, error)
 	GetAnnouncements(context.Context, *GetAnnouncementsReq) (*GetAnnouncementsResp, error)
+	SetGroupAnnouncement(context.Context, *SetGroupAnnouncementReq) (*SetGroupAnnouncementResp, error)
+	GetGroupAnnouncement(context.Context, *GetGroupAnnouncementReq) (*GetGroupAnnouncementResp, error)
 	// 邀请进群
 	InviteToGroup(context.Context, *InviteToGroupReq) (*InviteToGroupResp, error)
 	HandleGroupInvite(context.Context, *HandleGroupInviteReq) (*HandleGroupInviteResp, error)
 	GetGroupInvites(context.Context, *GetGroupInvitesReq) (*GetGroupInvitesResp, error)
+	// 用户
+	GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoResp, error)
+	UpdateUserInfo(context.Context, *UpdateUserInfoReq) (*UpdateUserInfoResp, error)
+	SearchUser(context.Context, *SearchUserReq) (*SearchUserResp, error)
+	GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileResp, error)
+	// 用户群组
+	GetUserGroups(context.Context, *GetUserGroupsReq) (*GetUserGroupsResp, error)
+	// 在线状态
+	GetOnlineStatus(context.Context, *GetOnlineStatusReq) (*GetOnlineStatusResp, error)
+	UpdateOnlineStatus(context.Context, *UpdateOnlineStatusReq) (*UpdateOnlineStatusResp, error)
 	mustEmbedUnimplementedSocialServer()
 }
 
@@ -518,6 +641,12 @@ func (UnimplementedSocialServer) CreateAnnouncement(context.Context, *CreateAnno
 func (UnimplementedSocialServer) GetAnnouncements(context.Context, *GetAnnouncementsReq) (*GetAnnouncementsResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAnnouncements not implemented")
 }
+func (UnimplementedSocialServer) SetGroupAnnouncement(context.Context, *SetGroupAnnouncementReq) (*SetGroupAnnouncementResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetGroupAnnouncement not implemented")
+}
+func (UnimplementedSocialServer) GetGroupAnnouncement(context.Context, *GetGroupAnnouncementReq) (*GetGroupAnnouncementResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetGroupAnnouncement not implemented")
+}
 func (UnimplementedSocialServer) InviteToGroup(context.Context, *InviteToGroupReq) (*InviteToGroupResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method InviteToGroup not implemented")
 }
@@ -526,6 +655,27 @@ func (UnimplementedSocialServer) HandleGroupInvite(context.Context, *HandleGroup
 }
 func (UnimplementedSocialServer) GetGroupInvites(context.Context, *GetGroupInvitesReq) (*GetGroupInvitesResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetGroupInvites not implemented")
+}
+func (UnimplementedSocialServer) GetUserInfo(context.Context, *GetUserInfoReq) (*GetUserInfoResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUserInfo not implemented")
+}
+func (UnimplementedSocialServer) UpdateUserInfo(context.Context, *UpdateUserInfoReq) (*UpdateUserInfoResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateUserInfo not implemented")
+}
+func (UnimplementedSocialServer) SearchUser(context.Context, *SearchUserReq) (*SearchUserResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method SearchUser not implemented")
+}
+func (UnimplementedSocialServer) GetUserProfile(context.Context, *GetUserProfileReq) (*GetUserProfileResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUserProfile not implemented")
+}
+func (UnimplementedSocialServer) GetUserGroups(context.Context, *GetUserGroupsReq) (*GetUserGroupsResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUserGroups not implemented")
+}
+func (UnimplementedSocialServer) GetOnlineStatus(context.Context, *GetOnlineStatusReq) (*GetOnlineStatusResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetOnlineStatus not implemented")
+}
+func (UnimplementedSocialServer) UpdateOnlineStatus(context.Context, *UpdateOnlineStatusReq) (*UpdateOnlineStatusResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateOnlineStatus not implemented")
 }
 func (UnimplementedSocialServer) mustEmbedUnimplementedSocialServer() {}
 func (UnimplementedSocialServer) testEmbeddedByValue()                {}
@@ -1016,6 +1166,42 @@ func _Social_GetAnnouncements_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Social_SetGroupAnnouncement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetGroupAnnouncementReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).SetGroupAnnouncement(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_SetGroupAnnouncement_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).SetGroupAnnouncement(ctx, req.(*SetGroupAnnouncementReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Social_GetGroupAnnouncement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetGroupAnnouncementReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).GetGroupAnnouncement(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_GetGroupAnnouncement_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).GetGroupAnnouncement(ctx, req.(*GetGroupAnnouncementReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Social_InviteToGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(InviteToGroupReq)
 	if err := dec(in); err != nil {
@@ -1066,6 +1252,132 @@ func _Social_GetGroupInvites_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SocialServer).GetGroupInvites(ctx, req.(*GetGroupInvitesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Social_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).GetUserInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_GetUserInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).GetUserInfo(ctx, req.(*GetUserInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Social_UpdateUserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).UpdateUserInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_UpdateUserInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).UpdateUserInfo(ctx, req.(*UpdateUserInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Social_SearchUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).SearchUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_SearchUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).SearchUser(ctx, req.(*SearchUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Social_GetUserProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserProfileReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).GetUserProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_GetUserProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).GetUserProfile(ctx, req.(*GetUserProfileReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Social_GetUserGroups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserGroupsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).GetUserGroups(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_GetUserGroups_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).GetUserGroups(ctx, req.(*GetUserGroupsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Social_GetOnlineStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOnlineStatusReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).GetOnlineStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_GetOnlineStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).GetOnlineStatus(ctx, req.(*GetOnlineStatusReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Social_UpdateOnlineStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateOnlineStatusReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).UpdateOnlineStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_UpdateOnlineStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).UpdateOnlineStatus(ctx, req.(*UpdateOnlineStatusReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1182,6 +1494,14 @@ var Social_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Social_GetAnnouncements_Handler,
 		},
 		{
+			MethodName: "SetGroupAnnouncement",
+			Handler:    _Social_SetGroupAnnouncement_Handler,
+		},
+		{
+			MethodName: "GetGroupAnnouncement",
+			Handler:    _Social_GetGroupAnnouncement_Handler,
+		},
+		{
 			MethodName: "InviteToGroup",
 			Handler:    _Social_InviteToGroup_Handler,
 		},
@@ -1192,6 +1512,34 @@ var Social_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetGroupInvites",
 			Handler:    _Social_GetGroupInvites_Handler,
+		},
+		{
+			MethodName: "GetUserInfo",
+			Handler:    _Social_GetUserInfo_Handler,
+		},
+		{
+			MethodName: "UpdateUserInfo",
+			Handler:    _Social_UpdateUserInfo_Handler,
+		},
+		{
+			MethodName: "SearchUser",
+			Handler:    _Social_SearchUser_Handler,
+		},
+		{
+			MethodName: "GetUserProfile",
+			Handler:    _Social_GetUserProfile_Handler,
+		},
+		{
+			MethodName: "GetUserGroups",
+			Handler:    _Social_GetUserGroups_Handler,
+		},
+		{
+			MethodName: "GetOnlineStatus",
+			Handler:    _Social_GetOnlineStatus_Handler,
+		},
+		{
+			MethodName: "UpdateOnlineStatus",
+			Handler:    _Social_UpdateOnlineStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

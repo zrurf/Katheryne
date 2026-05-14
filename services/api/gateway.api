@@ -44,7 +44,7 @@ type (
 		SessionId string `json:"sid"`
 	}
 	LoginFinalizeResponse {
-		UID          int64  `json:"uid"`
+		UID          string `json:"uid"`
 		Need2FA      bool   `json:"need_2fa"` // 是否需要进行二次验证
 		TFAToken     string `json:"tfa_token,omitempty"` // 二次验证临时令牌
 		AccessToken  string `json:"access_token,omitempty"`
@@ -57,7 +57,7 @@ type (
 		Code     string `json:"code"`
 	}
 	TFAVerifyResponse {
-		UID          int64  `json:"uid"`
+		UID          string `json:"uid"`
 		AccessToken  string `json:"access_token"`
 		RefreshToken string `json:"refresh_token"`
 		ExpiresAt    int64  `json:"expires_at"`
@@ -68,11 +68,11 @@ type (
 	}
 	// 用户信息
 	UserInfoRequest {
-		Uid           int64  `path:"uid"`
+		Uid           string `path:"uid"`
 		Authorization string `header:"Authorization"`
 	}
 	UserInfoResponse {
-		UID       int64  `json:"uid"`
+		UID       string `json:"uid"`
 		Name      string `json:"name"`
 		Avatar    string `json:"avatar"`
 		Status    string `json:"status"`
@@ -159,14 +159,14 @@ type (
 // IM社交服务
 type (
 	SendFriendRequest {
-		UID     int64  `json:"uid"`
+		UID     string `json:"uid"`
 		Message string `json:"message,optional"`
 	}
 	SendFriendResponse {
 		Result bool `json:"result"`
 	}
 	HandleFriendRequest {
-		ReqID  int64  `path:"id"`
+		ReqID  string `path:"id"`
 		Action string `json:"action"` // accept / reject
 	}
 	HandleFriendResponse {
@@ -178,8 +178,8 @@ type (
 		Size int    `form:"size,default=20"`
 	}
 	FriendRequestItem {
-		ID        int64  `json:"id"`
-		UID       int64  `json:"uid"`
+		ID        string `json:"id"`
+		UID       string `json:"uid"`
 		Name      string `json:"name"`
 		Avatar    string `json:"avatar"`
 		Message   string `json:"message"`
@@ -194,7 +194,7 @@ type (
 		Group string `form:"group,optional"`
 	}
 	FriendItem {
-		UID       int64  `json:"uid"`
+		UID       string `json:"uid"`
 		Name      string `json:"name"`
 		Avatar    string `json:"avatar"`
 		Remark    string `json:"remark"`
@@ -206,13 +206,13 @@ type (
 		List []FriendItem `json:"list"`
 	}
 	DeleteFriendReq {
-		UID int64 `json:"uid"`
+		UID string `json:"uid"`
 	}
 	DeleteFriendResp {
 		Result bool `json:"result"`
 	}
 	UpdateFriendRemarkReq {
-		UID       int64  `json:"uid"`
+		UID       string `json:"uid"`
 		Remark    string `json:"remark"`
 		GroupName string `json:"group_name,optional"`
 	}
@@ -220,13 +220,13 @@ type (
 		Result bool `json:"result"`
 	}
 	AddBlacklistReq {
-		UID int64 `json:"uid"`
+		UID string `json:"uid"`
 	}
 	AddBlacklistResp {
 		Result bool `json:"result"`
 	}
 	RemoveBlacklistReq {
-		UID int64 `json:"uid"`
+		UID string `json:"uid"`
 	}
 	RemoveBlacklistResp {
 		Result bool `json:"result"`
@@ -235,15 +235,15 @@ type (
 		List []FriendItem `json:"list"`
 	}
 	InviteToGroupReq {
-		GroupID     int64   `json:"group_id"`
-		InviteeUIDs []int64 `json:"invitee_uids"`
-		Message     string  `json:"message,optional"`
+		GroupID     string   `json:"group_id"`
+		InviteeUIDs []string `json:"invitee_uids"`
+		Message     string   `json:"message,optional"`
 	}
 	InviteToGroupResp {
-		FailedUIDs []int64 `json:"failed_uids"`
+		FailedUIDs []string `json:"failed_uids"`
 	}
 	HandleGroupInviteReq {
-		ID     int64  `path:"id"`
+		ID     string `path:"id"`
 		Action string `json:"action"` // accept / reject
 	}
 	HandleGroupInviteResp {
@@ -251,11 +251,11 @@ type (
 	}
 	GetGroupInvitesReq  {}
 	GroupInviteItem {
-		ID          int64  `json:"id"`
-		GroupID     int64  `json:"group_id"`
+		ID          string `json:"id"`
+		GroupID     string `json:"group_id"`
 		GroupName   string `json:"group_name"`
 		GroupAvatar string `json:"group_avatar"`
-		InviterUID  int64  `json:"inviter_uid"`
+		InviterUID  string `json:"inviter_uid"`
 		InviterName string `json:"inviter_name"`
 		Message     string `json:"message"`
 		CreatedAt   int64  `json:"created_at"`
@@ -268,30 +268,30 @@ type (
 // 群聊model
 type (
 	CreateGroupReq {
-		Name       string  `json:"name"`
-		Avatar     string  `json:"avatar,optional"`
-		MemberUIDs []int64 `json:"member_uids,optional"`
-		VerifyMode string  `json:"verify_mode,default=NONE"`
+		Name       string   `json:"name"`
+		Avatar     string   `json:"avatar,optional"`
+		MemberUIDs []string `json:"member_uids,optional"`
+		VerifyMode string   `json:"verify_mode,default=NONE"`
 	}
 	CreateGroupResp {
-		GroupID int64 `json:"group_id"`
-		ConvID  int64 `json:"conv_id"`
+		GroupID string `json:"group_id"`
+		ConvID  string `json:"conv_id"`
 	}
 	GetGroupInfoReq {
-		GroupID int64 `path:"group_id"`
+		GroupID string `path:"group_id"`
 	}
 	GroupInfoResp {
-		GroupID     int64  `json:"group_id"`
+		GroupID     string `json:"group_id"`
 		Name        string `json:"name"`
 		Avatar      string `json:"avatar"`
-		Owner       int64  `json:"owner"`
+		Owner       string `json:"owner"`
 		MemberCount int    `json:"member_count"`
 		Status      string `json:"status"`
 		VerifyMode  string `json:"verify_mode"`
 		CreatedAt   int64  `json:"created_at"`
 	}
 	UpdateGroupReq {
-		GroupID    int64  `json:"group_id"`
+		GroupID    string `json:"group_id"`
 		Name       string `json:"name,optional"`
 		Avatar     string `json:"avatar,optional"`
 		VerifyMode string `json:"verify_mode,optional"`
@@ -300,46 +300,46 @@ type (
 		Result bool `json:"result"`
 	}
 	JoinGroupReq {
-		GroupID int64  `json:"group_id"`
+		GroupID string `json:"group_id"`
 		Message string `json:"message,optional"`
 	}
 	JoinGroupResp {
 		Result bool `json:"result"`
 	}
 	LeaveGroupReq {
-		GroupID int64 `json:"group_id"`
+		GroupID string `json:"group_id"`
 	}
 	LeaveGroupResp {
 		Result bool `json:"result"`
 	}
 	KickMemberReq {
-		GroupID int64 `json:"group_id"`
-		UID     int64 `json:"uid"`
+		GroupID string `json:"group_id"`
+		UID     string `json:"uid"`
 	}
 	KickMemberResp {
 		Result bool `json:"result"`
 	}
 	MuteMemberReq {
-		GroupID  int64 `json:"group_id"`
-		UID      int64 `json:"uid"`
-		Duration int   `json:"duration"` // 秒
+		GroupID  string `json:"group_id"`
+		UID      string `json:"uid"`
+		Duration int    `json:"duration"` // 秒
 	}
 	MuteMemberResp {
 		Result bool `json:"result"`
 	}
 	TransferOwnerReq {
-		GroupID  int64 `json:"group_id"`
-		NewOwner int64 `json:"new_owner"`
+		GroupID  string `json:"group_id"`
+		NewOwner string `json:"new_owner"`
 	}
 	TransferOwnerResp {
 		Result bool `json:"result"`
 	}
 	GetGroupMembersReq {
-		GroupID int64  `path:"group_id"`
+		GroupID string `path:"group_id"`
 		Role    string `form:"role,optional"`
 	}
 	GroupMemberItem {
-		UID       int64  `json:"uid"`
+		UID       string `json:"uid"`
 		Name      string `json:"name"`
 		Avatar    string `json:"avatar"`
 		Role      string `json:"role"`
@@ -351,7 +351,7 @@ type (
 		List []GroupMemberItem `json:"list"`
 	}
 	HandleGroupJoinReq {
-		ReqID  int64  `path:"id"`
+		ReqID  string `path:"id"`
 		Action string `json:"action"` // accept / reject
 	}
 	HandleGroupJoinResp {
@@ -359,20 +359,20 @@ type (
 	}
 	// 群公告
 	CreateAnnouncementReq {
-		GroupID int64  `json:"group_id"`
+		GroupID string `json:"group_id"`
 		Content string `json:"content"`
 	}
 	CreateAnnouncementResp {
 		Result bool `json:"result"`
 	}
 	GetAnnouncementsReq {
-		GroupID int64 `path:"group_id"`
-		Page    int   `form:"page,default=1"`
-		Size    int   `form:"size,default=20"`
+		GroupID string `path:"group_id"`
+		Page    int    `form:"page,default=1"`
+		Size    int    `form:"size,default=20"`
 	}
 	AnnouncementItem {
-		ID        int64  `json:"id"`
-		UID       int64  `json:"uid"`
+		ID        string `json:"id"`
+		UID       string `json:"uid"`
 		Name      string `json:"name"`
 		Content   string `json:"content"`
 		Pinned    bool   `json:"pinned"`
@@ -384,12 +384,12 @@ type (
 	}
 	// 入群申请列表
 	GetGroupJoinRequestsReq {
-		GroupID int64  `path:"group_id"`
+		GroupID string `path:"group_id"`
 		Status  string `form:"status,optional"`
 	}
 	GroupJoinRequestItem {
-		ID        int64  `json:"id"`
-		UID       int64  `json:"uid"`
+		ID        string `json:"id"`
+		UID       string `json:"uid"`
 		Name      string `json:"name"`
 		Avatar    string `json:"avatar"`
 		Message   string `json:"message"`
@@ -404,21 +404,21 @@ type (
 // IM消息服务model
 type (
 	GetMessagesReq {
-		ConvID    int64  `path:"conv_id"`
-		Cursor    int64  `form:"cursor,optional"` // 上一页最后一条消息 ID，空=最新
+		ConvID    string `path:"conv_id"`
+		Cursor    string `form:"cursor,optional"` // 上一页最后一条消息 ID，空=最新
 		Limit     int    `form:"limit,default=30"`
 		Direction string `form:"direction,default=before"` // before / after
 	}
 	MessageItem {
-		ID           int64  `json:"id"`
-		ConvID       int64  `json:"conv_id"`
-		Sender       int64  `json:"sender"`
+		ID           string `json:"id"`
+		ConvID       string `json:"conv_id"`
+		Sender       string `json:"sender"`
 		SenderName   string `json:"sender_name"`
 		SenderAvatar string `json:"sender_avatar"`
 		Type         string `json:"type"`
 		Content      string `json:"content"`
 		ContentType  string `json:"content_type"`
-		QuoteMsgID   int64  `json:"quote_msg_id,omitempty"`
+		QuoteMsgID   string `json:"quote_msg_id,omitempty"`
 		QuoteContent string `json:"quote_content,omitempty"`
 		Recalled     bool   `json:"recalled"`
 		Edited       bool   `json:"edited"`
@@ -429,10 +429,24 @@ type (
 		List    []MessageItem `json:"list"`
 		HasMore bool          `json:"has_more"`
 	}
+	SendMessageReq {
+		ConvID      string `json:"conv_id"`
+		Receiver    string `json:"receiver,optional"`
+		Type        string `json:"type,default=text"`
+		Content     string `json:"content"`
+		ContentType string `json:"content_type,default=text"`
+		QuoteMsgID  string `json:"quote_msg_id,optional"`
+		Extra       string `json:"extra,optional"`
+	}
+	SendMessageResp {
+		MsgID     string `json:"msg_id"`
+		ConvID    string `json:"conv_id"`
+		CreatedAt int64  `json:"created_at"`
+	}
 	SearchMessagesReq {
 		Keyword   string `form:"keyword"`
-		ConvID    int64  `form:"conv_id,optional"`
-		Sender    int64  `form:"sender,optional"`
+		ConvID    string `form:"conv_id,optional"`
+		Sender    string `form:"sender,optional"`
 		StartTime int64  `form:"start_time,optional"`
 		EndTime   int64  `form:"end_time,optional"`
 		Page      int    `form:"page,default=1"`
@@ -443,22 +457,22 @@ type (
 		Total int64         `json:"total"`
 	}
 	RecallMessageReq {
-		ConvID int64 `json:"conv_id"`
-		MsgID  int64 `json:"msg_id"`
+		ConvID string `json:"conv_id"`
+		MsgID  string `json:"msg_id"`
 	}
 	RecallMessageResp  {}
 	EditMessageReq {
-		ConvID  int64  `json:"conv_id"`
-		MsgID   int64  `json:"msg_id"`
+		ConvID  string `json:"conv_id"`
+		MsgID   string `json:"msg_id"`
 		Content string `json:"content"`
 	}
 	EditMessageResp  {}
 	GetMessageReadMembersReq {
-		ConvID int64 `path:"conv_id"`
-		MsgID  int64 `path:"msg_id"`
+		ConvID string `path:"conv_id"`
+		MsgID  string `path:"msg_id"`
 	}
 	ReadMemberItem {
-		UID    int64  `json:"uid"`
+		UID    string `json:"uid"`
 		Name   string `json:"name"`
 		Avatar string `json:"avatar"`
 		ReadAt int64  `json:"read_at"`
@@ -469,13 +483,13 @@ type (
 	}
 	SyncOfflineMessagesReq {
 		DeviceID      string `form:"device_id"`
-		LastSyncMsgID int64  `form:"last_sync_msg_id,optional"`
+		LastSyncMsgID string `form:"last_sync_msg_id,optional"`
 		Limit         int    `form:"limit,default=100"`
 	}
 	SyncOfflineMessagesResp {
 		List             []MessageItem `json:"list"`
 		HasMore          bool          `json:"has_more"`
-		NewLastSyncMsgID int64         `json:"new_last_sync_msg_id"`
+		NewLastSyncMsgID string        `json:"new_last_sync_msg_id"`
 	}
 )
 
@@ -483,59 +497,62 @@ type (
 type (
 	GetConversationsReq  {}
 	ConversationItem {
-		ConvID         int64  `json:"conv_id"`
+		ConvID         string `json:"conv_id"`
 		Type           string `json:"type"` // SINGLE / GROUP
 		Name           string `json:"name"`
 		Avatar         string `json:"avatar"`
-		GroupID        int64  `json:"group_id,omitempty"`
-		LastMsgID      int64  `json:"last_msg_id,omitempty"`
+		GroupID        string `json:"group_id,omitempty"`
+		LastMsgID      string `json:"last_msg_id,omitempty"`
 		LastMsgSnippet string `json:"last_msg_snippet,omitempty"`
 		LastMsgTime    int64  `json:"last_msg_time,omitempty"`
-		LastMsgSender  int64  `json:"last_msg_sender,omitempty"`
+		LastMsgSender  string `json:"last_msg_sender,omitempty"`
 		UnreadCount    int64  `json:"unread_count"`
 		Mute           bool   `json:"mute"`
 		Pinned         bool   `json:"pinned"`
+		Uid            string `json:"uid,omitempty"`
+		PeerUid        string `json:"peer_uid,omitempty"`
 	}
 	GetConversationsResp {
 		List []ConversationItem `json:"list"`
 	}
 	GetConversationReq {
-		ConvID int64 `path:"conv_id"`
+		ConvID string `path:"conv_id"`
 	}
 	GetConversationResp {
-		ConvID  int64  `json:"conv_id"`
+		ConvID  string `json:"conv_id"`
 		Type    string `json:"type"`
 		Name    string `json:"name"`
 		Avatar  string `json:"avatar"`
-		GroupID int64  `json:"group_id,omitempty"`
+		GroupID string `json:"group_id,omitempty"`
 		Mute    bool   `json:"mute"`
 		Pinned  bool   `json:"pinned"`
+		PeerUid string `json:"peer_uid,omitempty"`
 	}
 	DeleteConversationReq {
-		ConvID int64 `json:"conv_id"`
+		ConvID string `json:"conv_id"`
 	}
 	DeleteConversationResp  {}
 	SetConvMuteReq {
-		ConvID int64 `json:"conv_id"`
-		Mute   bool  `json:"mute"`
+		ConvID string `json:"conv_id"`
+		Mute   bool   `json:"mute"`
 	}
 	SetConvMuteResp  {}
 	SetConvPinReq {
-		ConvID int64 `json:"conv_id"`
-		Pinned bool  `json:"pinned"`
+		ConvID string `json:"conv_id"`
+		Pinned bool   `json:"pinned"`
 	}
 	SetConvPinResp  {}
 	ClearUnreadReq {
-		ConvID int64 `json:"conv_id"`
+		ConvID string `json:"conv_id"`
 	}
 	ClearUnreadResp  {}
 	// 获取或创建单聊会话
 	GetOrCreateSingleConvReq {
-		PeerUID int64 `json:"peer_uid"`
+		PeerUID string `json:"peer_uid"`
 	}
 	GetOrCreateSingleConvResp {
-		ConvID  int64 `json:"conv_id"`
-		Created bool  `json:"created"`
+		ConvID  string `json:"conv_id"`
+		Created bool   `json:"created"`
 	}
 	GetTotalUnreadResp {
 		Count int64 `json:"count"`
@@ -703,6 +720,9 @@ service gateway-api {
 service gateway-api {
 	@handler GetMessages
 	get /:conv_id (GetMessagesReq) returns (GetMessagesResp)
+
+	@handler SendMessage
+	post /send (SendMessageReq) returns (SendMessageResp)
 
 	@handler SearchMessages
 	get /search (SearchMessagesReq) returns (SearchMessagesResp)

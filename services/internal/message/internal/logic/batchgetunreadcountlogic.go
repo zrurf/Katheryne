@@ -24,7 +24,19 @@ func NewBatchGetUnreadCountLogic(ctx context.Context, svcCtx *svc.ServiceContext
 }
 
 func (l *BatchGetUnreadCountLogic) BatchGetUnreadCount(in *message.BatchGetUnreadCountReq) (*message.BatchGetUnreadCountResp, error) {
-	// todo: add your logic here and delete this line
+	result, err := l.svcCtx.MessageDao.BatchGetUnreadCount(l.ctx, in.Uid, in.ConvIds)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
 
-	return &message.BatchGetUnreadCountResp{}, nil
+	list := make([]*message.ConvUnread, 0, len(result))
+	for convId, count := range result {
+		list = append(list, &message.ConvUnread{
+			ConvId: convId,
+			Count:  count,
+		})
+	}
+
+	return &message.BatchGetUnreadCountResp{List: list}, nil
 }

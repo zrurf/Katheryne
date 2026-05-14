@@ -1,6 +1,3 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package svc
 
 import (
@@ -13,6 +10,7 @@ import (
 	"social/socialclient"
 	"user/userclient"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
 )
@@ -20,6 +18,7 @@ import (
 type ServiceContext struct {
 	Config         config.Config
 	AuthMiddleware rest.Middleware
+	Redis          *redis.Client
 
 	AuthRpc         authclient.Auth
 	ConversationRpc conversationclient.Conversation
@@ -30,9 +29,14 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: c.RedisAddr,
+	})
+
 	return &ServiceContext{
 		Config:          c,
-		AuthMiddleware:  middleware.NewAuthMiddleware(c.RedisAddr).Handle,
+		AuthMiddleware:  middleware.NewAuthMiddleware(redisClient).Handle,
+		Redis:           redisClient,
 		AuthRpc:         authclient.NewAuth(zrpc.MustNewClient(c.AuthRpc)),
 		ConversationRpc: conversationclient.NewConversation(zrpc.MustNewClient(c.ConversationRpc)),
 		MessageRpc:      messageclient.NewMessage(zrpc.MustNewClient(c.MessageRpc)),

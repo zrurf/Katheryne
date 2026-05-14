@@ -1,0 +1,48 @@
+Name: ws-gateway
+Host: 0.0.0.0
+Port: 8080
+MaxConns: 50000
+Timeout: 0
+
+Middlewares:
+  Metrics: true
+
+Telemetry:
+  Name: ws-gateway
+  Endpoint: otel-collector:4317
+  Batcher: otlpgrpc
+  Sampler: 1.0
+
+AuthRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: auth.rpc
+UserRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: user.rpc
+SocialRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: social.rpc
+MessageRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: message.rpc
+ConversationRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: conversation.rpc
+
+RedisAddr: "garnet:6379"
+MQAddr: "nats:4222"
+
+WSHeartbeatInterval: 30
+WSReadTimeout: 60
+WSWriteTimeout: 10
+WSMaxMessageSize: 65536

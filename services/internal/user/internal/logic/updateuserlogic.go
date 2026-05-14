@@ -24,7 +24,20 @@ func NewUpdateUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Update
 }
 
 func (l *UpdateUserLogic) UpdateUser(in *user.UpdateUserReq) (*user.UpdateUserResp, error) {
-	// todo: add your logic here and delete this line
+	if in.Uid <= 0 {
+		return &user.UpdateUserResp{}, nil
+	}
+
+	err := l.svcCtx.UserDao.UpdateUser(l.ctx, in.Uid, in.Name, in.Avatar)
+	if err != nil {
+		l.Errorf("UpdateUser error: %v", err)
+		return nil, err
+	}
+
+	// 删除缓存，下次读取时重新加载
+	go func() {
+		_ = l.svcCtx.RedisDao.DelUserCache(context.Background(), in.Uid)
+	}()
 
 	return &user.UpdateUserResp{}, nil
 }

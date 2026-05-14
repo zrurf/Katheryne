@@ -305,6 +305,85 @@ message GetGroupInvitesResp {
   repeated GroupInviteItem list = 1;
 }
 
+// ========== 用户 ==========
+message UserInfo {
+  int64 uid = 1;
+  string nickname = 2;
+  string avatar = 3;
+  string gender = 4;
+  string bio = 5;
+}
+
+message GetUserInfoReq {
+  int64 uid = 1;
+}
+message GetUserInfoResp {
+  UserInfo info = 1;
+}
+
+message UpdateUserInfoReq {
+  int64 uid = 1;
+  string nickname = 2;
+  string avatar = 3;
+  string gender = 4;
+  string bio = 5;
+}
+message UpdateUserInfoResp {}
+
+message SearchUserReq {
+  string keyword = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+message SearchUserResp {
+  repeated UserInfo list = 1;
+  int64 total = 2;
+}
+
+message GetUserProfileReq {
+  int64 uid = 1;
+}
+message GetUserProfileResp {
+  UserInfo profile = 1;
+}
+
+// ========== 用户群组 ==========
+message GetUserGroupsReq {
+  int64 uid = 1;
+}
+message GetUserGroupsResp {
+  repeated GroupInfo list = 1;
+}
+
+// ========== 群公告（单条） ==========
+message SetGroupAnnouncementReq {
+  int64 group_id = 1;
+  int64 operator_uid = 2;
+  string content = 3;
+}
+message SetGroupAnnouncementResp {}
+
+message GetGroupAnnouncementReq {
+  int64 group_id = 1;
+}
+message GetGroupAnnouncementResp {
+  string content = 1;
+}
+
+// ========== 在线状态 ==========
+message GetOnlineStatusReq {
+  int64 uid = 1;
+}
+message GetOnlineStatusResp {
+  string status = 1; // online / offline / away
+}
+
+message UpdateOnlineStatusReq {
+  int64 uid = 1;
+  string status = 2; // online / offline / away
+}
+message UpdateOnlineStatusResp {}
+
 // ========== 服务 ==========
 service social {
   // 好友
@@ -337,8 +416,20 @@ service social {
   // 群公告
   rpc CreateAnnouncement(CreateAnnouncementReq) returns (CreateAnnouncementResp);
   rpc GetAnnouncements(GetAnnouncementsReq) returns (GetAnnouncementsResp);
+  rpc SetGroupAnnouncement(SetGroupAnnouncementReq) returns (SetGroupAnnouncementResp);
+  rpc GetGroupAnnouncement(GetGroupAnnouncementReq) returns (GetGroupAnnouncementResp);
   // 邀请进群
   rpc InviteToGroup(InviteToGroupReq) returns (InviteToGroupResp);
   rpc HandleGroupInvite(HandleGroupInviteReq) returns (HandleGroupInviteResp);
   rpc GetGroupInvites(GetGroupInvitesReq) returns (GetGroupInvitesResp);
+  // 用户
+  rpc GetUserInfo(GetUserInfoReq) returns (GetUserInfoResp);
+  rpc UpdateUserInfo(UpdateUserInfoReq) returns (UpdateUserInfoResp);
+  rpc SearchUser(SearchUserReq) returns (SearchUserResp);
+  rpc GetUserProfile(GetUserProfileReq) returns (GetUserProfileResp);
+  // 用户群组
+  rpc GetUserGroups(GetUserGroupsReq) returns (GetUserGroupsResp);
+  // 在线状态
+  rpc GetOnlineStatus(GetOnlineStatusReq) returns (GetOnlineStatusResp);
+  rpc UpdateOnlineStatus(UpdateOnlineStatusReq) returns (UpdateOnlineStatusResp);
 }

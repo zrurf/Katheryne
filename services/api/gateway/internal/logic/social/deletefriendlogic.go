@@ -1,13 +1,12 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package social
 
 import (
 	"context"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
+	"social/socialclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +26,18 @@ func NewDeleteFriendLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Dele
 }
 
 func (l *DeleteFriendLogic) DeleteFriend(req *types.DeleteFriendReq) (resp *types.DeleteFriendResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	uid := l.ctx.Value("uid").(int64)
+	peerUid, err := strconv.ParseInt(req.UID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	_, err = l.svcCtx.SocialRpc.DeleteFriend(l.ctx, &socialclient.DeleteFriendReq{
+		Uid:     uid,
+		PeerUid: peerUid,
+	})
+	if err != nil {
+		l.Errorf("DeleteFriend RPC failed: %v", err)
+		return nil, err
+	}
+	return &types.DeleteFriendResp{Result: true}, nil
 }

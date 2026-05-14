@@ -1,6 +1,3 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package botapi
 
 import (
@@ -27,7 +24,10 @@ func NewBotGetConvLogic(ctx context.Context, svcCtx *svc.ServiceContext) *BotGet
 }
 
 func (l *BotGetConvLogic) BotGetConv(req *types.BotGetConvReq) (resp *types.BotGetConvResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	return &types.BotGetConvResp{
+		ConvID:    req.ConvID,
+		Type:      "group",
+		Name:      "",
+		CreatedAt: 0,
+	}, nil
 }

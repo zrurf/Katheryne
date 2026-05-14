@@ -23,11 +23,14 @@ type (
 	GetLastMsgResp          = message.GetLastMsgResp
 	GetMessagesReq          = message.GetMessagesReq
 	GetMessagesResp         = message.GetMessagesResp
+	GetReadIntervalsReq     = message.GetReadIntervalsReq
+	GetReadIntervalsResp    = message.GetReadIntervalsResp
 	GetReadMembersReq       = message.GetReadMembersReq
 	GetReadMembersResp      = message.GetReadMembersResp
 	GetUnreadCountReq       = message.GetUnreadCountReq
 	GetUnreadCountResp      = message.GetUnreadCountResp
 	MsgItem                 = message.MsgItem
+	ReadIntervalItem        = message.ReadIntervalItem
 	ReadMemberItem          = message.ReadMemberItem
 	RecallMessageReq        = message.RecallMessageReq
 	RecallMessageResp       = message.RecallMessageResp
@@ -50,6 +53,7 @@ type (
 		SearchMessages(ctx context.Context, in *SearchMessagesReq, opts ...grpc.CallOption) (*SearchMessagesResp, error)
 		SubmitRead(ctx context.Context, in *SubmitReadReq, opts ...grpc.CallOption) (*SubmitReadResp, error)
 		GetReadMembers(ctx context.Context, in *GetReadMembersReq, opts ...grpc.CallOption) (*GetReadMembersResp, error)
+		GetReadIntervals(ctx context.Context, in *GetReadIntervalsReq, opts ...grpc.CallOption) (*GetReadIntervalsResp, error)
 		GetUnreadCount(ctx context.Context, in *GetUnreadCountReq, opts ...grpc.CallOption) (*GetUnreadCountResp, error)
 		BatchGetUnreadCount(ctx context.Context, in *BatchGetUnreadCountReq, opts ...grpc.CallOption) (*BatchGetUnreadCountResp, error)
 		SyncOfflineMsgs(ctx context.Context, in *SyncOfflineMsgsReq, opts ...grpc.CallOption) (*SyncOfflineMsgsResp, error)
@@ -101,6 +105,11 @@ func (m *defaultMessage) SubmitRead(ctx context.Context, in *SubmitReadReq, opts
 func (m *defaultMessage) GetReadMembers(ctx context.Context, in *GetReadMembersReq, opts ...grpc.CallOption) (*GetReadMembersResp, error) {
 	client := message.NewMessageClient(m.cli.Conn())
 	return client.GetReadMembers(ctx, in, opts...)
+}
+
+func (m *defaultMessage) GetReadIntervals(ctx context.Context, in *GetReadIntervalsReq, opts ...grpc.CallOption) (*GetReadIntervalsResp, error) {
+	client := message.NewMessageClient(m.cli.Conn())
+	return client.GetReadIntervals(ctx, in, opts...)
 }
 
 func (m *defaultMessage) GetUnreadCount(ctx context.Context, in *GetUnreadCountReq, opts ...grpc.CallOption) (*GetUnreadCountResp, error) {

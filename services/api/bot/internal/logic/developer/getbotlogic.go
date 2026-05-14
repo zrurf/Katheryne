@@ -1,10 +1,9 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package developer
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"bot/internal/svc"
 	"bot/internal/types"
@@ -27,7 +26,12 @@ func NewGetBotLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetBotLogi
 }
 
 func (l *GetBotLogic) GetBot(req *types.GetBotReq) (resp *types.GetBotResp, err error) {
-	// todo: add your logic here and delete this line
+	data, err := l.svcCtx.Redis.HGet(l.ctx, "bots", fmt.Sprintf("%d", req.BotID)).Result()
+	if err != nil {
+		return nil, fmt.Errorf("bot not found")
+	}
 
-	return
+	var bot types.BotInfo
+	json.Unmarshal([]byte(data), &bot)
+	return &types.GetBotResp{Bot: bot}, nil
 }

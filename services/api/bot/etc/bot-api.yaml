@@ -1,3 +1,14 @@
 Name: bot-api
 Host: 0.0.0.0
 Port: 8888
+
+Middlewares:
+  Metrics: true
+
+Telemetry:
+  Name: bot-api
+  Endpoint: otel-collector:4317
+  Batcher: otlpgrpc
+  Sampler: 1.0
+
+RedisAddr: "garnet:6379"

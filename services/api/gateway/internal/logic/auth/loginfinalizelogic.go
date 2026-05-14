@@ -7,6 +7,7 @@ import (
 	"auth/auth"
 	"context"
 	"encoding/base64"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
@@ -44,7 +45,7 @@ func (l *LoginFinalizeLogic) LoginFinalize(req *types.LoginFinalizeRequest) (res
 		return nil, err
 	}
 	return &types.LoginFinalizeResponse{
-		UID:          result.Uid,
+		UID:          strconv.FormatInt(result.Uid, 10),
 		Need2FA:      result.Need_2Fa,
 		TFAToken:     result.TfaToken,
 		AccessToken:  result.AccessToken,

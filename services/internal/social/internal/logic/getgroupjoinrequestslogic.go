@@ -24,7 +24,23 @@ func NewGetGroupJoinRequestsLogic(ctx context.Context, svcCtx *svc.ServiceContex
 }
 
 func (l *GetGroupJoinRequestsLogic) GetGroupJoinRequests(in *social.GetGroupJoinRequestsReq) (*social.GetGroupJoinRequestsResp, error) {
-	// todo: add your logic here and delete this line
+	requests, total, err := l.svcCtx.SocialDao.ListGroupJoinRequests(l.ctx, in.GroupId, in.Status, in.Page, in.Size)
+	if err != nil {
+		return nil, err
+	}
 
-	return &social.GetGroupJoinRequestsResp{}, nil
+	list := make([]*social.GroupJoinRequestItem, len(requests))
+	for i, r := range requests {
+		list[i] = &social.GroupJoinRequestItem{
+			Id:        r.Id,
+			Uid:       r.Uid,
+			Message:   r.Message.String,
+			Status:    r.Status,
+			CreatedAt: r.CreatedAt.Unix(),
+		}
+	}
+	return &social.GetGroupJoinRequestsResp{
+		List:  list,
+		Total: total,
+	}, nil
 }

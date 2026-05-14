@@ -23,9 +23,17 @@ func NewAddBlacklistLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddB
 	}
 }
 
-// 黑名单
 func (l *AddBlacklistLogic) AddBlacklist(in *social.AddBlacklistReq) (*social.AddBlacklistResp, error) {
-	// todo: add your logic here and delete this line
+	err := l.svcCtx.SocialDao.AddBlacklist(l.ctx, in.Uid, in.PeerUid)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
+
+	err = l.svcCtx.RedisDao.DelBlacklistCache(l.ctx, in.Uid)
+	if err != nil {
+		l.Logger.Error("del blacklist cache error:", err)
+	}
 
 	return &social.AddBlacklistResp{}, nil
 }

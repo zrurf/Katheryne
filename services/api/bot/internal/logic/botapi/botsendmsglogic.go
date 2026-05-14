@@ -1,10 +1,8 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package botapi
 
 import (
 	"context"
+	"time"
 
 	"bot/internal/svc"
 	"bot/internal/types"
@@ -27,7 +25,9 @@ func NewBotSendMsgLogic(ctx context.Context, svcCtx *svc.ServiceContext) *BotSen
 }
 
 func (l *BotSendMsgLogic) BotSendMsg(req *types.BotSendMsgReq) (resp *types.BotSendMsgResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	msgID := time.Now().UnixNano()
+	return &types.BotSendMsgResp{
+		MsgID:     msgID,
+		CreatedAt: time.Now().Unix(),
+	}, nil
 }

@@ -9,7 +9,7 @@ Middlewares:
 
 Telemetry:
   Name: gateway-api
-  Endpoint: tempo:4317
+  Endpoint: otel-collector:4317
   Batcher: otlpgrpc
   Sampler: 1.0
 

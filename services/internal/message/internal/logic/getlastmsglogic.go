@@ -24,7 +24,13 @@ func NewGetLastMsgLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetLas
 }
 
 func (l *GetLastMsgLogic) GetLastMsg(in *message.GetLastMsgReq) (*message.GetLastMsgResp, error) {
-	// todo: add your logic here and delete this line
+	m, err := l.svcCtx.MessageDao.GetLastMessage(l.ctx, in.ConvId)
+	if err != nil {
+		l.Logger.Error(err)
+		return &message.GetLastMsgResp{}, nil
+	}
 
-	return &message.GetLastMsgResp{}, nil
+	return &message.GetLastMsgResp{
+		Msg: toMsgItem(m),
+	}, nil
 }

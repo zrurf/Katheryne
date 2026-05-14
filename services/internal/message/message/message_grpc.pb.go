@@ -26,6 +26,7 @@ const (
 	Message_SearchMessages_FullMethodName      = "/message.message/SearchMessages"
 	Message_SubmitRead_FullMethodName          = "/message.message/SubmitRead"
 	Message_GetReadMembers_FullMethodName      = "/message.message/GetReadMembers"
+	Message_GetReadIntervals_FullMethodName    = "/message.message/GetReadIntervals"
 	Message_GetUnreadCount_FullMethodName      = "/message.message/GetUnreadCount"
 	Message_BatchGetUnreadCount_FullMethodName = "/message.message/BatchGetUnreadCount"
 	Message_SyncOfflineMsgs_FullMethodName     = "/message.message/SyncOfflineMsgs"
@@ -44,6 +45,7 @@ type MessageClient interface {
 	SearchMessages(ctx context.Context, in *SearchMessagesReq, opts ...grpc.CallOption) (*SearchMessagesResp, error)
 	SubmitRead(ctx context.Context, in *SubmitReadReq, opts ...grpc.CallOption) (*SubmitReadResp, error)
 	GetReadMembers(ctx context.Context, in *GetReadMembersReq, opts ...grpc.CallOption) (*GetReadMembersResp, error)
+	GetReadIntervals(ctx context.Context, in *GetReadIntervalsReq, opts ...grpc.CallOption) (*GetReadIntervalsResp, error)
 	GetUnreadCount(ctx context.Context, in *GetUnreadCountReq, opts ...grpc.CallOption) (*GetUnreadCountResp, error)
 	BatchGetUnreadCount(ctx context.Context, in *BatchGetUnreadCountReq, opts ...grpc.CallOption) (*BatchGetUnreadCountResp, error)
 	SyncOfflineMsgs(ctx context.Context, in *SyncOfflineMsgsReq, opts ...grpc.CallOption) (*SyncOfflineMsgsResp, error)
@@ -129,6 +131,16 @@ func (c *messageClient) GetReadMembers(ctx context.Context, in *GetReadMembersRe
 	return out, nil
 }
 
+func (c *messageClient) GetReadIntervals(ctx context.Context, in *GetReadIntervalsReq, opts ...grpc.CallOption) (*GetReadIntervalsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetReadIntervalsResp)
+	err := c.cc.Invoke(ctx, Message_GetReadIntervals_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *messageClient) GetUnreadCount(ctx context.Context, in *GetUnreadCountReq, opts ...grpc.CallOption) (*GetUnreadCountResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetUnreadCountResp)
@@ -190,6 +202,7 @@ type MessageServer interface {
 	SearchMessages(context.Context, *SearchMessagesReq) (*SearchMessagesResp, error)
 	SubmitRead(context.Context, *SubmitReadReq) (*SubmitReadResp, error)
 	GetReadMembers(context.Context, *GetReadMembersReq) (*GetReadMembersResp, error)
+	GetReadIntervals(context.Context, *GetReadIntervalsReq) (*GetReadIntervalsResp, error)
 	GetUnreadCount(context.Context, *GetUnreadCountReq) (*GetUnreadCountResp, error)
 	BatchGetUnreadCount(context.Context, *BatchGetUnreadCountReq) (*BatchGetUnreadCountResp, error)
 	SyncOfflineMsgs(context.Context, *SyncOfflineMsgsReq) (*SyncOfflineMsgsResp, error)
@@ -225,6 +238,9 @@ func (UnimplementedMessageServer) SubmitRead(context.Context, *SubmitReadReq) (*
 }
 func (UnimplementedMessageServer) GetReadMembers(context.Context, *GetReadMembersReq) (*GetReadMembersResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetReadMembers not implemented")
+}
+func (UnimplementedMessageServer) GetReadIntervals(context.Context, *GetReadIntervalsReq) (*GetReadIntervalsResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetReadIntervals not implemented")
 }
 func (UnimplementedMessageServer) GetUnreadCount(context.Context, *GetUnreadCountReq) (*GetUnreadCountResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUnreadCount not implemented")
@@ -388,6 +404,24 @@ func _Message_GetReadMembers_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Message_GetReadIntervals_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetReadIntervalsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServer).GetReadIntervals(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Message_GetReadIntervals_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServer).GetReadIntervals(ctx, req.(*GetReadIntervalsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Message_GetUnreadCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetUnreadCountReq)
 	if err := dec(in); err != nil {
@@ -512,6 +546,10 @@ var Message_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetReadMembers",
 			Handler:    _Message_GetReadMembers_Handler,
+		},
+		{
+			MethodName: "GetReadIntervals",
+			Handler:    _Message_GetReadIntervals_Handler,
 		},
 		{
 			MethodName: "GetUnreadCount",

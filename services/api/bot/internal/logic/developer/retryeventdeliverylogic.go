@@ -1,6 +1,3 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package developer
 
 import (
@@ -27,7 +24,5 @@ func NewRetryEventDeliveryLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 }
 
 func (l *RetryEventDeliveryLogic) RetryEventDelivery(req *types.RetryEventDeliveryReq) (resp *types.RetryEventDeliveryResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	return &types.RetryEventDeliveryResp{}, nil
 }

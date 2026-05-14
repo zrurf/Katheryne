@@ -24,7 +24,18 @@ func NewGetConvMembersLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 }
 
 func (l *GetConvMembersLogic) GetConvMembers(in *conversation.GetConvMembersReq) (*conversation.GetConvMembersResp, error) {
-	// todo: add your logic here and delete this line
+	uids, err := l.svcCtx.RedisDao.GetConvMembersCache(l.ctx, in.ConvId)
+	if err == nil && len(uids) > 0 {
+		return &conversation.GetConvMembersResp{Uids: uids}, nil
+	}
 
-	return &conversation.GetConvMembersResp{}, nil
+	uids, err = l.svcCtx.ConversationDao.ListConvMembers(l.ctx, in.ConvId)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
+
+	_ = l.svcCtx.RedisDao.SetConvMembersCache(l.ctx, in.ConvId, uids)
+
+	return &conversation.GetConvMembersResp{Uids: uids}, nil
 }

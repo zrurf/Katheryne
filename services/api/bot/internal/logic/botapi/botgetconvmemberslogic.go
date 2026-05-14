@@ -1,6 +1,3 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package botapi
 
 import (
@@ -27,7 +24,7 @@ func NewBotGetConvMembersLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *BotGetConvMembersLogic) BotGetConvMembers(req *types.BotGetConvMembersReq) (resp *types.BotGetConvMembersResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	return &types.BotGetConvMembersResp{
+		Members: []types.BotConvMemberItem{},
+	}, nil
 }

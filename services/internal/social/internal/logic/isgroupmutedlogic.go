@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"time"
 
 	"social/internal/svc"
 	"social/social"
@@ -24,7 +25,16 @@ func NewIsGroupMutedLogic(ctx context.Context, svcCtx *svc.ServiceContext) *IsGr
 }
 
 func (l *IsGroupMutedLogic) IsGroupMuted(in *social.IsGroupMutedReq) (*social.IsGroupMutedResp, error) {
-	// todo: add your logic here and delete this line
+	member, err := l.svcCtx.SocialDao.GetGroupMember(l.ctx, in.GroupId, in.Uid)
+	if err != nil || member == nil {
+		return &social.IsGroupMutedResp{Muted: false}, nil
+	}
 
-	return &social.IsGroupMutedResp{}, nil
+	isMuted := false
+	var muteUntil int64
+	if member.MuteUntil.Valid && member.MuteUntil.Time.After(time.Now()) {
+		isMuted = true
+		muteUntil = member.MuteUntil.Time.Unix()
+	}
+	return &social.IsGroupMutedResp{Muted: isMuted, MuteUntil: muteUntil}, nil
 }

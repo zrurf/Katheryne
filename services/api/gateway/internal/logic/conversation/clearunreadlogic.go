@@ -1,11 +1,10 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package conversation
 
 import (
 	"context"
+	"strconv"
 
+	"conversation/conversationclient"
 	"gateway/internal/svc"
 	"gateway/internal/types"
 
@@ -27,7 +26,18 @@ func NewClearUnreadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Clear
 }
 
 func (l *ClearUnreadLogic) ClearUnread(req *types.ClearUnreadReq) (resp *types.ClearUnreadResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	uid := l.ctx.Value("uid").(int64)
+	convId, err := strconv.ParseInt(req.ConvID, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	_, err = l.svcCtx.ConversationRpc.ClearUnread(l.ctx, &conversationclient.ClearUnreadReq{
+		ConvId: convId,
+		Uid:    uid,
+	})
+	if err != nil {
+		l.Errorf("ClearUnread RPC failed: %v", err)
+		return nil, err
+	}
+	return &types.ClearUnreadResp{}, nil
 }

@@ -39,8 +39,11 @@ func (l *RegisterFinalizeLogic) RegisterFinalize(in *auth.RegisterFinalizeReq) (
 	_ = record // 回收
 
 	PhoneExists, err := l.svcCtx.UserDao.PhoneExists(l.ctx, in.Phone)
-
-	if PhoneExists || err != nil {
+	if err != nil {
+		l.Logger.Errorf("Failed to check phone existence: %v", err)
+		return nil, errors.New(-1, "Internal Server Error")
+	}
+	if PhoneExists {
 		l.Logger.Infof("Phone %s already exists", in.Phone)
 		return &auth.RegisterFinalizeResp{
 			Result: false,

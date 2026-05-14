@@ -24,7 +24,24 @@ func NewSyncOfflineMsgsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *S
 }
 
 func (l *SyncOfflineMsgsLogic) SyncOfflineMsgs(in *message.SyncOfflineMsgsReq) (*message.SyncOfflineMsgsResp, error) {
-	// todo: add your logic here and delete this line
+	msgs, err := l.svcCtx.MessageDao.SyncOfflineMessages(l.ctx, in.Uid, in.LastSyncMsgId, in.Limit, in.ConvIds)
+	if err != nil {
+		l.Logger.Error(err)
+		return nil, err
+	}
 
-	return &message.SyncOfflineMsgsResp{}, nil
+	list := make([]*message.MsgItem, len(msgs))
+	var maxId int64
+	for i, m := range msgs {
+		list[i] = toMsgItem(m)
+		if m.Id > maxId {
+			maxId = m.Id
+		}
+	}
+
+	return &message.SyncOfflineMsgsResp{
+		Messages:         list,
+		HasMore:          len(list) >= int(in.Limit),
+		NewLastSyncMsgId: maxId,
+	}, nil
 }
