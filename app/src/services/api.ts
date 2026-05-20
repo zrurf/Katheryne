@@ -5,7 +5,7 @@ function getApiBase() {
 }
 
 function getBotApiBase() {
-  return `${getServerApiBase()}/bot`;
+  return `${getServerApiBase()}/api/v1/bot`;
 }
 
 let accessToken: string | null = localStorage.getItem("access_token");
@@ -403,35 +403,38 @@ export const api = {
 
   bot: {
     getConvBots: (convId: string) =>
-      request<GetConvBotsResp>(`/installation/v1/convs/${convId}/bots`, {}, getBotApiBase()),
+      request<GetConvBotsResp>(`/installation/convs/${convId}/bots`, {}, getBotApiBase()),
     install: (botId: string, convId: string) =>
-      request<void>("/installation/v1/install", {
+      request<void>(`/installation/convs/${convId}/bots/install`, {
         method: "POST",
-        body: JSON.stringify({ bot_id: botId, conv_id: convId }),
+        body: JSON.stringify({ bot_id: botId }),
       }, getBotApiBase()),
     uninstall: (botId: string, convId: string) =>
-      request<void>("/installation/v1/uninstall", {
+      request<void>(`/installation/convs/${convId}/bots/uninstall`, {
         method: "POST",
-        body: JSON.stringify({ bot_id: botId, conv_id: convId }),
+        body: JSON.stringify({ bot_id: botId }),
       }, getBotApiBase()),
     listMyBots: () =>
-      request<ListMyBotsResp>("/developer/v1/bots", {}, getBotApiBase()),
+      request<ListMyBotsResp>("/developer/bots", {}, getBotApiBase()),
+    listCommunityBots: (keyword?: string) => {
+      const path = keyword ? `/community/bots?keyword=${encodeURIComponent(keyword)}` : "/community/bots";
+      return request<ListCommunityBotsResp>(path, {}, getBotApiBase());
+    },
     getBot: (botId: string) =>
-      request<BotInfo>(`/developer/v1/bots/${botId}`, {}, getBotApiBase()),
+      request<BotInfo>(`/developer/bots/${botId}`, {}, getBotApiBase()),
     createBot: (data: CreateBotReq) =>
-      request<BotInfo>("/developer/v1/bots", {
+      request<BotInfo>("/developer/bots", {
         method: "POST",
         body: JSON.stringify(data),
       }, getBotApiBase()),
     updateBot: (data: UpdateBotReq) =>
-      request<BotInfo>("/developer/v1/bots", {
+      request<BotInfo>(`/developer/bots/${data.bot_id}`, {
         method: "PUT",
         body: JSON.stringify(data),
       }, getBotApiBase()),
     deleteBot: (botId: string) =>
-      request<void>("/developer/v1/bots", {
+      request<void>(`/developer/bots/${botId}`, {
         method: "DELETE",
-        body: JSON.stringify({ bot_id: botId }),
       }, getBotApiBase()),
   },
 
@@ -803,6 +806,10 @@ export interface ConvBotItem {
 }
 
 export interface ListMyBotsResp {
+  list: BotInfo[];
+}
+
+export interface ListCommunityBotsResp {
   list: BotInfo[];
 }
 

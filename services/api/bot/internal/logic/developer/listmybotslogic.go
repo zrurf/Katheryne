@@ -2,8 +2,6 @@ package developer
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 
 	"bot/internal/svc"
 	"bot/internal/types"
@@ -28,20 +26,9 @@ func NewListMyBotsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListMy
 func (l *ListMyBotsLogic) ListMyBots() (resp *types.ListMyBotsResp, err error) {
 	uid := l.ctx.Value("uid").(int64)
 
-	botIDs, err := l.svcCtx.Redis.SMembers(l.ctx, fmt.Sprintf("user_bots:%d", uid)).Result()
+	list, err := l.svcCtx.BotDao.ListBotsByOwner(l.ctx, uid)
 	if err != nil {
-		return &types.ListMyBotsResp{List: []types.BotInfo{}}, nil
-	}
-
-	var list []types.BotInfo
-	for _, id := range botIDs {
-		data, err := l.svcCtx.Redis.HGet(l.ctx, "bots", id).Result()
-		if err != nil {
-			continue
-		}
-		var bot types.BotInfo
-		json.Unmarshal([]byte(data), &bot)
-		list = append(list, bot)
+		return nil, err
 	}
 
 	return &types.ListMyBotsResp{List: list}, nil

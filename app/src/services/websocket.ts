@@ -124,6 +124,10 @@ class WebSocketService {
     const currentWs = this.ws;
 
     this.ws.onopen = () => {
+      if (this.ws !== currentWs) {
+        console.log("[WS] onopen ignored: stale ws#", wsId, "instance:", this._instanceId, "current readyState:", this.ws?.readyState);
+        return;
+      }
       console.log("[WS] onopen fired, ws#", wsId, "instance:", this._instanceId, "readyState:", this.ws?.readyState);
       this._connecting = false;
       this.authenticated = true;
@@ -170,6 +174,10 @@ class WebSocketService {
     };
 
     this.ws.onerror = (event) => {
+      if (this.ws !== currentWs) {
+        console.log("[WS] onerror ignored: stale ws#", wsId, "instance:", this._instanceId);
+        return;
+      }
       console.error("[WS] onerror fired, ws#", wsId, "instance:", this._instanceId);
       this.ws?.close();
     };
@@ -290,7 +298,7 @@ class WebSocketService {
   }
 
   isConnected(): boolean {
-    return this.ws?.readyState === WebSocket.OPEN && this.authenticated;
+    return this.ws?.readyState === WebSocket.OPEN;
   }
 
   getUid(): string {

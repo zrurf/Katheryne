@@ -1,6 +1,8 @@
-import { For, Show, createSignal, createMemo } from "solid-js";
+import { For, Show, createSignal, createMemo, createResource } from "solid-js";
 import { chatStore } from "../../stores/chat";
 import { authStore } from "../../stores/auth";
+import { api } from "../../services/api";
+import type { ConvBotItem, BotInfo } from "../../services/api";
 import { Avatar } from "../ui/avatar";
 import { formatTime } from "../../lib/utils";
 import {
@@ -17,10 +19,12 @@ import {
   Settings,
   Search,
   Check,
+  Bot,
+  Plus,
 } from "lucide-solid";
 
 export function GroupInfoPanel() {
-  const [activeSection, setActiveSection] = createSignal<"info" | "members" | "announcements">("info");
+  const [activeSection, setActiveSection] = createSignal<"info" | "members" | "announcements" | "bots">("info");
   const [showInvite, setShowInvite] = createSignal(false);
   const [inviteSearch, setInviteSearch] = createSignal("");
   const [selectedInvitees, setSelectedInvitees] = createSignal<Set<string>>(new Set<string>());
@@ -29,6 +33,11 @@ export function GroupInfoPanel() {
   const [showMuteModal, setShowMuteModal] = createSignal(false);
   const [muteTarget, setMuteTarget] = createSignal<{ uid: string; name: string } | null>(null);
   const [muteDuration, setMuteDuration] = createSignal(600);
+  const [installedBots, setInstalledBots] = createSignal<ConvBotItem[]>([]);
+  const [botsLoading, setBotsLoading] = createSignal(false);
+  const [showAddBot, setShowAddBot] = createSignal(false);
+  const [myBots, setMyBots] = createSignal<BotInfo[]>([]);
+  const [myBotsLoading, setMyBotsLoading] = createSignal(false);
   const [hoveredMember, setHoveredMember] = createSignal<{
     uid: string;
     name: string;
@@ -131,6 +140,76 @@ export function GroupInfoPanel() {
     setMuteTarget(null);
   };
 
+  const loadInstalledBots = async () => {
+    const g = info();
+    if (!g || !chatStore.activeConvId()) return;
+    setBotsLoading(true);
+    try {
+      const resp = await api.bot.getConvBots(chatStore.activeConvId());
+      setInstalledBots(resp.list || []);
+    } catch {
+      setInstalledBots([]);
+    } finally {
+      setBotsLoading(false);
+    }
+  };
+
+  createResource(info, loadInstalledBots);
+
+  const loadMyBots = async () => {
+    setMyBotsLoading(true);
+    try {
+      const [myResp, communityResp] = await Promise.all([
+        api.bot.listMyBots(),
+        api.bot.listCommunityBots(),
+      ]);
+      const seen = new Set<string>();
+      const combined: typeof myResp.list = [];
+      for (const bot of myResp.list) {
+        if (!seen.has(bot.bot_id)) {
+          seen.add(bot.bot_id);
+          combined.push(bot);
+        }
+      }
+      for (const bot of communityResp.list) {
+        if (!seen.has(bot.bot_id)) {
+          seen.add(bot.bot_id);
+          combined.push(bot);
+        }
+      }
+      setMyBots(combined);
+    } catch {
+      setMyBots([]);
+    } finally {
+      setMyBotsLoading(false);
+    }
+  };
+
+  const handleInstallBot = async (botId: string) => {
+    const convId = chatStore.activeConvId();
+    if (!convId) return;
+    try {
+      await api.bot.install(botId, convId);
+      loadInstalledBots();
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleUninstallBot = async (botId: string) => {
+    const convId = chatStore.activeConvId();
+    if (!convId) return;
+    try {
+      await api.bot.uninstall(botId, convId);
+      loadInstalledBots();
+    } catch {
+      // ignore
+    }
+  };
+
+  const isBotInstalled = (botId: string) =>
+    installedBots().some(b => String(b.bot_id) === String(botId) || String(b.bot_id) === botId);
+
   return (
     <div class="w-72 h-full bg-bg-secondary border-l border-border flex flex-col shrink-0">
       <div class="p-4 border-b border-border flex items-center justify-between">
@@ -167,6 +246,14 @@ export function GroupInfoPanel() {
           onClick={() => setActiveSection("announcements")}
         >
           公告
+        </button>
+        <button
+          class={`flex-1 py-2 text-xs font-medium transition-colors ${
+            activeSection() === "bots" ? "text-primary border-b-2 border-primary" : "text-text-muted hover:text-text"
+          }`}
+          onClick={() => setActiveSection("bots")}
+        >
+          Bot
         </button>
       </div>
 
@@ -359,6 +446,90 @@ export function GroupInfoPanel() {
               <div class="text-center py-8 text-text-muted text-sm">
                 <Megaphone size={24} class="mx-auto mb-2 text-text-muted/50" />
                 <p>暂无公告</p>
+              </div>
+            </Show>
+          </div>
+        </Show>
+
+        <Show when={activeSection() === "bots"}>
+          <div class="p-3 space-y-3">
+            <Show when={isAdmin()}>
+              <button
+                onClick={() => { setShowAddBot(!showAddBot()); loadMyBots(); }}
+                class="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-primary hover:bg-primary-dark text-white rounded-xl text-xs font-medium transition-colors"
+              >
+                <Plus size={14} />
+                {showAddBot() ? "收起" : "添加 Bot"}
+              </button>
+            </Show>
+
+            <Show when={botsLoading()}>
+              <div class="text-center py-4 text-text-muted text-xs">加载中...</div>
+            </Show>
+
+            <Show when={!botsLoading() && installedBots().length === 0}>
+              <div class="text-center py-6 text-text-muted text-sm">
+                <Bot size={24} class="mx-auto mb-2 text-text-muted/50" />
+                <p>暂未安装 Bot</p>
+              </div>
+            </Show>
+
+            <For each={installedBots()}>
+              {(bot) => (
+                <div class="flex items-center gap-3 p-2 rounded-xl bg-surface border border-border">
+                  <Avatar name={bot.name} src={bot.avatar} size="sm" />
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-text truncate">{bot.name}</p>
+                    <p class="text-xs text-text-muted truncate">{bot.description || "群 Bot"}</p>
+                  </div>
+                  <Show when={isAdmin()}>
+                    <button
+                      onClick={() => handleUninstallBot(String(bot.bot_id))}
+                      class="p-1 hover:bg-danger/10 rounded-lg transition-colors text-text-muted hover:text-danger"
+                      title="卸载"
+                    >
+                      <X size={14} />
+                    </button>
+                  </Show>
+                </div>
+              )}
+            </For>
+
+            <Show when={showAddBot() && isAdmin()}>
+              <div class="border-t border-border pt-3">
+                <span class="text-xs font-medium text-text-muted mb-2 block">你的 Bot</span>
+                <Show when={myBotsLoading()}>
+                  <div class="text-center py-3 text-text-muted text-xs">加载中...</div>
+                </Show>
+                <Show when={!myBotsLoading() && myBots().length === 0}>
+                  <div class="text-center py-4 text-text-muted text-xs">
+                    没有可用的 Bot，请在设置中创建
+                  </div>
+                </Show>
+                <For each={myBots()}>
+                  {(bot) => {
+                    const installed = isBotInstalled(String(bot.bot_id));
+                    return (
+                      <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-surface-hover transition-colors">
+                        <Avatar name={bot.name} src={bot.avatar} size="sm" />
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-medium text-text truncate">{bot.name}</p>
+                          <p class="text-xs text-text-muted truncate">{bot.description || ""}</p>
+                        </div>
+                        <Show when={installed} fallback={
+                          <button
+                            onClick={() => handleInstallBot(String(bot.bot_id))}
+                            class="px-2 py-1 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-medium transition-colors"
+                          >
+                            安装
+                          </button>
+                        }>
+                          <span class="text-xs text-text-muted">已安装</span>
+                        </Show>
+                      </div>
+                    );
+                  }}
+                </For>
               </div>
             </Show>
           </div>

@@ -2,9 +2,7 @@ package installation
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"time"
 
 	"bot/internal/svc"
 	"bot/internal/types"
@@ -27,25 +25,24 @@ func NewInstallBotLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Instal
 }
 
 func (l *InstallBotLogic) InstallBot(req *types.InstallBotReq) (resp *types.InstallBotResp, err error) {
-	key := fmt.Sprintf("bot_installations:%d", req.BotID)
+	uid := l.ctx.Value("uid").(int64)
 
-	var list []types.BotInstallationItem
-	data, err := l.svcCtx.Redis.Get(l.ctx, key).Result()
-	if err == nil {
-		json.Unmarshal([]byte(data), &list)
+	convInfo, err := l.svcCtx.InstallationDao.GetConversation(l.ctx, req.ConvID)
+	if err != nil {
+		return nil, fmt.Errorf("conversation not found")
 	}
 
-	list = append(list, types.BotInstallationItem{
-		ConvID:      req.ConvID,
-		Permissions: req.Permissions,
-		InstalledAt: time.Now().Unix(),
-	})
+	if convInfo.ConvType == "GROUP" && convInfo.GroupID > 0 {
+		if err := l.svcCtx.InstallationDao.CheckGroupMemberRole(l.ctx, convInfo.GroupID, uid, "OWNER", "ADMIN"); err != nil {
+			return nil, fmt.Errorf("only group owner or admin can install bots")
+		}
+	}
 
-	data2, _ := json.Marshal(list)
-	l.svcCtx.Redis.Set(l.ctx, key, data2, 0)
+	if err := l.svcCtx.InstallationDao.Install(l.ctx, req.BotID, req.ConvID, convInfo.ConvType, req.Permissions, uid); err != nil {
+		return nil, fmt.Errorf("failed to install bot: %v", err)
+	}
 
-	convKey := fmt.Sprintf("conv_bots:%d", req.ConvID)
-	l.svcCtx.Redis.SAdd(l.ctx, convKey, req.BotID)
+	l.svcCtx.OAuthDao.AddConvBotCache(l.ctx, req.ConvID, req.BotID)
 
 	return &types.InstallBotResp{}, nil
 }

@@ -20,12 +20,162 @@ type AnnouncementItem struct {
 	CreatedAt int64  `json:"created_at"`
 }
 
+type ApproveAuthorizeReq struct {
+	ClientId    string `json:"client_id"`
+	RedirectUri string `json:"redirect_uri"`
+	Scope       string `json:"scope"`
+	ConvId      string `json:"conv_id"`
+	State       string `json:"state,optional"`
+}
+
+type ApproveAuthorizeResp struct {
+	RedirectUrl string `json:"redirect_url"`
+}
+
 type AuthorizeRequest struct {
 	ResponseType string `form:"response_type"`
 	ClientId     string `form:"client_id"`
 	RedirectUri  string `form:"redirect_uri"`
 	Scope        string `form:"scope"`
 	State        string `form:"state"`
+}
+
+type BotAuthorizeReq struct {
+	ClientId string `form:"client_id"`
+	Scope    string `form:"scope,optional"`
+	ConvId   string `form:"conv_id,optional"`
+}
+
+type BotAuthorizeResp struct {
+	Bot            *BotItem `json:"bot"`
+	RequestedScope []string `json:"requested_scope"`
+	ConvId         string   `json:"conv_id"`
+}
+
+type BotGetConvMembersReq struct {
+	ConvId string `path:"conv_id"`
+}
+
+type BotGetConvMembersResp struct {
+	Members []MemberItem `json:"members"`
+}
+
+type BotGetConvReq struct {
+	ConvId string `path:"conv_id"`
+}
+
+type BotGetConvResp struct {
+	ConvId    string `json:"conv_id"`
+	Type      string `json:"type"`
+	Name      string `json:"name"`
+	Avatar    string `json:"avatar"`
+	GroupId   int64  `json:"group_id,omitempty"`
+	CreatedAt int64  `json:"created_at"`
+}
+
+type BotGetMsgReq struct {
+	ConvId string `path:"conv_id"`
+	MsgId  string `path:"msg_id"`
+}
+
+type BotGetMsgResp struct {
+	Msg *BotMsgItem `json:"msg"`
+}
+
+type BotGetUserReq struct {
+	Uid string `path:"uid"`
+}
+
+type BotGetUserResp struct {
+	Uid    string `json:"uid"`
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+}
+
+type BotItem struct {
+	BotId        string `json:"bot_id"`
+	Name         string `json:"name"`
+	Description  string `json:"description"`
+	Avatar       string `json:"avatar"`
+	Status       string `json:"status"`
+	ClientId     string `json:"client_id"`
+	InstalledCnt int64  `json:"installed_cnt"`
+	CreatedAt    int64  `json:"created_at"`
+	UpdatedAt    int64  `json:"updated_at"`
+}
+
+type BotMsgItem struct {
+	MsgId        string `json:"msg_id"`
+	ConvId       string `json:"conv_id"`
+	Sender       string `json:"sender"`
+	SenderName   string `json:"sender_name"`
+	SenderAvatar string `json:"sender_avatar"`
+	Type         string `json:"type"`
+	Content      string `json:"content"`
+	ContentType  string `json:"content_type"`
+	Recalled     bool   `json:"recalled"`
+	CreatedAt    int64  `json:"created_at"`
+}
+
+type BotRecallMsgReq struct {
+	ConvId string `path:"conv_id"`
+	MsgId  string `path:"msg_id"`
+}
+
+type BotRecallMsgResp struct {
+}
+
+type BotReplyMsgReq struct {
+	ConvId      string `json:"conv_id"`
+	MsgId       string `json:"msg_id"`
+	Content     string `json:"content"`
+	ContentType string `json:"content_type,default=text"`
+}
+
+type BotReplyMsgResp struct {
+	MsgId     string `json:"msg_id"`
+	CreatedAt int64  `json:"created_at"`
+}
+
+type BotSendMsgReq struct {
+	ConvId      string `json:"conv_id"`
+	Content     string `json:"content"`
+	ContentType string `json:"content_type,default=text"`
+	Button      string `json:"button,optional"`
+}
+
+type BotSendMsgResp struct {
+	MsgId     string `json:"msg_id"`
+	CreatedAt int64  `json:"created_at"`
+}
+
+type BotTokenReq struct {
+	GrantType    string `form:"grant_type"`
+	ClientId     string `form:"client_id"`
+	ClientSecret string `form:"client_secret"`
+	Code         string `form:"code,optional"`
+	RedirectUri  string `form:"redirect_uri,optional"`
+	RefreshToken string `form:"refresh_token,optional"`
+}
+
+type BotTokenResp struct {
+	AccessToken  string `json:"access_token"`
+	TokenType    string `json:"token_type"`
+	Scope        string `json:"scope"`
+	ExpiresIn    int64  `json:"expires_in"`
+	RefreshToken string `json:"refresh_token"`
+	BotId        string `json:"bot_id"`
+}
+
+type BotUploadFileReq struct {
+}
+
+type BotUploadFileResp struct {
+	FileId   string `json:"file_id"`
+	FileName string `json:"file_name"`
+	FileSize int64  `json:"file_size"`
+	Url      string `json:"url"`
+	MimeType string `json:"mime_type"`
 }
 
 type ClearUnreadReq struct {
@@ -66,6 +216,21 @@ type CreateAnnouncementResp struct {
 	Result bool `json:"result"`
 }
 
+type CreateBotReq struct {
+	Name        string `json:"name"`
+	Description string `json:"description,optional"`
+	Avatar      string `json:"avatar,optional"`
+	WebhookUrl  string `json:"webhook_url,optional"`
+	HomepageUrl string `json:"homepage_url,optional"`
+	PrivacyUrl  string `json:"privacy_url,optional"`
+}
+
+type CreateBotResp struct {
+	BotId        string `json:"bot_id"`
+	ClientId     string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
+}
+
 type CreateGroupReq struct {
 	Name       string   `json:"name"`
 	Avatar     string   `json:"avatar,optional"`
@@ -76,6 +241,13 @@ type CreateGroupReq struct {
 type CreateGroupResp struct {
 	GroupID string `json:"group_id"`
 	ConvID  string `json:"conv_id"`
+}
+
+type DeleteBotReq struct {
+	BotId string `path:"bot_id"`
+}
+
+type DeleteBotResp struct {
 }
 
 type DeleteConversationReq struct {
@@ -103,6 +275,19 @@ type EditMessageResp struct {
 }
 
 type EmptyReponse struct {
+}
+
+type EventDeliveryItem struct {
+	EventId     string `json:"event_id"`
+	BotId       string `json:"bot_id"`
+	ConvId      string `json:"conv_id"`
+	EventType   string `json:"event_type"`
+	Payload     string `json:"payload"`
+	Status      string `json:"status"`
+	RetryCount  int32  `json:"retry_count"`
+	LastError   string `json:"last_error,omitempty"`
+	DeliveredAt int64  `json:"delivered_at,omitempty"`
+	CreatedAt   int64  `json:"created_at"`
 }
 
 type FriendItem struct {
@@ -140,6 +325,55 @@ type GetBlacklistResp struct {
 	List []FriendItem `json:"list"`
 }
 
+type GetBotInstallationsReq struct {
+	BotId string `path:"bot_id"`
+	Page  int    `form:"page,default=1"`
+	Size  int    `form:"size,default=20"`
+}
+
+type GetBotInstallationsResp struct {
+	List  []InstallationItem `json:"list"`
+	Total int64              `json:"total"`
+}
+
+type GetBotRateLimitReq struct {
+	BotId string `path:"bot_id"`
+}
+
+type GetBotRateLimitResp struct {
+	BotId          string `json:"bot_id"`
+	MaxConcurrency int32  `json:"max_concurrency"`
+	MaxRequests    int64  `json:"max_requests"`
+	WindowSeconds  int32  `json:"window_seconds"`
+	IsCustom       bool   `json:"is_custom"`
+}
+
+type GetBotReq struct {
+	BotId string `path:"bot_id"`
+}
+
+type GetBotResp struct {
+	BotId       string `json:"bot_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Avatar      string `json:"avatar"`
+	Status      string `json:"status"`
+	ClientId    string `json:"client_id"`
+	WebhookUrl  string `json:"webhook_url"`
+	HomepageUrl string `json:"homepage_url"`
+	PrivacyUrl  string `json:"privacy_url"`
+	CreatedAt   int64  `json:"created_at"`
+	UpdatedAt   int64  `json:"updated_at"`
+}
+
+type GetConvBotsReq struct {
+	ConvId string `path:"conv_id"`
+}
+
+type GetConvBotsResp struct {
+	List []InstalledBotItem `json:"list"`
+}
+
 type GetConversationReq struct {
 	ConvID string `path:"conv_id"`
 }
@@ -160,6 +394,20 @@ type GetConversationsReq struct {
 
 type GetConversationsResp struct {
 	List []ConversationItem `json:"list"`
+}
+
+type GetEventDeliveriesReq struct {
+	BotId     string `path:"bot_id"`
+	ConvId    string `form:"conv_id,optional"`
+	EventType string `form:"event_type,optional"`
+	Status    string `form:"status,optional"`
+	Page      int    `form:"page,default=1"`
+	Size      int    `form:"size,default=20"`
+}
+
+type GetEventDeliveriesResp struct {
+	List  []EventDeliveryItem `json:"list"`
+	Total int64               `json:"total"`
 }
 
 type GetFriendRequestsReq struct {
@@ -326,6 +574,35 @@ type InitiateUploadResponse struct {
 	ObjectKey string `json:"object_key"`
 }
 
+type InstallBotReq struct {
+	ConvId      string   `path:"conv_id"`
+	BotId       string   `json:"bot_id"`
+	Permissions []string `json:"permissions,optional"`
+}
+
+type InstallBotResp struct {
+}
+
+type InstallationItem struct {
+	InstId      int64    `json:"inst_id"`
+	BotId       string   `json:"bot_id"`
+	BotName     string   `json:"bot_name"`
+	ConvId      string   `json:"conv_id"`
+	ConvType    string   `json:"conv_type"`
+	Permissions []string `json:"permissions"`
+	InstalledAt int64    `json:"installed_at"`
+}
+
+type InstalledBotItem struct {
+	InstId      int64    `json:"inst_id"`
+	BotId       string   `json:"bot_id"`
+	Name        string   `json:"name"`
+	Avatar      string   `json:"avatar"`
+	Description string   `json:"description"`
+	Permissions []string `json:"permissions"`
+	InstalledAt int64    `json:"installed_at"`
+}
+
 type InviteToGroupReq struct {
 	GroupID     string   `json:"group_id"`
 	InviteeUIDs []string `json:"invitee_uids"`
@@ -362,6 +639,24 @@ type LeaveGroupResp struct {
 	Result bool `json:"result"`
 }
 
+type ListMyBotsReq struct {
+	Page int `form:"page,default=1"`
+	Size int `form:"size,default=20"`
+}
+
+type ListMyBotsResp struct {
+	List  []BotItem `json:"list"`
+	Total int64     `json:"total"`
+}
+
+type ListCommunityBotsReq struct {
+	Keyword string `form:"keyword,optional"`
+}
+
+type ListCommunityBotsResp struct {
+	List []BotItem `json:"list"`
+}
+
 type LoginFinalizeRequest struct {
 	Ke3       string `json:"k"`
 	SessionId string `json:"sid"`
@@ -388,6 +683,13 @@ type LoginInitResponse struct {
 
 type LogoutRequest struct {
 	Authorization string `header:"Authorization"`
+}
+
+type MemberItem struct {
+	Uid    string `json:"uid"`
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+	Role   string `json:"role"`
 }
 
 type MessageItem struct {
@@ -447,6 +749,15 @@ type RefreshTokenResponse struct {
 	ExpiresAt    int64  `json:"expires_at"`
 }
 
+type RegenerateCredentialReq struct {
+	BotId string `path:"bot_id"`
+}
+
+type RegenerateCredentialResp struct {
+	ClientId     string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
+}
+
 type RegisterFinalizeRequest struct {
 	Phone              string `json:"phone"`
 	Name               string `json:"name"`
@@ -475,6 +786,22 @@ type RemoveBlacklistReq struct {
 
 type RemoveBlacklistResp struct {
 	Result bool `json:"result"`
+}
+
+type RetryEventDeliveryReq struct {
+	BotId   string `path:"bot_id"`
+	EventId string `path:"event_id"`
+}
+
+type RetryEventDeliveryResp struct {
+}
+
+type RotateWebhookSecretReq struct {
+	BotId string `path:"bot_id"`
+}
+
+type RotateWebhookSecretResp struct {
+	WebhookSecret string `json:"webhook_secret"`
 }
 
 type SearchMessagesReq struct {
@@ -582,6 +909,37 @@ type TransferOwnerReq struct {
 
 type TransferOwnerResp struct {
 	Result bool `json:"result"`
+}
+
+type UninstallBotReq struct {
+	ConvId string `path:"conv_id"`
+	BotId  string `json:"bot_id"`
+}
+
+type UninstallBotResp struct {
+}
+
+type UpdateBotRateLimitReq struct {
+	BotId          string `path:"bot_id"`
+	MaxConcurrency int32  `json:"max_concurrency,optional"`
+	MaxRequests    int64  `json:"max_requests,optional"`
+	WindowSeconds  int32  `json:"window_seconds,optional"`
+}
+
+type UpdateBotRateLimitResp struct {
+}
+
+type UpdateBotReq struct {
+	BotId       string `path:"bot_id"`
+	Name        string `json:"name,optional"`
+	Description string `json:"description,optional"`
+	Avatar      string `json:"avatar,optional"`
+	WebhookUrl  string `json:"webhook_url,optional"`
+	HomepageUrl string `json:"homepage_url,optional"`
+	PrivacyUrl  string `json:"privacy_url,optional"`
+}
+
+type UpdateBotResp struct {
 }
 
 type UpdateFriendRemarkReq struct {

@@ -2,6 +2,7 @@ package svc
 
 import (
 	"auth/authclient"
+	"bot/botclient"
 	"conversation/conversationclient"
 	"gateway/internal/config"
 	"gateway/internal/middleware"
@@ -21,6 +22,7 @@ type ServiceContext struct {
 	Redis          *redis.Client
 
 	AuthRpc         authclient.Auth
+	BotRpc          botclient.Bot
 	ConversationRpc conversationclient.Conversation
 	MessageRpc      messageclient.Message
 	OssRpc          ossclient.OSS
@@ -38,6 +40,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		AuthMiddleware:  middleware.NewAuthMiddleware(redisClient).Handle,
 		Redis:           redisClient,
 		AuthRpc:         authclient.NewAuth(zrpc.MustNewClient(c.AuthRpc)),
+		BotRpc:          botclient.NewBot(zrpc.MustNewClient(c.BotRpc)),
 		ConversationRpc: conversationclient.NewConversation(zrpc.MustNewClient(c.ConversationRpc)),
 		MessageRpc:      messageclient.NewMessage(zrpc.MustNewClient(c.MessageRpc)),
 		OssRpc:          ossclient.NewOSS(zrpc.MustNewClient(c.OssRpc)),

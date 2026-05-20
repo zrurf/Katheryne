@@ -1,0 +1,376 @@
+syntax = "proto3";
+
+package bot;
+
+option go_package = "./bot";
+
+// ========== Bot 信息 ==========
+message BotInfo {
+  int64 bot_id = 1;
+  string name = 2;
+  string avatar = 3;
+  string description = 4;
+  int64 owner_uid = 5;
+  string webhook_url = 6;
+  repeated string subscribe_events = 7;
+  string status = 8;
+  string client_id = 9;
+  int64 created_at = 10;
+}
+
+message BotInstallationItem {
+  int64 conv_id = 1;
+  string conv_type = 2;
+  int64 group_id = 3;
+  string conv_name = 4;
+  repeated string permissions = 5;
+  int64 installed_at = 6;
+}
+
+message InstalledBotItem {
+  int64 bot_id = 1;
+  string name = 2;
+  string avatar = 3;
+  string description = 4;
+  repeated string permissions = 5;
+  int64 installed_at = 6;
+}
+
+// ========== Developer APIs ==========
+message CreateBotReq {
+  int64 owner_uid = 1;
+  string name = 2;
+  string avatar = 3;
+  string description = 4;
+  string webhook_url = 5;
+  repeated string subscribe_events = 6;
+}
+message CreateBotResp {
+  int64 bot_id = 1;
+  string client_id = 2;
+  string client_secret = 3;
+}
+
+message ListMyBotsReq {
+  int64 owner_uid = 1;
+}
+message ListMyBotsResp {
+  repeated BotInfo list = 1;
+}
+
+// Community bots: official bots + keyword search
+message ListCommunityBotsReq {
+  string keyword = 1;
+}
+message ListCommunityBotsResp {
+  repeated BotInfo list = 1;
+}
+
+message GetBotReq {
+  int64 bot_id = 1;
+  int64 uid = 2;
+}
+message GetBotResp {
+  BotInfo bot = 1;
+}
+
+message UpdateBotReq {
+  int64 uid = 1;
+  int64 bot_id = 2;
+  string name = 3;
+  string avatar = 4;
+  string description = 5;
+  string webhook_url = 6;
+  repeated string subscribe_events = 7;
+}
+message UpdateBotResp {}
+
+message DeleteBotReq {
+  int64 uid = 1;
+  int64 bot_id = 2;
+}
+message DeleteBotResp {}
+
+message GetBotInstallationsReq {
+  int64 uid = 1;
+  int64 bot_id = 2;
+}
+message GetBotInstallationsResp {
+  repeated BotInstallationItem list = 1;
+}
+
+message GetBotRateLimitReq {
+  int64 uid = 1;
+  int64 bot_id = 2;
+}
+message GetBotRateLimitResp {
+  int64 messages_per_minute = 1;
+  int64 messages_per_day = 2;
+  int64 api_calls_per_minute = 3;
+}
+
+message UpdateBotRateLimitReq {
+  int64 uid = 1;
+  int64 bot_id = 2;
+  int64 messages_per_minute = 3;
+  int64 messages_per_day = 4;
+  int64 api_calls_per_minute = 5;
+}
+message UpdateBotRateLimitResp {}
+
+message RegenerateCredentialReq {
+  int64 uid = 1;
+  int64 bot_id = 2;
+}
+message RegenerateCredentialResp {
+  string client_id = 1;
+  string client_secret = 2;
+}
+
+message RotateWebhookSecretReq {
+  int64 uid = 1;
+  int64 bot_id = 2;
+}
+message RotateWebhookSecretResp {
+  string webhook_secret = 1;
+}
+
+message GetEventDeliveriesReq {
+  int64 bot_id = 1;
+  int64 conv_id = 2;
+  string event_type = 3;
+  string status = 4;
+  int32 page = 5;
+  int32 size = 6;
+}
+message EventDeliveryItem {
+  string event_id = 1;
+  string event_type = 2;
+  int64 conv_id = 3;
+  string delivery_method = 4;
+  string status = 5;
+  int32 retry_count = 6;
+  int32 response_code = 7;
+  string last_error = 8;
+  int64 delivered_at = 9;
+  int64 created_at = 10;
+}
+message GetEventDeliveriesResp {
+  repeated EventDeliveryItem list = 1;
+  int64 total = 2;
+}
+
+message RetryEventDeliveryReq {
+  string event_id = 1;
+}
+message RetryEventDeliveryResp {}
+
+// ========== Installation APIs ==========
+message GetConvBotsReq {
+  int64 conv_id = 1;
+}
+message GetConvBotsResp {
+  repeated InstalledBotItem list = 1;
+}
+
+message InstallBotReq {
+  int64 uid = 1;
+  int64 bot_id = 2;
+  int64 conv_id = 3;
+  repeated string permissions = 4;
+}
+message InstallBotResp {}
+
+message UninstallBotReq {
+  int64 uid = 1;
+  int64 bot_id = 2;
+  int64 conv_id = 3;
+}
+message UninstallBotResp {}
+
+// ========== Bot APIs (bot 调用 Katheryne) ==========
+message BotGetConvReq {
+  int64 conv_id = 1;
+}
+message BotGetConvResp {
+  int64 conv_id = 1;
+  string type = 2;
+  int64 group_id = 3;
+  string name = 4;
+  string avatar = 5;
+  int64 created_at = 6;
+}
+
+message BotGetConvMembersReq {
+  int64 conv_id = 1;
+}
+message BotConvMemberItem {
+  int64 uid = 1;
+  string name = 2;
+  string avatar = 3;
+  string role = 4;
+  string nick = 5;
+}
+message BotGetConvMembersResp {
+  repeated BotConvMemberItem members = 1;
+}
+
+message BotGetMsgReq {
+  int64 conv_id = 1;
+  int64 msg_id = 2;
+}
+message BotGetMsgResp {
+  int64 msg_id = 1;
+  int64 conv_id = 2;
+  int64 sender_uid = 3;
+  string sender_name = 4;
+  string msg_type = 5;
+  string content = 6;
+  string content_type = 7;
+  int64 quote_msg_id = 8;
+  bool recalled = 9;
+  bool edited = 10;
+  string extra = 11;
+  int64 created_at = 12;
+}
+
+message BotSendMsgReq {
+  int64 bot_id = 1;
+  int64 conv_id = 2;
+  string msg_type = 3;
+  string content = 4;
+  string content_type = 5;
+  int64 quote_msg_id = 6;
+  string extra = 7;
+}
+message BotSendMsgResp {
+  int64 msg_id = 1;
+  int64 created_at = 2;
+}
+
+message BotRecallMsgReq {
+  int64 bot_id = 1;
+  int64 conv_id = 2;
+  int64 msg_id = 3;
+}
+message BotRecallMsgResp {}
+
+message BotReplyMsgReq {
+  int64 bot_id = 1;
+  int64 conv_id = 2;
+  int64 reply_to_msg_id = 3;
+  string msg_type = 4;
+  string content = 5;
+  string content_type = 6;
+  string extra = 7;
+}
+message BotReplyMsgResp {
+  int64 msg_id = 1;
+  int64 created_at = 2;
+}
+
+message BotUploadFileReq {
+  int64 bot_id = 1;
+  string file_name = 2;
+  string content_type = 3;
+  int64 file_size = 4;
+  bytes data = 5;
+}
+message BotUploadFileResp {
+  string file_id = 1;
+  string file_name = 2;
+  int64 file_size = 3;
+  string url = 4;
+  string mime_type = 5;
+}
+
+message BotGetUserReq {
+  int64 uid = 1;
+}
+message BotGetUserResp {
+  int64 uid = 1;
+  string name = 2;
+  string avatar = 3;
+}
+
+// ========== OAuth2 APIs ==========
+message AuthorizeReq {
+  string client_id = 1;
+  string redirect_uri = 2;
+  string scope = 3;
+  string state = 4;
+  int64 conv_id = 5;
+}
+message AuthorizeResp {
+  BotInfo bot = 1;
+  repeated string requested_scope = 2;
+  int64 conv_id = 3;
+}
+
+message ApproveAuthorizeReq {
+  int64 uid = 1;
+  string client_id = 2;
+  string redirect_uri = 3;
+  string scope = 4;
+  string state = 5;
+  int64 conv_id = 6;
+}
+message ApproveAuthorizeResp {
+  string redirect_url = 1;
+}
+
+message BotTokenReq {
+  string grant_type = 1;
+  string client_id = 2;
+  string client_secret = 3;
+  string code = 4;
+  string redirect_uri = 5;
+  string refresh_token = 6;
+  string scope = 7;
+}
+message BotTokenResp {
+  string access_token = 1;
+  string token_type = 2;
+  string scope = 3;
+  int64 expires_in = 4;
+  string refresh_token = 5;
+  int64 bot_id = 6;
+}
+
+// ========== Service ==========
+service bot {
+  // Developer APIs (user-facing)
+  rpc CreateBot(CreateBotReq) returns (CreateBotResp);
+  rpc ListMyBots(ListMyBotsReq) returns (ListMyBotsResp);
+  rpc ListCommunityBots(ListCommunityBotsReq) returns (ListCommunityBotsResp);
+  rpc GetBot(GetBotReq) returns (GetBotResp);
+  rpc UpdateBot(UpdateBotReq) returns (UpdateBotResp);
+  rpc DeleteBot(DeleteBotReq) returns (DeleteBotResp);
+  rpc GetBotInstallations(GetBotInstallationsReq) returns (GetBotInstallationsResp);
+  rpc GetBotRateLimit(GetBotRateLimitReq) returns (GetBotRateLimitResp);
+  rpc UpdateBotRateLimit(UpdateBotRateLimitReq) returns (UpdateBotRateLimitResp);
+  rpc RegenerateCredential(RegenerateCredentialReq) returns (RegenerateCredentialResp);
+  rpc RotateWebhookSecret(RotateWebhookSecretReq) returns (RotateWebhookSecretResp);
+  rpc GetEventDeliveries(GetEventDeliveriesReq) returns (GetEventDeliveriesResp);
+  rpc RetryEventDelivery(RetryEventDeliveryReq) returns (RetryEventDeliveryResp);
+
+  // Installation APIs
+  rpc GetConvBots(GetConvBotsReq) returns (GetConvBotsResp);
+  rpc InstallBot(InstallBotReq) returns (InstallBotResp);
+  rpc UninstallBot(UninstallBotReq) returns (UninstallBotResp);
+
+  // Bot APIs (bot 调用 Katheryne)
+  rpc BotGetConv(BotGetConvReq) returns (BotGetConvResp);
+  rpc BotGetConvMembers(BotGetConvMembersReq) returns (BotGetConvMembersResp);
+  rpc BotGetMsg(BotGetMsgReq) returns (BotGetMsgResp);
+  rpc BotSendMsg(BotSendMsgReq) returns (BotSendMsgResp);
+  rpc BotRecallMsg(BotRecallMsgReq) returns (BotRecallMsgResp);
+  rpc BotReplyMsg(BotReplyMsgReq) returns (BotReplyMsgResp);
+  rpc BotUploadFile(BotUploadFileReq) returns (BotUploadFileResp);
+  rpc BotGetUser(BotGetUserReq) returns (BotGetUserResp);
+
+  // OAuth2 APIs
+  rpc Authorize(AuthorizeReq) returns (AuthorizeResp);
+  rpc ApproveAuthorize(ApproveAuthorizeReq) returns (ApproveAuthorizeResp);
+  rpc BotToken(BotTokenReq) returns (BotTokenResp);
+}

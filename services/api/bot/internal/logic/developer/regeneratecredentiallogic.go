@@ -2,7 +2,6 @@ package developer
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"bot/internal/svc"
@@ -26,21 +25,16 @@ func NewRegenerateCredentialLogic(ctx context.Context, svcCtx *svc.ServiceContex
 }
 
 func (l *RegenerateCredentialLogic) RegenerateCredential(req *types.RegenerateCredentialReq) (resp *types.RegenerateCredentialResp, err error) {
-	data, err := l.svcCtx.Redis.HGet(l.ctx, "bots", fmt.Sprintf("%d", req.BotID)).Result()
-	if err != nil {
-		return nil, fmt.Errorf("bot not found")
+	uid := l.ctx.Value("uid").(int64)
+
+	if err := l.svcCtx.BotDao.CheckBotOwnership(l.ctx, req.BotID, uid); err != nil {
+		return nil, fmt.Errorf("bot not found or not authorized")
 	}
 
-	clientID := "bot_" + randomHex(16)
-	clientSecret := randomHex(32)
-
-	var bot map[string]interface{}
-	json.Unmarshal([]byte(data), &bot)
-	bot["client_id"] = clientID
-	bot["client_secret"] = clientSecret
-
-	data2, _ := json.Marshal(bot)
-	l.svcCtx.Redis.HSet(l.ctx, "bots", fmt.Sprintf("%d", req.BotID), data2)
+	clientID, clientSecret, err := l.svcCtx.BotDao.RegenerateCredential(l.ctx, req.BotID)
+	if err != nil {
+		return nil, err
+	}
 
 	return &types.RegenerateCredentialResp{
 		ClientID:     clientID,

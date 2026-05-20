@@ -2,7 +2,6 @@ package installation
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"bot/internal/svc"
@@ -26,28 +25,24 @@ func NewUninstallBotLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Unin
 }
 
 func (l *UninstallBotLogic) UninstallBot(req *types.UninstallBotReq) (resp *types.UninstallBotResp, err error) {
-	key := fmt.Sprintf("bot_installations:%d", req.BotID)
+	uid := l.ctx.Value("uid").(int64)
 
-	data, err := l.svcCtx.Redis.Get(l.ctx, key).Result()
+	convInfo, err := l.svcCtx.InstallationDao.GetConversation(l.ctx, req.ConvID)
 	if err != nil {
-		return &types.UninstallBotResp{}, nil
+		return nil, fmt.Errorf("conversation not found")
 	}
 
-	var list []types.BotInstallationItem
-	json.Unmarshal([]byte(data), &list)
-
-	var newList []types.BotInstallationItem
-	for _, item := range list {
-		if item.ConvID != req.ConvID {
-			newList = append(newList, item)
+	if convInfo.ConvType == "GROUP" && convInfo.GroupID > 0 {
+		if err := l.svcCtx.InstallationDao.CheckGroupMemberRole(l.ctx, convInfo.GroupID, uid, "OWNER", "ADMIN"); err != nil {
+			return nil, fmt.Errorf("only group owner or admin can uninstall bots")
 		}
 	}
 
-	data2, _ := json.Marshal(newList)
-	l.svcCtx.Redis.Set(l.ctx, key, data2, 0)
+	if err := l.svcCtx.InstallationDao.Uninstall(l.ctx, req.BotID, req.ConvID); err != nil {
+		return nil, fmt.Errorf("failed to uninstall bot: %v", err)
+	}
 
-	convKey := fmt.Sprintf("conv_bots:%d", req.ConvID)
-	l.svcCtx.Redis.SRem(l.ctx, convKey, req.BotID)
+	l.svcCtx.OAuthDao.RemoveConvBotCache(l.ctx, req.ConvID, req.BotID)
 
 	return &types.UninstallBotResp{}, nil
 }

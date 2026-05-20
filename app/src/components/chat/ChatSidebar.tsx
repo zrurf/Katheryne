@@ -5,7 +5,7 @@ import { authStore } from "../../stores/auth";
 import { api } from "../../services/api";
 import { Avatar } from "../ui/avatar";
 import { formatConversationTime, truncate } from "../../lib/utils";
-import type { ConversationItem, FriendItem, FriendRequestItem, GroupInviteItem } from "../../services/api";
+import type { ConversationItem, FriendItem, FriendRequestItem, GroupInviteItem, ConvBotItem, BotInfo } from "../../services/api";
 import {
   MessageSquare,
   Users,
@@ -871,13 +871,172 @@ function ContactsTab() {
 }
 
 function BotsTab() {
+  const [bots, setBots] = createSignal<ConvBotItem[]>([]);
+  const [loading, setLoading] = createSignal(false);
+  const [showBotList, setShowBotList] = createSignal(false);
+  const [availableBots, setAvailableBots] = createSignal<BotInfo[]>([]);
+  const [availableLoading, setAvailableLoading] = createSignal(false);
+
+  const loadBots = async () => {
+    const convId = chatStore.activeConvId();
+    if (!convId) return;
+    setLoading(true);
+    try {
+      const resp = await api.bot.getConvBots(convId);
+      setBots(resp.list || []);
+    } catch {
+      setBots([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadAvailableBots = async () => {
+    setAvailableLoading(true);
+    try {
+      const [myResp, communityResp] = await Promise.all([
+        api.bot.listMyBots(),
+        api.bot.listCommunityBots(),
+      ]);
+      // Combine user's bots + community bots, deduplicate by bot_id
+      const seen = new Set<string>();
+      const combined: typeof myResp.list = [];
+      for (const bot of myResp.list) {
+        if (!seen.has(bot.bot_id)) {
+          seen.add(bot.bot_id);
+          combined.push(bot);
+        }
+      }
+      for (const bot of communityResp.list) {
+        if (!seen.has(bot.bot_id)) {
+          seen.add(bot.bot_id);
+          combined.push(bot);
+        }
+      }
+      setAvailableBots(combined);
+    } catch {
+      setAvailableBots([]);
+    } finally {
+      setAvailableLoading(false);
+    }
+  };
+
+  createResource(chatStore.activeConvId, loadBots);
+
+  const handleInstall = async (botId: string) => {
+    const convId = chatStore.activeConvId();
+    if (!convId) return;
+    try {
+      await api.bot.install(botId, convId);
+      loadBots();
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleUninstall = async (botId: string) => {
+    const convId = chatStore.activeConvId();
+    if (!convId) return;
+    try {
+      await api.bot.uninstall(botId, convId);
+      loadBots();
+    } catch {
+      // ignore
+    }
+  };
+
+  const isInstalled = (botId: string) => bots().some(b => String(b.bot_id) === String(botId) || String(b.bot_id) === botId);
+
   return (
-    <div class="flex-1 overflow-y-auto p-3">
-      <div class="text-center py-8 text-text-muted text-sm">
-        <Bot size={32} class="mx-auto mb-2 text-text-muted/50" />
-        <p>暂无 Bot</p>
-        <p class="text-xs mt-1">在设置中配置 Bot 服务</p>
-      </div>
+    <div class="flex-1 overflow-y-auto p-3 space-y-3">
+      <Show when={!chatStore.activeConvId()}>
+        <div class="text-center py-8 text-text-muted text-sm">
+          <Bot size={32} class="mx-auto mb-2 text-text-muted/50" />
+          <p>选择一个对话以管理 Bot</p>
+        </div>
+      </Show>
+      <Show when={chatStore.activeConvId()}>
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-xs font-medium text-text-muted">
+            已安装 ({bots().length})
+          </span>
+          <button
+            onClick={() => { setShowBotList(!showBotList()); loadAvailableBots(); }}
+            class="text-xs text-primary hover:text-primary-dark transition-colors"
+          >
+            {showBotList() ? "收起" : "添加 Bot"}
+          </button>
+        </div>
+
+        <Show when={loading()}>
+          <div class="text-center py-4 text-text-muted text-xs">加载中...</div>
+        </Show>
+
+        <Show when={!loading() && bots().length === 0}>
+          <div class="text-center py-6 text-text-muted text-sm">
+            <Bot size={24} class="mx-auto mb-2 text-text-muted/50" />
+            <p>暂未安装 Bot</p>
+            <p class="text-xs mt-1">点击上方"添加 Bot"</p>
+          </div>
+        </Show>
+
+        <For each={bots()}>
+          {(bot) => (
+            <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-surface border border-transparent hover:border-border transition-colors">
+              <Avatar name={bot.name} src={bot.avatar} size="sm" />
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-text truncate">{bot.name}</p>
+                <p class="text-xs text-text-muted truncate">{bot.description || "已安装的 Bot"}</p>
+              </div>
+              <button
+                onClick={() => handleUninstall(String(bot.bot_id))}
+                class="p-1.5 hover:bg-danger/10 rounded-lg transition-colors text-text-muted hover:text-danger"
+                title="卸载"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
+        </For>
+
+        <Show when={showBotList()}>
+          <div class="border-t border-border pt-3 mt-3">
+            <span class="text-xs font-medium text-text-muted mb-2 block">可用 Bot</span>
+            <Show when={availableLoading()}>
+              <div class="text-center py-3 text-text-muted text-xs">加载中...</div>
+            </Show>
+            <Show when={!availableLoading() && availableBots().length === 0}>
+              <div class="text-center py-4 text-text-muted text-xs">
+                没有可用的 Bot，请在设置中创建
+              </div>
+            </Show>
+            <For each={availableBots()}>
+              {(bot) => {
+                const installed = isInstalled(String(bot.bot_id));
+                return (
+                  <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-surface border border-transparent transition-colors">
+                    <Avatar name={bot.name} src={bot.avatar} size="sm" />
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-text truncate">{bot.name}</p>
+                      <p class="text-xs text-text-muted truncate">{bot.description || ""}</p>
+                    </div>
+                    <Show when={installed} fallback={
+                      <button
+                        onClick={() => handleInstall(String(bot.bot_id))}
+                        class="px-2 py-1 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-medium transition-colors"
+                      >
+                        安装
+                      </button>
+                    }>
+                      <span class="text-xs text-text-muted">已安装</span>
+                    </Show>
+                  </div>
+                );
+              }}
+            </For>
+          </div>
+        </Show>
+      </Show>
     </div>
   );
 }

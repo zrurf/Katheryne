@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	auth "gateway/internal/handler/auth"
+	bot "gateway/internal/handler/bot"
 	conversation "gateway/internal/handler/conversation"
 	message "gateway/internal/handler/message"
 	oauth2 "gateway/internal/handler/oauth2"
@@ -62,6 +63,192 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 		},
 		rest.WithPrefix("/api/v1/auth"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/bots",
+					Handler: bot.CreateBotHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/bots",
+					Handler: bot.ListMyBotsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/bots/:bot_id",
+					Handler: bot.GetBotHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/bots/:bot_id",
+					Handler: bot.UpdateBotHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/bots/:bot_id",
+					Handler: bot.DeleteBotHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/bots/:bot_id/credentials/regenerate",
+					Handler: bot.RegenerateCredentialHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/bots/:bot_id/event-deliveries",
+					Handler: bot.GetEventDeliveriesHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/bots/:bot_id/event-deliveries/:event_id/retry",
+					Handler: bot.RetryEventDeliveryHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/bots/:bot_id/installations",
+					Handler: bot.GetBotInstallationsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/bots/:bot_id/rate-limit",
+					Handler: bot.GetBotRateLimitHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/bots/:bot_id/rate-limit",
+					Handler: bot.UpdateBotRateLimitHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/bots/:bot_id/webhook-secret/rotate",
+					Handler: bot.RotateWebhookSecretHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/v1/bot/developer"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodGet,
+					Path:    "/bots",
+					Handler: bot.ListCommunityBotsHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/v1/bot/community"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodGet,
+					Path:    "/convs/:conv_id/bots",
+					Handler: bot.GetConvBotsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/convs/:conv_id/bots/install",
+					Handler: bot.InstallBotHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/convs/:conv_id/bots/uninstall",
+					Handler: bot.UninstallBotHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/v1/bot/installation"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodGet,
+					Path:    "/convs/:conv_id",
+					Handler: bot.BotGetConvHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/convs/:conv_id/members",
+					Handler: bot.BotGetConvMembersHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/convs/:conv_id/msgs",
+					Handler: bot.BotSendMsgHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/convs/:conv_id/msgs/:msg_id",
+					Handler: bot.BotGetMsgHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/convs/:conv_id/msgs/:msg_id/recall",
+					Handler: bot.BotRecallMsgHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/convs/:conv_id/msgs/reply",
+					Handler: bot.BotReplyMsgHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/files",
+					Handler: bot.BotUploadFileHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/users/:uid",
+					Handler: bot.BotGetUserHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/v1/bot"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/authorize",
+				Handler: bot.BotAuthorizeHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/token",
+				Handler: bot.BotTokenHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api/v1/bot/oauth2"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/authorize",
+					Handler: bot.ApproveAuthorizeHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/v1/bot/oauth2"),
 	)
 
 	server.AddRoutes(

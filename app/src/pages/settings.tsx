@@ -1,4 +1,4 @@
-import { createSignal, Show, onMount, For } from "solid-js";
+import { createSignal, Show, onMount, For, createResource } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { authStore } from "../stores/auth";
 import {
@@ -11,7 +11,8 @@ import {
   parseServerUrl,
   type ServerConfig,
 } from "../services/config";
-import { checkServerHealth } from "../services/api";
+import { checkServerHealth, api } from "../services/api";
+import type { BotInfo, CreateBotReq } from "../services/api";
 import {
   ArrowLeft,
   Server,
@@ -25,6 +26,8 @@ import {
   Palette,
   Globe,
   Trash2,
+  Bot,
+  Edit,
 } from "lucide-solid";
 
 export function SettingsPage() {
@@ -34,7 +37,7 @@ export function SettingsPage() {
   const [newServerUrl, setNewServerUrl] = createSignal("");
   const [addingServer, setAddingServer] = createSignal(false);
   const [serverError, setServerError] = createSignal("");
-  const [activeTab, setActiveTab] = createSignal<"general" | "servers" | "account">("general");
+  const [activeTab, setActiveTab] = createSignal<"general" | "servers" | "account" | "bots">("general");
 
   onMount(() => {
     const saved = getSavedServers();
@@ -100,6 +103,93 @@ export function SettingsPage() {
     navigate("/login", { replace: true });
   };
 
+  const [bots, setBots] = createSignal<BotInfo[]>([]);
+  const [botsLoading, setBotsLoading] = createSignal(false);
+  const [showCreateBot, setShowCreateBot] = createSignal(false);
+  const [botName, setBotName] = createSignal("");
+  const [botDesc, setBotDesc] = createSignal("");
+  const [botWebhook, setBotWebhook] = createSignal("");
+  const [showCredentials, setShowCredentials] = createSignal<{ bot_id: string; client_id: string; client_secret: string } | null>(null);
+  const [editingBot, setEditingBot] = createSignal<BotInfo | null>(null);
+  const [editBotName, setEditBotName] = createSignal("");
+  const [editBotDesc, setEditBotDesc] = createSignal("");
+  const [editBotWebhook, setEditBotWebhook] = createSignal("");
+
+  const loadBots = async () => {
+    setBotsLoading(true);
+    try {
+      const resp = await api.bot.listMyBots();
+      setBots(resp.list || []);
+    } catch {
+      setBots([]);
+    } finally {
+      setBotsLoading(false);
+    }
+  };
+
+  createResource(() => activeTab() === "bots", () => { if (activeTab() === "bots") loadBots(); });
+
+  const handleCreateBot = async (e: Event) => {
+    e.preventDefault();
+    if (!botName().trim()) return;
+    try {
+      const resp = await api.bot.createBot({
+        name: botName().trim(),
+        description: botDesc().trim(),
+        webhook_url: botWebhook().trim(),
+      } as CreateBotReq & { bot_id?: string });
+      setShowCreateBot(false);
+      setBotName("");
+      setBotDesc("");
+      setBotWebhook("");
+      if (resp) {
+        setShowCredentials({
+          bot_id: (resp as unknown as Record<string,string>).bot_id || "",
+          client_id: (resp as unknown as Record<string,string>).client_id || "",
+          client_secret: (resp as unknown as Record<string,string>).client_secret || "",
+        });
+      }
+      loadBots();
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleDeleteBot = async (botId: string) => {
+    if (!confirm("确定要删除这个 Bot 吗？")) return;
+    try {
+      await api.bot.deleteBot(botId);
+      loadBots();
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleEditBot = async (e: Event) => {
+    e.preventDefault();
+    const bot = editingBot();
+    if (!bot) return;
+    try {
+      await api.bot.updateBot({
+        bot_id: bot.bot_id,
+        name: editBotName().trim() || bot.name,
+        description: editBotDesc().trim() || bot.description,
+        webhook_url: editBotWebhook().trim() || bot.webhook_url || "",
+      });
+      setEditingBot(null);
+      loadBots();
+    } catch {
+      // ignore
+    }
+  };
+
+  const startEditBot = (bot: BotInfo) => {
+    setEditingBot(bot);
+    setEditBotName(bot.name);
+    setEditBotDesc(bot.description || "");
+    setEditBotWebhook(bot.webhook_url || "");
+  };
+
   return (
     <div class="h-screen flex flex-col bg-bg">
       {/* Header */}
@@ -148,6 +238,17 @@ export function SettingsPage() {
           >
             <User size={16} />
             账号
+          </button>
+          <button
+            onClick={() => setActiveTab("bots")}
+            class={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+              activeTab() === "bots"
+                ? "bg-primary/10 text-primary"
+                : "text-text-secondary hover:bg-surface hover:text-text"
+            }`}
+          >
+            <Bot size={16} />
+            Bot 管理
           </button>
         </div>
 
@@ -299,8 +400,206 @@ export function SettingsPage() {
               </div>
             </div>
           </Show>
+
+          <Show when={activeTab() === "bots"}>
+            <div class="max-w-lg space-y-6">
+              <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-text">Bot 管理</h2>
+                <button
+                  onClick={() => setShowCreateBot(true)}
+                  class="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-medium transition-colors"
+                >
+                  <Plus size={14} />
+                  创建 Bot
+                </button>
+              </div>
+
+              <Show when={botsLoading()}>
+                <div class="text-center py-8 text-text-muted text-sm">加载中...</div>
+              </Show>
+
+              <Show when={!botsLoading() && bots().length === 0}>
+                <div class="text-center py-12 text-text-muted text-sm">
+                  <Bot size={40} class="mx-auto mb-3 text-text-muted/30" />
+                  <p>还没有创建任何 Bot</p>
+                  <p class="text-xs mt-1">点击上方"创建 Bot"开始</p>
+                </div>
+              </Show>
+
+              <div class="space-y-2">
+                <For each={bots()}>
+                  {(bot) => (
+                    <div class="bg-surface rounded-xl p-4 border border-border">
+                      <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                          <Bot size={18} class="text-primary" />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-semibold text-text truncate">{bot.name}</p>
+                          <p class="text-xs text-text-muted truncate">{bot.description || "暂无描述"}</p>
+                        </div>
+                        <div class="flex items-center gap-1">
+                          <button
+                            onClick={() => startEditBot(bot)}
+                            class="p-1.5 hover:bg-surface-hover rounded-lg transition-colors text-text-muted hover:text-text"
+                            title="编辑"
+                          >
+                            <Edit size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteBot(bot.bot_id)}
+                            class="p-1.5 hover:bg-danger/10 rounded-lg transition-colors text-text-muted hover:text-danger"
+                            title="删除"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                      <div class="bg-bg rounded-lg p-2.5 space-y-1.5 text-xs font-mono">
+                        <div class="flex items-center justify-between">
+                          <span class="text-text-muted">Bot ID</span>
+                          <span class="text-text">{bot.bot_id}</span>
+                        </div>
+                        <Show when={bot.webhook_url}>
+                          <div class="flex items-center justify-between">
+                            <span class="text-text-muted">Webhook</span>
+                            <span class="text-text truncate max-w-[200px]">{bot.webhook_url}</span>
+                          </div>
+                        </Show>
+                        <div class="flex items-center justify-between">
+                          <span class="text-text-muted">创建时间</span>
+                          <span class="text-text">{bot.created_at ? new Date(bot.created_at * 1000).toLocaleString() : "-"}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </For>
+              </div>
+            </div>
+          </Show>
         </div>
       </div>
+
+      {/* Create Bot Modal */}
+      <Show when={showCreateBot()}>
+        <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={() => setShowCreateBot(false)}>
+          <div class="bg-surface rounded-2xl p-6 border border-border w-full max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
+            <h2 class="text-lg font-semibold text-text mb-4">创建 Bot</h2>
+            <form onSubmit={handleCreateBot} class="space-y-3">
+              <div>
+                <label class="block text-xs font-medium text-text-muted mb-1">名称</label>
+                <input
+                  type="text"
+                  value={botName()}
+                  onInput={(e) => setBotName(e.currentTarget.value)}
+                  placeholder="Bot 名称"
+                  class="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-primary transition-colors"
+                  required
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-text-muted mb-1">描述</label>
+                <input
+                  type="text"
+                  value={botDesc()}
+                  onInput={(e) => setBotDesc(e.currentTarget.value)}
+                  placeholder="简要描述 Bot 功能"
+                  class="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-text-muted mb-1">Webhook URL (可选)</label>
+                <input
+                  type="url"
+                  value={botWebhook()}
+                  onInput={(e) => setBotWebhook(e.currentTarget.value)}
+                  placeholder="https://your-bot.example.com/webhook"
+                  class="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+              <div class="flex gap-2 pt-1">
+                <button type="button" onClick={() => setShowCreateBot(false)} class="flex-1 px-4 py-2 bg-surface-hover hover:bg-bg rounded-xl text-sm text-text transition-colors">取消</button>
+                <button type="submit" class="flex-1 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-xl text-sm font-medium transition-colors">创建</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </Show>
+
+      {/* Credentials Modal */}
+      <Show when={showCredentials()}>
+        <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={() => setShowCredentials(null)}>
+          <div class="bg-surface rounded-2xl p-6 border border-border w-full max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
+            <h2 class="text-lg font-semibold text-text mb-2">Bot 创建成功</h2>
+            <p class="text-xs text-text-muted mb-4">请保存以下凭证，Client Secret 仅显示一次。</p>
+            <div class="bg-bg rounded-xl p-3 space-y-2 text-xs font-mono mb-4">
+              <div>
+                <span class="text-text-muted">Bot ID: </span>
+                <span class="text-text">{showCredentials()?.bot_id}</span>
+              </div>
+              <div>
+                <span class="text-text-muted">Client ID: </span>
+                <span class="text-text break-all">{showCredentials()?.client_id}</span>
+              </div>
+              <div>
+                <span class="text-text-muted">Client Secret: </span>
+                <span class="text-warning break-all">{showCredentials()?.client_secret}</span>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowCredentials(null)}
+              class="w-full px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-xl text-sm font-medium transition-colors"
+            >
+              我已保存
+            </button>
+          </div>
+        </div>
+      </Show>
+
+      {/* Edit Bot Modal */}
+      <Show when={editingBot()}>
+        <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={() => setEditingBot(null)}>
+          <div class="bg-surface rounded-2xl p-6 border border-border w-full max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
+            <h2 class="text-lg font-semibold text-text mb-4">编辑 Bot</h2>
+            <form onSubmit={handleEditBot} class="space-y-3">
+              <div>
+                <label class="block text-xs font-medium text-text-muted mb-1">名称</label>
+                <input
+                  type="text"
+                  value={editBotName()}
+                  onInput={(e) => setEditBotName(e.currentTarget.value)}
+                  placeholder="Bot 名称"
+                  class="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-text-muted mb-1">描述</label>
+                <input
+                  type="text"
+                  value={editBotDesc()}
+                  onInput={(e) => setEditBotDesc(e.currentTarget.value)}
+                  placeholder="简要描述 Bot 功能"
+                  class="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-text-muted mb-1">Webhook URL (可选)</label>
+                <input
+                  type="url"
+                  value={editBotWebhook()}
+                  onInput={(e) => setEditBotWebhook(e.currentTarget.value)}
+                  placeholder="https://your-bot.example.com/webhook"
+                  class="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+              <div class="flex gap-2 pt-1">
+                <button type="button" onClick={() => setEditingBot(null)} class="flex-1 px-4 py-2 bg-surface-hover hover:bg-bg rounded-xl text-sm text-text transition-colors">取消</button>
+                <button type="submit" class="flex-1 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-xl text-sm font-medium transition-colors">保存</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </Show>
     </div>
   );
 }

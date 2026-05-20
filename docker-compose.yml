@@ -172,14 +172,15 @@ services:
       etcd:
         condition: service_started
 
-  bot_api:
+  bot_services:
     build:
       context: .
-      dockerfile: services/api/bot/Dockerfile
-    container_name: bot-api
+      dockerfile: services/internal/bot/Dockerfile
+    container_name: bot-services
     restart: unless-stopped
     expose:
-      - "8007"
+      - "8010"
+      - "6070"
     env_file:
       - .env
     networks:
@@ -189,12 +190,41 @@ services:
         condition: service_started
       garnet:
         condition: service_started
+      etcd:
+        condition: service_started
+
+  # 官方 AI Bot
+  ai_bot:
+    build:
+      context: .
+      dockerfile: services/thirdparty/ai-bot/Dockerfile
+    container_name: ai-bot
+    restart: unless-stopped
+    expose:
+      - "8889"
+    env_file:
+      - .env
+    networks:
+      - internal
+    depends_on:
+      postgres:
+        condition: service_started
+      garnet:
+        condition: service_started
+      etcd:
+        condition: service_started
+      gateway_api:
+        condition: service_started
+      bot_services:
+        condition: service_started
+      ws_gateway:
+        condition: service_started
 
   ### 基础设施 ###
 
   # 内存数据库
   garnet:
-    image: "ghcr.io/microsoft/garnet-alpine:1.1.7"
+    image: "ghcr.io/microsoft/garnet-alpine:1.1.8"
     container_name: garnet
     ulimits:
       memlock: -1

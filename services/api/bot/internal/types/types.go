@@ -153,6 +153,7 @@ type BotTokenReq struct {
 	Code         string `form:"code,optional"`
 	RedirectURI  string `form:"redirect_uri,optional"`
 	RefreshToken string `form:"refresh_token,optional"`
+	Scope        string `form:"scope,optional"`
 }
 
 type BotTokenResp struct {

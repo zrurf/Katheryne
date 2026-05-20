@@ -2,7 +2,8 @@ package developer
 
 import (
 	"context"
-	"encoding/json"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 
 	"bot/internal/svc"
@@ -26,21 +27,20 @@ func NewRotateWebhookSecretLogic(ctx context.Context, svcCtx *svc.ServiceContext
 }
 
 func (l *RotateWebhookSecretLogic) RotateWebhookSecret(req *types.RotateWebhookSecretReq) (resp *types.RotateWebhookSecretResp, err error) {
-	data, err := l.svcCtx.Redis.HGet(l.ctx, "bots", fmt.Sprintf("%d", req.BotID)).Result()
-	if err != nil {
-		return nil, fmt.Errorf("bot not found")
+	uid := l.ctx.Value("uid").(int64)
+
+	if err := l.svcCtx.BotDao.CheckBotOwnership(l.ctx, req.BotID, uid); err != nil {
+		return nil, fmt.Errorf("bot not found or not authorized")
 	}
 
-	secret := randomHex(32)
+	secretBytes := make([]byte, 16)
+	rand.Read(secretBytes)
+	newWebhookSecret := hex.EncodeToString(secretBytes)
 
-	var bot map[string]interface{}
-	json.Unmarshal([]byte(data), &bot)
-	bot["webhook_secret"] = secret
+	err = l.svcCtx.BotDao.UpdateWebhookSecret(l.ctx, req.BotID, newWebhookSecret)
+	if err != nil {
+		return nil, err
+	}
 
-	data2, _ := json.Marshal(bot)
-	l.svcCtx.Redis.HSet(l.ctx, "bots", fmt.Sprintf("%d", req.BotID), data2)
-
-	return &types.RotateWebhookSecretResp{
-		WebhookSecret: secret,
-	}, nil
+	return &types.RotateWebhookSecretResp{WebhookSecret: newWebhookSecret}, nil
 }

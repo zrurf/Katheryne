@@ -2,7 +2,6 @@ package developer
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"bot/internal/svc"
@@ -26,12 +25,16 @@ func NewGetBotInstallationsLogic(ctx context.Context, svcCtx *svc.ServiceContext
 }
 
 func (l *GetBotInstallationsLogic) GetBotInstallations(req *types.GetBotInstallationsReq) (resp *types.GetBotInstallationsResp, err error) {
-	data, err := l.svcCtx.Redis.Get(l.ctx, fmt.Sprintf("bot_installations:%d", req.BotID)).Result()
-	if err != nil {
-		return &types.GetBotInstallationsResp{List: []types.BotInstallationItem{}}, nil
+	uid := l.ctx.Value("uid").(int64)
+
+	if err := l.svcCtx.BotDao.CheckBotOwnership(l.ctx, req.BotID, uid); err != nil {
+		return nil, fmt.Errorf("bot not found or not authorized")
 	}
 
-	var list []types.BotInstallationItem
-	json.Unmarshal([]byte(data), &list)
+	list, err := l.svcCtx.InstallationDao.ListBotInstallations(l.ctx, req.BotID)
+	if err != nil {
+		return nil, err
+	}
+
 	return &types.GetBotInstallationsResp{List: list}, nil
 }

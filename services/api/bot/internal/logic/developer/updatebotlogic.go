@@ -2,7 +2,6 @@ package developer
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"bot/internal/svc"
@@ -26,32 +25,36 @@ func NewUpdateBotLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UpdateB
 }
 
 func (l *UpdateBotLogic) UpdateBot(req *types.UpdateBotReq) (resp *types.UpdateBotResp, err error) {
-	data, err := l.svcCtx.Redis.HGet(l.ctx, "bots", fmt.Sprintf("%d", req.BotID)).Result()
-	if err != nil {
-		return nil, fmt.Errorf("bot not found")
+	uid := l.ctx.Value("uid").(int64)
+
+	if err := l.svcCtx.BotDao.CheckBotOwnership(l.ctx, req.BotID, uid); err != nil {
+		return nil, fmt.Errorf("bot not found or not authorized")
 	}
 
-	var bot map[string]interface{}
-	json.Unmarshal([]byte(data), &bot)
-
+	updates := make(map[string]interface{})
 	if req.Name != "" {
-		bot["name"] = req.Name
+		updates["name"] = req.Name
 	}
 	if req.Avatar != "" {
-		bot["avatar"] = req.Avatar
+		updates["avatar"] = req.Avatar
 	}
 	if req.Description != "" {
-		bot["description"] = req.Description
+		updates["description"] = req.Description
 	}
 	if req.WebhookURL != "" {
-		bot["webhook_url"] = req.WebhookURL
+		updates["webhook_url"] = req.WebhookURL
 	}
-	if req.SubscribeEvents != nil {
-		bot["subscribe_events"] = req.SubscribeEvents
+	if len(req.SubscribeEvents) > 0 {
+		updates["subscribe_events"] = req.SubscribeEvents
 	}
 
-	data2, _ := json.Marshal(bot)
-	l.svcCtx.Redis.HSet(l.ctx, "bots", fmt.Sprintf("%d", req.BotID), data2)
+	if len(updates) == 0 {
+		return &types.UpdateBotResp{}, nil
+	}
+
+	if err := l.svcCtx.BotDao.UpdateBot(l.ctx, req.BotID, uid, updates); err != nil {
+		return nil, err
+	}
 
 	return &types.UpdateBotResp{}, nil
 }

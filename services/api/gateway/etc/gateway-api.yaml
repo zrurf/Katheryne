@@ -43,5 +43,10 @@ UserRpc:
     Hosts:
       - "etcd:2379"
     Key: user.rpc
+BotRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: bot.rpc
 
 RedisAddr: "garnet:6379"

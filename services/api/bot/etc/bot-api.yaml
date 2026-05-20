@@ -12,3 +12,16 @@ Telemetry:
   Sampler: 1.0
 
 RedisAddr: "garnet:6379"
+
+BotDB:
+  Host: "postgres"
+  Port: 5432
+  User: "kadmin"
+  Password: "nimdaP@ssW0rd"
+  DBName: "mod_bot"
+
+PiiSalt: "katheryne-pii-salt-v1"
+MaxRetries: 5
+RetryBackoffMin: 1
+RetryBackoffMax: 60
+DefaultExpiry: 86400

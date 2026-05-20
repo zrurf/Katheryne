@@ -30,11 +30,13 @@ CREATE TABLE IF NOT EXISTS "bot_installation" (
     "id" BIGSERIAL PRIMARY KEY,
     "bot_id" BIGINT NOT NULL,
     "conv_id" BIGINT NOT NULL,                        -- 安装到哪个会话
+    "conv_type" VARCHAR(16) NOT NULL DEFAULT 'DM',    -- DM / GROUP
     "group_id" BIGINT,                                -- 群聊 ID
     "installed_by" BIGINT NOT NULL,                   -- 谁安装的
-    "permissions" TEXT[] NOT NULL DEFAULT '{}',       -- 授权的权限列表
+    "permissions" TEXT NOT NULL DEFAULT '[]',          -- 授权的权限列表 (JSON array)
     "status" VARCHAR(16) NOT NULL DEFAULT 'ACTIVE',   -- ACTIVE / REMOVED
     "installed_at" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "updated_at" TIMESTAMP,
     "removed_at" TIMESTAMP,
     UNIQUE ("bot_id", "conv_id")
 );
@@ -70,10 +72,41 @@ CREATE TABLE IF NOT EXISTS "bot_rate_limit" (
     "created_at" TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+-- OAuth2 授权码
+CREATE TABLE IF NOT EXISTS "bot_auth_code" (
+    "id" BIGSERIAL PRIMARY KEY,
+    "code" VARCHAR(128) NOT NULL UNIQUE,
+    "client_id" VARCHAR(64) NOT NULL,
+    "redirect_uri" TEXT NOT NULL,
+    "scope" VARCHAR(256) NOT NULL DEFAULT 'message.read',
+    "uid" BIGINT NOT NULL,
+    "conv_id" BIGINT,
+    "used" BOOLEAN NOT NULL DEFAULT FALSE,
+    "expires_at" TIMESTAMP NOT NULL,
+    "created_at" TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- OAuth2 Token 记录（持久化）
+CREATE TABLE IF NOT EXISTS "bot_oauth_token" (
+    "id" BIGSERIAL PRIMARY KEY,
+    "bot_id" BIGINT NOT NULL,
+    "client_id" VARCHAR(64) NOT NULL,
+    "access_token_hash" VARCHAR(128) NOT NULL UNIQUE,
+    "refresh_token_hash" VARCHAR(128),
+    "scope" VARCHAR(256) NOT NULL DEFAULT 'message.read',
+    "revoked" BOOLEAN NOT NULL DEFAULT FALSE,
+    "expires_at" TIMESTAMP NOT NULL,
+    "created_at" TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
 CREATE INDEX IF NOT EXISTS "idx_bot_inst_conv" ON "bot_installation" ("conv_id", "status")
     WHERE "status" = 'ACTIVE';
 CREATE INDEX IF NOT EXISTS "idx_bot_inst_bot" ON "bot_installation" ("bot_id", "status")
     WHERE "status" = 'ACTIVE';
+CREATE INDEX IF NOT EXISTS "idx_bot_auth_code" ON "bot_auth_code" ("code", "used", "expires_at")
+    WHERE "used" = FALSE;
+CREATE INDEX IF NOT EXISTS "idx_bot_oauth_token" ON "bot_oauth_token" ("bot_id", "revoked")
+    WHERE "revoked" = FALSE;
 
 -- Webhook 重试扫描索引
 CREATE INDEX IF NOT EXISTS "idx_bot_event_retry" ON "bot_event_delivery" ("status", "next_retry_at")

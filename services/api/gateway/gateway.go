@@ -1,6 +1,3 @@
-// Code scaffolded by goctl. Safe to edit.
-// goctl 1.10.1
-
 package main
 
 import (
@@ -23,7 +20,6 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 
-	// 仅演示，允许跨域。生产环境应当配置允许的域名和请求头
 	server := rest.MustNewServer(c.RestConf, rest.WithCors("*"))
 	defer server.Stop()
 

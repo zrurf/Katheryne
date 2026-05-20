@@ -2,8 +2,6 @@ package installation
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 
 	"bot/internal/svc"
 	"bot/internal/types"
@@ -26,26 +24,22 @@ func NewGetConvBotsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetCo
 }
 
 func (l *GetConvBotsLogic) GetConvBots(req *types.GetConvBotsReq) (resp *types.GetConvBotsResp, err error) {
-	convKey := fmt.Sprintf("conv_bots:%d", req.ConvID)
-	botIDs, err := l.svcCtx.Redis.SMembers(l.ctx, convKey).Result()
+	uid := l.ctx.Value("uid").(int64)
+
+	convInfo, err := l.svcCtx.InstallationDao.GetConversation(l.ctx, req.ConvID)
 	if err != nil {
 		return &types.GetConvBotsResp{List: []types.InstalledBotItem{}}, nil
 	}
 
-	var list []types.InstalledBotItem
-	for _, id := range botIDs {
-		data, err := l.svcCtx.Redis.HGet(l.ctx, "bots", id).Result()
-		if err != nil {
-			continue
+	if convInfo.ConvType == "GROUP" && convInfo.GroupID > 0 {
+		if !l.svcCtx.InstallationDao.IsGroupMember(l.ctx, convInfo.GroupID, uid) {
+			return &types.GetConvBotsResp{List: []types.InstalledBotItem{}}, nil
 		}
-		var bot types.BotInfo
-		json.Unmarshal([]byte(data), &bot)
-		list = append(list, types.InstalledBotItem{
-			BotID:       bot.BotID,
-			Name:        bot.Name,
-			Avatar:      bot.Avatar,
-			Description: bot.Description,
-		})
+	}
+
+	list, err := l.svcCtx.InstallationDao.ListConvBots(l.ctx, req.ConvID)
+	if err != nil {
+		return &types.GetConvBotsResp{List: []types.InstalledBotItem{}}, nil
 	}
 
 	return &types.GetConvBotsResp{List: list}, nil

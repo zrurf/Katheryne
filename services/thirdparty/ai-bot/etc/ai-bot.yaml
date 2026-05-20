@@ -1,0 +1,27 @@
+Name: ai-bot
+Host: 0.0.0.0
+Port: 8889
+
+Middlewares:
+  Metrics: true
+
+Telemetry:
+  Name: ai-bot
+  Endpoint: otel-collector:4317
+  Batcher: otlpgrpc
+  Sampler: 1.0
+
+BotAPITokenURL: "http://gateway-api/api/v1/bot/oauth2/token"
+BotAPIRefreshURL: "http://gateway-api/api/v1/bot/oauth2/token"
+WSGatewayURL: "ws://ws-gateway:8080/api/v1/bot/ws"
+
+BotClientID: "katheryne_ai_official_bot"
+BotClientSecret: "kth_official_secret_v1_production"
+
+LLM:
+  Provider: "openai"
+  APIKey: "${OPENAI_API_KEY:-}"
+  BaseURL: "${OPENAI_BASE_URL:-https://api.openai.com/v1}"
+  Model: "${LLM_MODEL:-gpt-4o}"
+  MaxTokens: 4096
+  Temperature: 0.7

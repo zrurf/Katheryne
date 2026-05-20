@@ -772,3 +772,452 @@ service gateway-api {
 	get /total_unread returns (GetTotalUnreadResp)
 }
 
+// Bot服务 Model
+type (
+	// CreateBot
+	CreateBotReq {
+		Name        string `json:"name"`
+		Description string `json:"description,optional"`
+		Avatar      string `json:"avatar,optional"`
+		WebhookUrl  string `json:"webhook_url,optional"`
+		HomepageUrl string `json:"homepage_url,optional"`
+		PrivacyUrl  string `json:"privacy_url,optional"`
+	}
+	CreateBotResp {
+		BotId        string `json:"bot_id"`
+		ClientId     string `json:"client_id"`
+		ClientSecret string `json:"client_secret"`
+	}
+	// ListMyBots
+	ListMyBotsReq {
+		Page int `form:"page,default=1"`
+		Size int `form:"size,default=20"`
+	}
+	BotItem {
+		BotId        string `json:"bot_id"`
+		Name         string `json:"name"`
+		Description  string `json:"description"`
+		Avatar       string `json:"avatar"`
+		Status       string `json:"status"`
+		ClientId     string `json:"client_id"`
+		InstalledCnt int64  `json:"installed_cnt"`
+		CreatedAt    int64  `json:"created_at"`
+		UpdatedAt    int64  `json:"updated_at"`
+	}
+	ListMyBotsResp {
+		List  []BotItem `json:"list"`
+		Total int64     `json:"total"`
+	}
+	// ListCommunityBots
+	ListCommunityBotsReq {
+		Keyword string `form:"keyword,optional"`
+	}
+	ListCommunityBotsResp {
+		List []BotItem `json:"list"`
+	}
+	// GetBot
+	GetBotReq {
+		BotId string `path:"bot_id"`
+	}
+	GetBotResp {
+		BotId       string `json:"bot_id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Avatar      string `json:"avatar"`
+		Status      string `json:"status"`
+		ClientId    string `json:"client_id"`
+		WebhookUrl  string `json:"webhook_url"`
+		HomepageUrl string `json:"homepage_url"`
+		PrivacyUrl  string `json:"privacy_url"`
+		CreatedAt   int64  `json:"created_at"`
+		UpdatedAt   int64  `json:"updated_at"`
+	}
+	// UpdateBot
+	UpdateBotReq {
+		BotId       string `path:"bot_id"`
+		Name        string `json:"name,optional"`
+		Description string `json:"description,optional"`
+		Avatar      string `json:"avatar,optional"`
+		WebhookUrl  string `json:"webhook_url,optional"`
+		HomepageUrl string `json:"homepage_url,optional"`
+		PrivacyUrl  string `json:"privacy_url,optional"`
+	}
+	UpdateBotResp  {}
+	// DeleteBot
+	DeleteBotReq {
+		BotId string `path:"bot_id"`
+	}
+	DeleteBotResp  {}
+	// GetBotInstallations
+	GetBotInstallationsReq {
+		BotId string `path:"bot_id"`
+		Page  int    `form:"page,default=1"`
+		Size  int    `form:"size,default=20"`
+	}
+	InstallationItem {
+		InstId      int64    `json:"inst_id"`
+		BotId       string   `json:"bot_id"`
+		BotName     string   `json:"bot_name"`
+		ConvId      string   `json:"conv_id"`
+		ConvType    string   `json:"conv_type"`
+		Permissions []string `json:"permissions"`
+		InstalledAt int64    `json:"installed_at"`
+	}
+	GetBotInstallationsResp {
+		List  []InstallationItem `json:"list"`
+		Total int64              `json:"total"`
+	}
+	// GetBotRateLimit
+	GetBotRateLimitReq {
+		BotId string `path:"bot_id"`
+	}
+	GetBotRateLimitResp {
+		BotId          string `json:"bot_id"`
+		MaxConcurrency int32  `json:"max_concurrency"`
+		MaxRequests    int64  `json:"max_requests"`
+		WindowSeconds  int32  `json:"window_seconds"`
+		IsCustom       bool   `json:"is_custom"`
+	}
+	// UpdateBotRateLimit
+	UpdateBotRateLimitReq {
+		BotId          string `path:"bot_id"`
+		MaxConcurrency int32  `json:"max_concurrency,optional"`
+		MaxRequests    int64  `json:"max_requests,optional"`
+		WindowSeconds  int32  `json:"window_seconds,optional"`
+	}
+	UpdateBotRateLimitResp  {}
+	// RegenerateCredential
+	RegenerateCredentialReq {
+		BotId string `path:"bot_id"`
+	}
+	RegenerateCredentialResp {
+		ClientId     string `json:"client_id"`
+		ClientSecret string `json:"client_secret"`
+	}
+	// RotateWebhookSecret
+	RotateWebhookSecretReq {
+		BotId string `path:"bot_id"`
+	}
+	RotateWebhookSecretResp {
+		WebhookSecret string `json:"webhook_secret"`
+	}
+	// GetEventDeliveries
+	GetEventDeliveriesReq {
+		BotId     string `path:"bot_id"`
+		ConvId    string `form:"conv_id,optional"`
+		EventType string `form:"event_type,optional"`
+		Status    string `form:"status,optional"`
+		Page      int    `form:"page,default=1"`
+		Size      int    `form:"size,default=20"`
+	}
+	EventDeliveryItem {
+		EventId     string `json:"event_id"`
+		BotId       string `json:"bot_id"`
+		ConvId      string `json:"conv_id"`
+		EventType   string `json:"event_type"`
+		Payload     string `json:"payload"`
+		Status      string `json:"status"`
+		RetryCount  int32  `json:"retry_count"`
+		LastError   string `json:"last_error,omitempty"`
+		DeliveredAt int64  `json:"delivered_at,omitempty"`
+		CreatedAt   int64  `json:"created_at"`
+	}
+	GetEventDeliveriesResp {
+		List  []EventDeliveryItem `json:"list"`
+		Total int64               `json:"total"`
+	}
+	// RetryEventDelivery
+	RetryEventDeliveryReq {
+		BotId   string `path:"bot_id"`
+		EventId string `path:"event_id"`
+	}
+	RetryEventDeliveryResp  {}
+	// GetConvBots
+	GetConvBotsReq {
+		ConvId string `path:"conv_id"`
+	}
+	InstalledBotItem {
+		InstId      int64    `json:"inst_id"`
+		BotId       string   `json:"bot_id"`
+		Name        string   `json:"name"`
+		Avatar      string   `json:"avatar"`
+		Description string   `json:"description"`
+		Permissions []string `json:"permissions"`
+		InstalledAt int64    `json:"installed_at"`
+	}
+	GetConvBotsResp {
+		List []InstalledBotItem `json:"list"`
+	}
+	// InstallBot
+	InstallBotReq {
+		ConvId      string   `path:"conv_id"`
+		BotId       string   `json:"bot_id"`
+		Permissions []string `json:"permissions,optional"`
+	}
+	InstallBotResp  {}
+	// UninstallBot
+	UninstallBotReq {
+		ConvId string `path:"conv_id"`
+		BotId  string `json:"bot_id"`
+	}
+	UninstallBotResp  {}
+	// BotGetConv
+	BotGetConvReq {
+		ConvId string `path:"conv_id"`
+	}
+	BotGetConvResp {
+		ConvId    string `json:"conv_id"`
+		Type      string `json:"type"`
+		Name      string `json:"name"`
+		Avatar    string `json:"avatar"`
+		GroupId   int64  `json:"group_id,omitempty"`
+		CreatedAt int64  `json:"created_at"`
+	}
+	// BotGetConvMembers
+	BotGetConvMembersReq {
+		ConvId string `path:"conv_id"`
+	}
+	MemberItem {
+		Uid    string `json:"uid"`
+		Name   string `json:"name"`
+		Avatar string `json:"avatar"`
+		Role   string `json:"role"`
+	}
+	BotGetConvMembersResp {
+		Members []MemberItem `json:"members"`
+	}
+	// BotGetMsg
+	BotGetMsgReq {
+		ConvId string `path:"conv_id"`
+		MsgId  string `path:"msg_id"`
+	}
+	BotMsgItem {
+		MsgId        string `json:"msg_id"`
+		ConvId       string `json:"conv_id"`
+		Sender       string `json:"sender"`
+		SenderName   string `json:"sender_name"`
+		SenderAvatar string `json:"sender_avatar"`
+		Type         string `json:"type"`
+		Content      string `json:"content"`
+		ContentType  string `json:"content_type"`
+		Recalled     bool   `json:"recalled"`
+		CreatedAt    int64  `json:"created_at"`
+	}
+	BotGetMsgResp {
+		Msg *BotMsgItem `json:"msg"`
+	}
+	// BotSendMsg
+	BotSendMsgReq {
+		ConvId      string `json:"conv_id"`
+		Content     string `json:"content"`
+		ContentType string `json:"content_type,default=text"`
+		Button      string `json:"button,optional"`
+	}
+	BotSendMsgResp {
+		MsgId     string `json:"msg_id"`
+		CreatedAt int64  `json:"created_at"`
+	}
+	// BotRecallMsg
+	BotRecallMsgReq {
+		ConvId string `path:"conv_id"`
+		MsgId  string `path:"msg_id"`
+	}
+	BotRecallMsgResp  {}
+	// BotReplyMsg
+	BotReplyMsgReq {
+		ConvId      string `json:"conv_id"`
+		MsgId       string `json:"msg_id"`
+		Content     string `json:"content"`
+		ContentType string `json:"content_type,default=text"`
+	}
+	BotReplyMsgResp {
+		MsgId     string `json:"msg_id"`
+		CreatedAt int64  `json:"created_at"`
+	}
+	// BotUploadFile
+	BotUploadFileReq  {}
+	BotUploadFileResp {
+		FileId   string `json:"file_id"`
+		FileName string `json:"file_name"`
+		FileSize int64  `json:"file_size"`
+		Url      string `json:"url"`
+		MimeType string `json:"mime_type"`
+	}
+	// BotGetUser
+	BotGetUserReq {
+		Uid string `path:"uid"`
+	}
+	BotGetUserResp {
+		Uid    string `json:"uid"`
+		Name   string `json:"name"`
+		Avatar string `json:"avatar"`
+	}
+	// BotAuthorize
+	BotAuthorizeReq {
+		ClientId string `form:"client_id"`
+		Scope    string `form:"scope,optional"`
+		ConvId   string `form:"conv_id,optional"`
+	}
+	BotAuthorizeResp {
+		Bot            *BotItem `json:"bot"`
+		RequestedScope []string `json:"requested_scope"`
+		ConvId         string   `json:"conv_id"`
+	}
+	// ApproveAuthorize
+	ApproveAuthorizeReq {
+		ClientId    string `json:"client_id"`
+		RedirectUri string `json:"redirect_uri"`
+		Scope       string `json:"scope"`
+		ConvId      string `json:"conv_id"`
+		State       string `json:"state,optional"`
+	}
+	ApproveAuthorizeResp {
+		RedirectUrl string `json:"redirect_url"`
+	}
+	// BotToken
+	BotTokenReq {
+		GrantType    string `form:"grant_type"`
+		ClientId     string `form:"client_id"`
+		ClientSecret string `form:"client_secret"`
+		Code         string `form:"code,optional"`
+		RedirectUri  string `form:"redirect_uri,optional"`
+		RefreshToken string `form:"refresh_token,optional"`
+	}
+	BotTokenResp {
+		AccessToken  string `json:"access_token"`
+		TokenType    string `json:"token_type"`
+		Scope        string `json:"scope"`
+		ExpiresIn    int64  `json:"expires_in"`
+		RefreshToken string `json:"refresh_token"`
+		BotId        string `json:"bot_id"`
+	}
+)
+
+// Bot服务 - Developer APIs
+@server (
+	prefix:     /api/v1/bot/developer
+	group:      bot
+	middleware: AuthMiddleware
+)
+service gateway-api {
+	@handler CreateBot
+	post /bots (CreateBotReq) returns (CreateBotResp)
+
+	@handler ListMyBots
+	get /bots (ListMyBotsReq) returns (ListMyBotsResp)
+
+	@handler GetBot
+	get /bots/:bot_id (GetBotReq) returns (GetBotResp)
+
+	@handler UpdateBot
+	put /bots/:bot_id (UpdateBotReq) returns (UpdateBotResp)
+
+	@handler DeleteBot
+	delete /bots/:bot_id (DeleteBotReq) returns (DeleteBotResp)
+
+	@handler GetBotInstallations
+	get /bots/:bot_id/installations (GetBotInstallationsReq) returns (GetBotInstallationsResp)
+
+	@handler GetBotRateLimit
+	get /bots/:bot_id/rate-limit (GetBotRateLimitReq) returns (GetBotRateLimitResp)
+
+	@handler UpdateBotRateLimit
+	put /bots/:bot_id/rate-limit (UpdateBotRateLimitReq) returns (UpdateBotRateLimitResp)
+
+	@handler RegenerateCredential
+	post /bots/:bot_id/credentials/regenerate (RegenerateCredentialReq) returns (RegenerateCredentialResp)
+
+	@handler RotateWebhookSecret
+	post /bots/:bot_id/webhook-secret/rotate (RotateWebhookSecretReq) returns (RotateWebhookSecretResp)
+
+	@handler GetEventDeliveries
+	get /bots/:bot_id/event-deliveries (GetEventDeliveriesReq) returns (GetEventDeliveriesResp)
+
+	@handler RetryEventDelivery
+	post /bots/:bot_id/event-deliveries/:event_id/retry (RetryEventDeliveryReq) returns (RetryEventDeliveryResp)
+}
+
+// Bot服务 - Community APIs (官方Bot + 搜索)
+@server (
+	prefix:     /api/v1/bot/community
+	group:      bot
+	middleware: AuthMiddleware
+)
+service gateway-api {
+	@handler ListCommunityBots
+	get /bots (ListCommunityBotsReq) returns (ListCommunityBotsResp)
+}
+
+// Bot服务 - Installation APIs
+@server (
+	prefix:     /api/v1/bot/installation
+	group:      bot
+	middleware: AuthMiddleware
+)
+service gateway-api {
+	@handler GetConvBots
+	get /convs/:conv_id/bots (GetConvBotsReq) returns (GetConvBotsResp)
+
+	@handler InstallBot
+	post /convs/:conv_id/bots/install (InstallBotReq) returns (InstallBotResp)
+
+	@handler UninstallBot
+	post /convs/:conv_id/bots/uninstall (UninstallBotReq) returns (UninstallBotResp)
+}
+
+// Bot服务 - Bot APIs (Bot调用接口)
+@server (
+	prefix:     /api/v1/bot
+	group:      bot
+	middleware: AuthMiddleware
+)
+service gateway-api {
+	@handler BotGetConv
+	get /convs/:conv_id (BotGetConvReq) returns (BotGetConvResp)
+
+	@handler BotGetConvMembers
+	get /convs/:conv_id/members (BotGetConvMembersReq) returns (BotGetConvMembersResp)
+
+	@handler BotGetMsg
+	get /convs/:conv_id/msgs/:msg_id (BotGetMsgReq) returns (BotGetMsgResp)
+
+	@handler BotSendMsg
+	post /convs/:conv_id/msgs (BotSendMsgReq) returns (BotSendMsgResp)
+
+	@handler BotRecallMsg
+	post /convs/:conv_id/msgs/:msg_id/recall (BotRecallMsgReq) returns (BotRecallMsgResp)
+
+	@handler BotReplyMsg
+	post /convs/:conv_id/msgs/reply (BotReplyMsgReq) returns (BotReplyMsgResp)
+
+	@handler BotUploadFile
+	post /files (BotUploadFileReq) returns (BotUploadFileResp)
+
+	@handler BotGetUser
+	get /users/:uid (BotGetUserReq) returns (BotGetUserResp)
+}
+
+// Bot服务 - OAuth2 APIs（公开接口：授权页查询、Token 签发，使用 client_id/secret 认证）
+@server (
+	prefix: /api/v1/bot/oauth2
+	group:  bot
+)
+service gateway-api {
+	@handler BotAuthorize
+	get /authorize (BotAuthorizeReq) returns (BotAuthorizeResp)
+
+	@handler BotToken
+	post /token (BotTokenReq) returns (BotTokenResp)
+}
+
+// Bot服务 - OAuth2 APIs（需用户认证：确认授权）
+@server (
+	prefix:     /api/v1/bot/oauth2
+	group:      bot
+	middleware: AuthMiddleware
+)
+service gateway-api {
+	@handler ApproveAuthorize
+	post /authorize (ApproveAuthorizeReq) returns (ApproveAuthorizeResp)
+}
+

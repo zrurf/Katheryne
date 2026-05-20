@@ -70,7 +70,14 @@ func (c *Client) ReadPump() {
 			continue
 		}
 
-		c.handleMessage(&msg)
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					logx.Errorf("handleMessage panic recovered: uid=%d, err=%v", c.uid, r)
+				}
+			}()
+			c.handleMessage(&msg)
+		}()
 	}
 }
 
@@ -283,6 +290,11 @@ func (c *Client) handleSendMessage(data *SendMessageData) {
 	}
 
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				logx.Errorf("handleSendMessage incrUnread goroutine panic recovered: uid=%d, convId=%d, err=%v", c.uid, convId, r)
+			}
+		}()
 		incrCtx, incrCancel := context.WithTimeout(context.Background(), 3*time.Second)
 		defer incrCancel()
 		membersResp, err := c.hub.config.ConversationRpc.GetConvMembers(incrCtx, &conversationclient.GetConvMembersReq{ConvId: convId})

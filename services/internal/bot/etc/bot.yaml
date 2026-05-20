@@ -1,0 +1,46 @@
+Name: bot.rpc
+ListenOn: 0.0.0.0:8010
+Etcd:
+  Hosts:
+  - "etcd:2379"
+  Key: bot.rpc
+
+Telemetry:
+  Name: bot.rpc
+  Endpoint: otel-collector:4317
+  Batcher: otlpgrpc
+  Sampler: 1.0
+
+DevServer:
+  Enable: true
+  Port: 6070
+  MetricsPath: /metrics
+  HealthPath: /healthz
+
+RedisAddr: "garnet:6379"
+
+BotDB:
+  Host: "postgres"
+  Port: 5432
+  User: "kadmin"
+  Password: "nimdaP@ssW0rd"
+  DBName: "mod_bot"
+
+SocialDB:
+  Host: "postgres"
+  Port: 5432
+  User: "kadmin"
+  Password: "nimdaP@ssW0rd"
+  DBName: "im_social"
+
+ConversationRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: conversation.rpc
+
+PiiSalt: "katheryne-bot-pii-salt-2026"
+MaxRetries: 3
+RetryBackoffMin: 5
+RetryBackoffMax: 300
+DefaultExpiry: 2592000

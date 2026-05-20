@@ -111,6 +111,7 @@ func (h *Hub) Run() {
 		case client := <-h.unregister:
 			h.mu.Lock()
 			remainingConns := 0
+			broadcastOffline := false
 			if clients, ok := h.clients[client.uid]; ok {
 				delete(clients, client)
 				remainingConns = len(clients)
@@ -119,11 +120,15 @@ func (h *Hub) Run() {
 					h.onlineMu.Lock()
 					delete(h.onlineUsers, client.uid)
 					h.onlineMu.Unlock()
-					h.broadcastOnlineStatus(client.uid, false)
+					broadcastOffline = true
 				}
 			}
 			h.mu.Unlock()
 			close(client.send)
+
+			if broadcastOffline {
+				h.broadcastOnlineStatus(client.uid, false)
+			}
 
 			metrics.WsConnectionsActive.Dec()
 			metrics.OnlineUsers.Set(float64(len(h.onlineUsers)))

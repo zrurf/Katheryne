@@ -27,8 +27,14 @@ func NewDeleteBotLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeleteB
 func (l *DeleteBotLogic) DeleteBot(req *types.DeleteBotReq) (resp *types.DeleteBotResp, err error) {
 	uid := l.ctx.Value("uid").(int64)
 
-	l.svcCtx.Redis.HDel(l.ctx, "bots", fmt.Sprintf("%d", req.BotID))
-	l.svcCtx.Redis.SRem(l.ctx, fmt.Sprintf("user_bots:%d", uid), req.BotID)
+	rowsAffected, err := l.svcCtx.BotDao.DeleteBot(l.ctx, req.BotID, uid)
+	if err != nil {
+		return nil, err
+	}
+
+	if rowsAffected == 0 {
+		return nil, fmt.Errorf("bot not found or not authorized")
+	}
 
 	return &types.DeleteBotResp{}, nil
 }

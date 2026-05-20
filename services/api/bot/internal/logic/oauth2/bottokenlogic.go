@@ -4,9 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
-	"time"
 
 	"bot/internal/svc"
 	"bot/internal/types"
@@ -34,81 +32,84 @@ func (l *BotTokenLogic) BotToken(req *types.BotTokenReq) (resp *types.BotTokenRe
 		return l.handleAuthorizationCode(req)
 	case "refresh_token":
 		return l.handleRefreshToken(req)
+	case "client_credentials":
+		return l.handleClientCredentials(req)
 	default:
 		return nil, fmt.Errorf("unsupported grant_type: %s", req.GrantType)
 	}
 }
 
 func (l *BotTokenLogic) handleAuthorizationCode(req *types.BotTokenReq) (*types.BotTokenResp, error) {
-	data, err := l.svcCtx.Redis.Get(l.ctx, "oauth2:code:"+req.Code).Result()
+	authData, err := l.svcCtx.OAuthDao.GetAuthCode(l.ctx, req.Code)
 	if err != nil {
 		return nil, fmt.Errorf("invalid authorization code")
 	}
-
-	var authData map[string]interface{}
-	json.Unmarshal([]byte(data), &authData)
 
 	if authData["client_id"] != req.ClientID {
 		return nil, fmt.Errorf("client_id mismatch")
 	}
 
-	l.svcCtx.Redis.Del(l.ctx, "oauth2:code:"+req.Code)
+	l.svcCtx.OAuthDao.ConsumeAuthCode(l.ctx, req.Code)
 
-	accessToken, _ := generateToken()
-	refreshToken, _ := generateToken()
-
-	expiresIn := int64(3600)
-	l.svcCtx.Redis.Set(l.ctx, "oauth2:access_token:"+accessToken, req.ClientID, time.Duration(expiresIn)*time.Second)
-	l.svcCtx.Redis.Set(l.ctx, "oauth2:refresh_token:"+refreshToken, req.ClientID, 30*24*time.Hour)
-
-	var botID int64
-	botData, _ := l.svcCtx.Redis.HGetAll(l.ctx, "bots").Result()
-	for _, bd := range botData {
-		var b types.BotInfo
-		json.Unmarshal([]byte(bd), &b)
-		if b.ClientID == req.ClientID {
-			botID = b.BotID
-			break
-		}
+	botID, clientSecret, err := l.svcCtx.BotDao.GetBotCredentials(l.ctx, req.ClientID)
+	if err != nil {
+		return nil, fmt.Errorf("bot not found")
 	}
 
-	return &types.BotTokenResp{
-		AccessToken:  accessToken,
-		TokenType:    "Bearer",
-		ExpiresIn:    expiresIn,
-		RefreshToken: refreshToken,
-		BotID:        botID,
-	}, nil
+	if clientSecret != req.ClientSecret {
+		return nil, fmt.Errorf("invalid client_secret")
+	}
+
+	return l.issueTokens(botID, req.ClientID)
 }
 
 func (l *BotTokenLogic) handleRefreshToken(req *types.BotTokenReq) (*types.BotTokenResp, error) {
-	clientID, err := l.svcCtx.Redis.Get(l.ctx, "oauth2:refresh_token:"+req.RefreshToken).Result()
+	clientID, _, err := l.svcCtx.OAuthDao.ConsumeRefreshToken(l.ctx, req.RefreshToken)
 	if err != nil {
 		return nil, fmt.Errorf("invalid refresh token")
 	}
 
+	if clientID != req.ClientID {
+		return nil, fmt.Errorf("client_id mismatch")
+	}
+
+	botID, clientSecret, err := l.svcCtx.BotDao.GetBotCredentials(l.ctx, req.ClientID)
+	if err != nil {
+		return nil, fmt.Errorf("bot not found")
+	}
+
+	if clientSecret != req.ClientSecret {
+		return nil, fmt.Errorf("invalid client_secret")
+	}
+
+	return l.issueTokens(botID, req.ClientID)
+}
+
+func (l *BotTokenLogic) handleClientCredentials(req *types.BotTokenReq) (*types.BotTokenResp, error) {
+	botID, clientSecret, err := l.svcCtx.BotDao.GetBotCredentials(l.ctx, req.ClientID)
+	if err != nil {
+		return nil, fmt.Errorf("bot not found")
+	}
+
+	if clientSecret != req.ClientSecret {
+		return nil, fmt.Errorf("invalid client_secret")
+	}
+
+	return l.issueTokens(botID, req.ClientID)
+}
+
+func (l *BotTokenLogic) issueTokens(botID int64, clientID string) (*types.BotTokenResp, error) {
 	accessToken, _ := generateToken()
 	refreshToken, _ := generateToken()
+	expiresIn := int64(86400)
 
-	expiresIn := int64(3600)
-	l.svcCtx.Redis.Del(l.ctx, "oauth2:refresh_token:"+req.RefreshToken)
-	l.svcCtx.Redis.Set(l.ctx, "oauth2:access_token:"+accessToken, clientID, time.Duration(expiresIn)*time.Second)
-	l.svcCtx.Redis.Set(l.ctx, "oauth2:refresh_token:"+refreshToken, clientID, 30*24*time.Hour)
-
-	var botID int64
-	botData, _ := l.svcCtx.Redis.HGetAll(l.ctx, "bots").Result()
-	for _, bd := range botData {
-		var b types.BotInfo
-		json.Unmarshal([]byte(bd), &b)
-		if b.ClientID == clientID {
-			botID = b.BotID
-			break
-		}
-	}
+	l.svcCtx.OAuthDao.StoreAccessToken(l.ctx, accessToken, botID, clientID, "message.read", expiresIn)
+	l.svcCtx.OAuthDao.StoreRefreshToken(l.ctx, refreshToken, clientID, "message.read")
 
 	return &types.BotTokenResp{
 		AccessToken:  accessToken,
 		TokenType:    "Bearer",
+		Scope:        "message.read",
 		ExpiresIn:    expiresIn,
 		RefreshToken: refreshToken,
 		BotID:        botID,

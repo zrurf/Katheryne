@@ -107,7 +107,7 @@ func BotWSHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		botId, err := svcCtx.Redis.Get(context.Background(), "bot_token:"+identify.Token).Int64()
+		botId, err := resolveBotID(svcCtx, identify.Token)
 		if err != nil {
 			errResp := ws.MustNewWSMessage("error", &ws.ErrorPush{Code: 401, Message: "invalid bot token"})
 			errData, _ := json.Marshal(errResp)
@@ -130,4 +130,23 @@ func BotWSHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		go botClient.WritePump()
 		go botClient.ReadPump()
 	}
+}
+
+type botTokenInfo struct {
+	BotID     int64  `json:"bot_id"`
+	ClientID  string `json:"client_id"`
+	Scope     string `json:"scope"`
+	ExpiresAt int64  `json:"expires_at"`
+}
+
+func resolveBotID(svcCtx *svc.ServiceContext, token string) (int64, error) {
+	jsonData, err := svcCtx.Redis.Get(context.Background(), "bot_access_token:"+token).Result()
+	if err == nil {
+		var info botTokenInfo
+		if err := json.Unmarshal([]byte(jsonData), &info); err == nil {
+			return info.BotID, nil
+		}
+	}
+
+	return svcCtx.Redis.Get(context.Background(), "bot_token:"+token).Int64()
 }

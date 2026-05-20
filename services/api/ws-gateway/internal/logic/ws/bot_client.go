@@ -69,7 +69,14 @@ func (b *BotClient) ReadPump() {
 			continue
 		}
 
-		b.handleMessage(&msg)
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					logx.Errorf("bot handleMessage panic recovered: bot_id=%d, err=%v", b.botId, r)
+				}
+			}()
+			b.handleMessage(&msg)
+		}()
 	}
 }
 
