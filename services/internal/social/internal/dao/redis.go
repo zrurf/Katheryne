@@ -107,3 +107,7 @@ func (r *RedisDao) GetUserOnlineStatus(ctx context.Context, uid int64) (string, 
 	}
 	return status, nil
 }
+
+func (r *RedisDao) DelConvListCache(ctx context.Context, uid int64) error {
+	return r.rdb.Del(ctx, fmt.Sprintf("conv:list:%d", uid)).Err()
+}

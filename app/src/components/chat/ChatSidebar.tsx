@@ -2,6 +2,7 @@ import { For, Show, createSignal, createResource, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { chatStore } from "../../stores/chat";
 import { authStore } from "../../stores/auth";
+import { appNav } from "../../services/nav";
 import { api } from "../../services/api";
 import { Avatar } from "../ui/avatar";
 import { formatConversationTime, truncate } from "../../lib/utils";
@@ -264,7 +265,7 @@ export function ChatSidebar() {
                 </button>
                 <button
                   class="p-2 hover:bg-surface rounded-lg transition-colors text-text-secondary hover:text-text"
-                  onClick={() => navigate("/settings")}
+                  onClick={() => appNav.goSettings()}
                   title="设置"
                 >
                   <Settings size={18} />
@@ -393,7 +394,7 @@ export function ChatSidebar() {
           {/* User Info */}
           <div class="p-3 border-t border-border">
             <div class="flex items-center gap-3 px-2">
-              <Avatar name={authStore.name()} size="sm" />
+              <Avatar name={authStore.name()} src={authStore.avatar()} size="sm" />
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-medium text-text truncate">
                   {authStore.name() || "用户"}
@@ -402,7 +403,7 @@ export function ChatSidebar() {
               </div>
               <button
                 class="p-1.5 hover:bg-surface rounded-lg transition-colors text-text-muted hover:text-text"
-                onClick={() => navigate("/settings")}
+                onClick={() => appNav.goSettings()}
               >
                 <Settings size={16} />
               </button>
@@ -480,7 +481,7 @@ export function ChatSidebar() {
           </div>
 
           <div class="mt-auto pb-2">
-            <Avatar name={authStore.name()} size="sm" />
+            <Avatar name={authStore.name()} src={authStore.avatar()} size="sm" />
           </div>
         </div>
       </Show>

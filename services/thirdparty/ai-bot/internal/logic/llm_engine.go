@@ -9,8 +9,9 @@ import (
 )
 
 type LLMEngine struct {
-	provider llm.Provider
-	config   HandlerConfig
+	provider     llm.Provider
+	config       HandlerConfig
+	toolExecutor *ToolExecutor
 }
 
 func NewLLMEngine(cfg HandlerConfig) *LLMEngine {
@@ -24,13 +25,27 @@ func NewLLMEngine(cfg HandlerConfig) *LLMEngine {
 	})
 
 	return &LLMEngine{
-		provider: provider,
-		config:   cfg,
+		provider:     provider,
+		config:       cfg,
+		toolExecutor: NewToolExecutor(),
 	}
 }
 
 func (e *LLMEngine) Chat(messages []types.ChatMessage, systemPrompt string) (string, error) {
-	return e.provider.Chat(messages, systemPrompt, e.config.LLMMaxTokens, e.config.LLMTemperature)
+	reply, err := e.provider.Chat(messages, systemPrompt, e.config.LLMMaxTokens, e.config.LLMTemperature)
+	if err != nil {
+		return "", err
+	}
+
+	// Execute tool calls if LLM requested any
+	if strings.Contains(reply, "<tool_call>") {
+		replaced, hasTools := e.toolExecutor.ExecuteToolCalls(nil, reply)
+		if hasTools {
+			return replaced, nil
+		}
+	}
+
+	return reply, nil
 }
 
 func (e *LLMEngine) Summarize(msgs []types.ChatMessage) (*types.SummarizeResponse, error) {
@@ -40,8 +55,8 @@ func (e *LLMEngine) Summarize(msgs []types.ChatMessage) (*types.SummarizeRespons
 	}
 
 	systemPrompt := `你是一个专业的聊天记录总结助手。请根据以下对话内容，完成三项任务：
-1. 【总结】：用2-5句话概括对话的主要内容
-2. 【关键要点】：提取3-5个关键要点
+1. 【总结】：用2-3句话概括对话的主要内容
+2. 【关键要点】：提取2-3个关键要点
 3. 【待办事项】：列出对话中提到的待办事项或行动计划
 
 请以JSON格式返回结果，包含 summary（字符串）、key_points（字符串数组）、action_items（字符串数组）三个字段。只返回JSON，不要有其他内容。`

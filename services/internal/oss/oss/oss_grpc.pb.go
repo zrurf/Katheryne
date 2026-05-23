@@ -19,16 +19,22 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	OSS_SimpleUpload_FullMethodName            = "/oss.OSS/SimpleUpload"
 	OSS_InitiateMultipartUpload_FullMethodName = "/oss.OSS/InitiateMultipartUpload"
 	OSS_UploadPart_FullMethodName              = "/oss.OSS/UploadPart"
 	OSS_CompleteMultipartUpload_FullMethodName = "/oss.OSS/CompleteMultipartUpload"
 	OSS_AbortMultipartUpload_FullMethodName    = "/oss.OSS/AbortMultipartUpload"
+	OSS_GetDownloadURL_FullMethodName          = "/oss.OSS/GetDownloadURL"
+	OSS_DeleteFile_FullMethodName              = "/oss.OSS/DeleteFile"
+	OSS_GetFileInfo_FullMethodName             = "/oss.OSS/GetFileInfo"
 )
 
 // OSSClient is the client API for OSS service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OSSClient interface {
+	// 简单上传（流式，适用于中小文件如图片、音频等）
+	SimpleUpload(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[SimpleUploadReq, UploadResp], error)
 	// 初始化分片上传，返回 UploadId
 	InitiateMultipartUpload(ctx context.Context, in *InitiateUploadReq, opts ...grpc.CallOption) (*InitiateUploadResp, error)
 	// 上传分片（流式）
@@ -37,6 +43,12 @@ type OSSClient interface {
 	CompleteMultipartUpload(ctx context.Context, in *CompleteUploadReq, opts ...grpc.CallOption) (*UploadResp, error)
 	// 取消上传
 	AbortMultipartUpload(ctx context.Context, in *AbortUploadReq, opts ...grpc.CallOption) (*AbortUploadResp, error)
+	// 获取文件下载 URL
+	GetDownloadURL(ctx context.Context, in *GetDownloadURLReq, opts ...grpc.CallOption) (*GetDownloadURLResp, error)
+	// 删除文件
+	DeleteFile(ctx context.Context, in *DeleteFileReq, opts ...grpc.CallOption) (*DeleteFileResp, error)
+	// 获取文件信息
+	GetFileInfo(ctx context.Context, in *GetFileInfoReq, opts ...grpc.CallOption) (*GetFileInfoResp, error)
 }
 
 type oSSClient struct {
@@ -46,6 +58,19 @@ type oSSClient struct {
 func NewOSSClient(cc grpc.ClientConnInterface) OSSClient {
 	return &oSSClient{cc}
 }
+
+func (c *oSSClient) SimpleUpload(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[SimpleUploadReq, UploadResp], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OSS_ServiceDesc.Streams[0], OSS_SimpleUpload_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[SimpleUploadReq, UploadResp]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OSS_SimpleUploadClient = grpc.ClientStreamingClient[SimpleUploadReq, UploadResp]
 
 func (c *oSSClient) InitiateMultipartUpload(ctx context.Context, in *InitiateUploadReq, opts ...grpc.CallOption) (*InitiateUploadResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -59,7 +84,7 @@ func (c *oSSClient) InitiateMultipartUpload(ctx context.Context, in *InitiateUpl
 
 func (c *oSSClient) UploadPart(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadPartReq, UploadPartResp], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &OSS_ServiceDesc.Streams[0], OSS_UploadPart_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &OSS_ServiceDesc.Streams[1], OSS_UploadPart_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -90,10 +115,42 @@ func (c *oSSClient) AbortMultipartUpload(ctx context.Context, in *AbortUploadReq
 	return out, nil
 }
 
+func (c *oSSClient) GetDownloadURL(ctx context.Context, in *GetDownloadURLReq, opts ...grpc.CallOption) (*GetDownloadURLResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDownloadURLResp)
+	err := c.cc.Invoke(ctx, OSS_GetDownloadURL_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *oSSClient) DeleteFile(ctx context.Context, in *DeleteFileReq, opts ...grpc.CallOption) (*DeleteFileResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteFileResp)
+	err := c.cc.Invoke(ctx, OSS_DeleteFile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *oSSClient) GetFileInfo(ctx context.Context, in *GetFileInfoReq, opts ...grpc.CallOption) (*GetFileInfoResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFileInfoResp)
+	err := c.cc.Invoke(ctx, OSS_GetFileInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OSSServer is the server API for OSS service.
 // All implementations must embed UnimplementedOSSServer
 // for forward compatibility.
 type OSSServer interface {
+	// 简单上传（流式，适用于中小文件如图片、音频等）
+	SimpleUpload(grpc.ClientStreamingServer[SimpleUploadReq, UploadResp]) error
 	// 初始化分片上传，返回 UploadId
 	InitiateMultipartUpload(context.Context, *InitiateUploadReq) (*InitiateUploadResp, error)
 	// 上传分片（流式）
@@ -102,6 +159,12 @@ type OSSServer interface {
 	CompleteMultipartUpload(context.Context, *CompleteUploadReq) (*UploadResp, error)
 	// 取消上传
 	AbortMultipartUpload(context.Context, *AbortUploadReq) (*AbortUploadResp, error)
+	// 获取文件下载 URL
+	GetDownloadURL(context.Context, *GetDownloadURLReq) (*GetDownloadURLResp, error)
+	// 删除文件
+	DeleteFile(context.Context, *DeleteFileReq) (*DeleteFileResp, error)
+	// 获取文件信息
+	GetFileInfo(context.Context, *GetFileInfoReq) (*GetFileInfoResp, error)
 	mustEmbedUnimplementedOSSServer()
 }
 
@@ -112,6 +175,9 @@ type OSSServer interface {
 // pointer dereference when methods are called.
 type UnimplementedOSSServer struct{}
 
+func (UnimplementedOSSServer) SimpleUpload(grpc.ClientStreamingServer[SimpleUploadReq, UploadResp]) error {
+	return status.Error(codes.Unimplemented, "method SimpleUpload not implemented")
+}
 func (UnimplementedOSSServer) InitiateMultipartUpload(context.Context, *InitiateUploadReq) (*InitiateUploadResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method InitiateMultipartUpload not implemented")
 }
@@ -123,6 +189,15 @@ func (UnimplementedOSSServer) CompleteMultipartUpload(context.Context, *Complete
 }
 func (UnimplementedOSSServer) AbortMultipartUpload(context.Context, *AbortUploadReq) (*AbortUploadResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method AbortMultipartUpload not implemented")
+}
+func (UnimplementedOSSServer) GetDownloadURL(context.Context, *GetDownloadURLReq) (*GetDownloadURLResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetDownloadURL not implemented")
+}
+func (UnimplementedOSSServer) DeleteFile(context.Context, *DeleteFileReq) (*DeleteFileResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteFile not implemented")
+}
+func (UnimplementedOSSServer) GetFileInfo(context.Context, *GetFileInfoReq) (*GetFileInfoResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetFileInfo not implemented")
 }
 func (UnimplementedOSSServer) mustEmbedUnimplementedOSSServer() {}
 func (UnimplementedOSSServer) testEmbeddedByValue()             {}
@@ -144,6 +219,13 @@ func RegisterOSSServer(s grpc.ServiceRegistrar, srv OSSServer) {
 	}
 	s.RegisterService(&OSS_ServiceDesc, srv)
 }
+
+func _OSS_SimpleUpload_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(OSSServer).SimpleUpload(&grpc.GenericServerStream[SimpleUploadReq, UploadResp]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OSS_SimpleUploadServer = grpc.ClientStreamingServer[SimpleUploadReq, UploadResp]
 
 func _OSS_InitiateMultipartUpload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(InitiateUploadReq)
@@ -206,6 +288,60 @@ func _OSS_AbortMultipartUpload_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OSS_GetDownloadURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDownloadURLReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OSSServer).GetDownloadURL(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OSS_GetDownloadURL_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OSSServer).GetDownloadURL(ctx, req.(*GetDownloadURLReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OSS_DeleteFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteFileReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OSSServer).DeleteFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OSS_DeleteFile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OSSServer).DeleteFile(ctx, req.(*DeleteFileReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OSS_GetFileInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFileInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OSSServer).GetFileInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OSS_GetFileInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OSSServer).GetFileInfo(ctx, req.(*GetFileInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OSS_ServiceDesc is the grpc.ServiceDesc for OSS service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -225,8 +361,25 @@ var OSS_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "AbortMultipartUpload",
 			Handler:    _OSS_AbortMultipartUpload_Handler,
 		},
+		{
+			MethodName: "GetDownloadURL",
+			Handler:    _OSS_GetDownloadURL_Handler,
+		},
+		{
+			MethodName: "DeleteFile",
+			Handler:    _OSS_DeleteFile_Handler,
+		},
+		{
+			MethodName: "GetFileInfo",
+			Handler:    _OSS_GetFileInfo_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "SimpleUpload",
+			Handler:       _OSS_SimpleUpload_Handler,
+			ClientStreams: true,
+		},
 		{
 			StreamName:    "UploadPart",
 			Handler:       _OSS_UploadPart_Handler,

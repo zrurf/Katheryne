@@ -480,6 +480,16 @@ func (d *SocialDao) UpdateMemberMute(ctx context.Context, groupId, uid int64, mu
 	return err
 }
 
+func (d *SocialDao) UpdateMemberNick(ctx context.Context, groupId, uid int64, nick string) error {
+	var nickNull sql.NullString
+	if nick != "" {
+		nickNull = sql.NullString{String: nick, Valid: true}
+	}
+	_, err := d.db.Exec(ctx,
+		`UPDATE group_members SET nick = $1 WHERE group_id = $2 AND uid = $3`, nickNull, groupId, uid)
+	return err
+}
+
 func (d *SocialDao) IncrGroupMemberCount(ctx context.Context, groupId int64, delta int32) error {
 	_, err := d.db.Exec(ctx,
 		`UPDATE groups SET member_count = member_count + $1 WHERE group_id = $2`, delta, groupId)
@@ -711,6 +721,32 @@ func (d *SocialDao) GetConversationByGroupId(ctx context.Context, groupId int64)
 	err := d.db.QueryRow(ctx,
 		`SELECT conv_id FROM conversations WHERE group_id = $1 AND type = 'GROUP'`, groupId).Scan(&convId)
 	return convId, err
+}
+
+func (d *SocialDao) UpdateConversationByGroupId(ctx context.Context, groupId int64, name, avatar string) error {
+	var setParts []string
+	var args []interface{}
+	argIdx := 1
+
+	if name != "" {
+		setParts = append(setParts, "name = $"+itoa(argIdx))
+		args = append(args, name)
+		argIdx++
+	}
+	if avatar != "" {
+		setParts = append(setParts, "avatar = $"+itoa(argIdx))
+		args = append(args, avatar)
+		argIdx++
+	}
+	if len(setParts) == 0 {
+		return nil
+	}
+
+	args = append(args, groupId)
+	_, err := d.db.Exec(ctx,
+		`UPDATE conversations SET `+join(setParts, ", ")+` WHERE group_id = $`+itoa(argIdx)+` AND type = 'GROUP'`,
+		args...)
+	return err
 }
 
 // --- 用户群组 ---

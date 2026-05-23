@@ -92,3 +92,8 @@ func (s *ConversationServer) IncrementUnread(ctx context.Context, in *conversati
 	l := logic.NewIncrementUnreadLogic(ctx, s.svcCtx)
 	return l.IncrementUnread(in)
 }
+
+func (s *ConversationServer) UpdateGroupConvInfo(ctx context.Context, in *conversation.UpdateGroupConvInfoReq) (*conversation.UpdateGroupConvInfoResp, error) {
+	l := logic.NewUpdateGroupConvInfoLogic(ctx, s.svcCtx)
+	return l.UpdateGroupConvInfo(in)
+}

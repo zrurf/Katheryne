@@ -131,6 +131,22 @@ function createAuthStore() {
     return getActiveServer();
   }
 
+  async function updateProfile(name?: string, avatar?: string) {
+    try {
+      const resp = await api.auth.updateProfile(name, avatar);
+      if (resp.name) {
+        setName(resp.name);
+        localStorage.setItem("name", resp.name);
+      }
+      if (resp.avatar) {
+        setAvatar(resp.avatar);
+        localStorage.setItem("avatar", resp.avatar);
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   return {
     uid,
     name,
@@ -143,6 +159,7 @@ function createAuthStore() {
     register,
     logout,
     fetchUserInfo,
+    updateProfile,
     getCurrentServer,
   };
 }

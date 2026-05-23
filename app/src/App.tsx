@@ -1,6 +1,7 @@
 import { Route, Router, useNavigate } from "@solidjs/router";
-import { JSX, createEffect, onMount } from "solid-js";
+import { JSX, createEffect } from "solid-js";
 import { authStore } from "./stores/auth";
+import { appNav } from "./services/nav";
 import { SplashScreen } from "./pages/Splash";
 import { LoginPage } from "./pages/login";
 import { RegisterPage } from "./pages/Register";
@@ -23,6 +24,20 @@ function ProtectedRoute(props: { children: JSX.Element }) {
   return <>{props.children}</>;
 }
 
+/** Main app shell: keeps chat page always mounted, overlays settings with display */
+function AppShell() {
+  return (
+    <>
+      <div style={{ display: appNav.page() === "chat" ? "" : "none" }}>
+        <ChatPage />
+      </div>
+      <div style={{ display: appNav.page() === "settings" ? "" : "none" }}>
+        <SettingsPage />
+      </div>
+    </>
+  );
+}
+
 export default function App() {
   return (
     <Router>
@@ -33,7 +48,7 @@ export default function App() {
         path="/chat"
         component={() => (
           <ProtectedRoute>
-            <ChatPage />
+            <AppShell />
           </ProtectedRoute>
         )}
       />
@@ -41,7 +56,7 @@ export default function App() {
         path="/settings"
         component={() => (
           <ProtectedRoute>
-            <SettingsPage />
+            <AppShell />
           </ProtectedRoute>
         )}
       />

@@ -1,4 +1,5 @@
 import { cn } from "../../lib/utils";
+import { getServerApiBase } from "../../services/config";
 
 interface AvatarProps {
   src?: string;
@@ -6,6 +7,13 @@ interface AvatarProps {
   size?: "sm" | "md" | "lg" | "xl";
   online?: boolean;
   class?: string;
+}
+
+/** Resolve a relative OSS URL to a full URL using the configured server host. */
+function resolveUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return getServerApiBase() + url;
 }
 
 export function Avatar(props: AvatarProps) {
@@ -36,7 +44,7 @@ export function Avatar(props: AvatarProps) {
     <div class={cn("relative shrink-0", props.class)}>
       {props.src ? (
         <img
-          src={props.src}
+          src={resolveUrl(props.src)}
           alt={props.name || ""}
           class={cn("rounded-full object-cover", sizeClasses[size])}
         />

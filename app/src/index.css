@@ -20,6 +20,21 @@
     --color-info: #3b82f6;
   }
 
+  .light {
+    --color-primary: #6366f1;
+    --color-primary-light: #818cf8;
+    --color-primary-dark: #4f46e5;
+    --color-bg: #f5f5f7;
+    --color-bg-secondary: #e8e8ed;
+    --color-bg-tertiary: #dcdce3;
+    --color-surface: #ffffff;
+    --color-surface-hover: #f0f0f5;
+    --color-border: #d1d1d8;
+    --color-text: #1c1c1e;
+    --color-text-secondary: #6e6e7a;
+    --color-text-muted: #9a9aac;
+  }
+
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--color-border) transparent;
@@ -61,4 +76,38 @@
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
   --color-info: #3b82f6;
+}
+
+/* Mention overlay pills (rendered via innerHTML in the input overlay) */
+.mention-overlay {
+  /* Plain text inherits color from text-text class; pills override below */
+}
+
+.mention-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 500;
+  padding: 0 4px;
+  border-radius: 4px;
+  color: var(--color-primary) !important;
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
+.mention-pill.mention-bot {
+  color: var(--color-info) !important;
+  background: color-mix(in srgb, var(--color-info) 10%, transparent);
+}
+
+.mention-bot-tag {
+  font-size: 10px;
+  opacity: 0.6;
+  font-weight: 400;
+  margin-left: 1px;
+}
+
+/* Invisible padding to cover raw tag text behind the pill */
+.mention-pad {
+  color: transparent !important;
+  white-space: pre;
 }

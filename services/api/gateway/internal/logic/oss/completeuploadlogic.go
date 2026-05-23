@@ -2,6 +2,7 @@ package oss
 
 import (
 	"context"
+	"net/url"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
@@ -40,11 +41,15 @@ func (l *CompleteUploadLogic) CompleteUpload(req *types.CompleteUploadRequest) (
 		l.Errorf("CompleteMultipartUpload RPC failed: %v", err)
 		return nil, err
 	}
+	// Return only the path (no scheme/host) so the App can assemble the
+	// full URL using its own server host.
+	proxyPath := "/api/v1/oss/file?" + url.Values{"key": {result.OssIndex}}.Encode()
 	return &types.UploadResponse{
-		FileName:  result.OssIndex,
+		FileName:  result.FileName,
 		Size:      result.Size,
-		Url:       result.Url,
+		Url:       proxyPath,
 		OssIndex:  result.OssIndex,
+		IndexId:   result.IndexId,
 		ExpiresAt: result.ExpiresAt,
 	}, nil
 }

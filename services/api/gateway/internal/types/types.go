@@ -104,6 +104,15 @@ type BotItem struct {
 	UpdatedAt    int64  `json:"updated_at"`
 }
 
+type BotModerateReq struct {
+	Text string `json:"text"`
+}
+
+type BotModerateResp struct {
+	Safe   bool   `json:"safe"`
+	Reason string `json:"reason"`
+}
+
 type BotMsgItem struct {
 	MsgId        string `json:"msg_id"`
 	ConvId       string `json:"conv_id"`
@@ -149,6 +158,25 @@ type BotSendMsgResp struct {
 	CreatedAt int64  `json:"created_at"`
 }
 
+type BotSuggestReq struct {
+	ConvID string `json:"conv_id"`
+}
+
+type BotSuggestResp struct {
+	Suggestions []string `json:"suggestions"`
+}
+
+type BotSummarizeReq struct {
+	ConvID     string `json:"conv_id"`
+	SinceMsgId int64  `json:"since_msg_id,optional"`
+}
+
+type BotSummarizeResp struct {
+	Summary     string   `json:"summary"`
+	KeyPoints   []string `json:"key_points"`
+	ActionItems []string `json:"action_items"`
+}
+
 type BotTokenReq struct {
 	GrantType    string `form:"grant_type"`
 	ClientId     string `form:"client_id"`
@@ -165,6 +193,18 @@ type BotTokenResp struct {
 	ExpiresIn    int64  `json:"expires_in"`
 	RefreshToken string `json:"refresh_token"`
 	BotId        string `json:"bot_id"`
+}
+
+type BotTranslateReq struct {
+	Text       string `json:"text"`
+	TargetLang string `json:"target_lang,optional"`
+	SourceLang string `json:"source_lang,optional"`
+}
+
+type BotTranslateResp struct {
+	Text       string `json:"text"`
+	SourceLang string `json:"source_lang"`
+	TargetLang string `json:"target_lang"`
 }
 
 type BotUploadFileReq struct {
@@ -255,6 +295,15 @@ type DeleteConversationReq struct {
 }
 
 type DeleteConversationResp struct {
+}
+
+type DeleteFileRequest struct {
+	ObjectKey string `json:"object_key"`
+	IndexId   string `json:"index_id,optional"`
+}
+
+type DeleteFileResponse struct {
+	Deleted bool `json:"deleted"`
 }
 
 type DeleteFriendReq struct {
@@ -396,6 +445,17 @@ type GetConversationsResp struct {
 	List []ConversationItem `json:"list"`
 }
 
+type GetDownloadURLRequest struct {
+	ObjectKey  string `json:"object_key"`
+	IndexId    string `json:"index_id,optional"`
+	ExpireSecs int64  `json:"expire_secs,optional"`
+}
+
+type GetDownloadURLResponse struct {
+	Url       string `json:"url"`
+	ExpiresAt int64  `json:"expires_at"`
+}
+
 type GetEventDeliveriesReq struct {
 	BotId     string `path:"bot_id"`
 	ConvId    string `form:"conv_id,optional"`
@@ -408,6 +468,16 @@ type GetEventDeliveriesReq struct {
 type GetEventDeliveriesResp struct {
 	List  []EventDeliveryItem `json:"list"`
 	Total int64               `json:"total"`
+}
+
+type GetFileInfoResponse struct {
+	ObjectKey    string `json:"object_key"`
+	Size         int64  `json:"size"`
+	ContentType  string `json:"content_type"`
+	Etag         string `json:"etag"`
+	LastModified int64  `json:"last_modified"`
+	FileName     string `json:"file_name"`
+	IndexId      string `json:"index_id"`
 }
 
 type GetFriendRequestsReq struct {
@@ -639,6 +709,14 @@ type LeaveGroupResp struct {
 	Result bool `json:"result"`
 }
 
+type ListCommunityBotsReq struct {
+	Keyword string `form:"keyword,optional"`
+}
+
+type ListCommunityBotsResp struct {
+	List []BotItem `json:"list"`
+}
+
 type ListMyBotsReq struct {
 	Page int `form:"page,default=1"`
 	Size int `form:"size,default=20"`
@@ -647,14 +725,6 @@ type ListMyBotsReq struct {
 type ListMyBotsResp struct {
 	List  []BotItem `json:"list"`
 	Total int64     `json:"total"`
-}
-
-type ListCommunityBotsReq struct {
-	Keyword string `form:"keyword,optional"`
-}
-
-type ListCommunityBotsResp struct {
-	List []BotItem `json:"list"`
 }
 
 type LoginFinalizeRequest struct {
@@ -717,6 +787,16 @@ type MuteMemberReq struct {
 
 type MuteMemberResp struct {
 	Result bool `json:"result"`
+}
+
+type OssConfigResponse struct {
+	MaxFileSize int64 `json:"max_file_size"`
+	ChunkSize   int64 `json:"chunk_size"`
+	MaxParts    int   `json:"max_parts"`
+}
+
+type OssProxyRequest struct {
+	Key string `form:"key"`
 }
 
 type PartInfo struct {
@@ -860,6 +940,20 @@ type SetConvPinReq struct {
 type SetConvPinResp struct {
 }
 
+type SummarizeResultReq struct {
+	Ticket string `form:"ticket"`
+}
+
+type SummarizeResultResp struct {
+	Status string            `json:"status"`
+	Result *BotSummarizeResp `json:"result,optional"`
+	Error  string            `json:"error,optional"`
+}
+
+type SummarizeTicket struct {
+	Ticket string `json:"ticket"`
+}
+
 type SyncOfflineMessagesReq struct {
 	DeviceID      string `form:"device_id"`
 	LastSyncMsgID string `form:"last_sync_msg_id,optional"`
@@ -952,6 +1046,15 @@ type UpdateFriendRemarkResp struct {
 	Result bool `json:"result"`
 }
 
+type UpdateGroupNickReq struct {
+	GroupID string `json:"group_id"`
+	Nick    string `json:"nick"`
+}
+
+type UpdateGroupNickResp struct {
+	Result bool `json:"result"`
+}
+
 type UpdateGroupReq struct {
 	GroupID    string `json:"group_id"`
 	Name       string `json:"name,optional"`
@@ -961,6 +1064,16 @@ type UpdateGroupReq struct {
 
 type UpdateGroupResp struct {
 	Result bool `json:"result"`
+}
+
+type UpdateProfileReq struct {
+	Name   string `json:"name,optional"`
+	Avatar string `json:"avatar,optional"`
+}
+
+type UpdateProfileResp struct {
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
 }
 
 type UploadPartRequest struct {
@@ -978,6 +1091,7 @@ type UploadResponse struct {
 	Size      int64  `json:"size"`
 	Url       string `json:"url"`
 	OssIndex  string `json:"oss_index"`
+	IndexId   string `json:"index_id"`
 	ExpiresAt int64  `json:"expires_at"`
 }
 

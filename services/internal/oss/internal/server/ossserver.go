@@ -23,6 +23,12 @@ func NewOSSServer(svcCtx *svc.ServiceContext) *OSSServer {
 	}
 }
 
+// 简单上传（流式，适用于中小文件如图片、音频等）
+func (s *OSSServer) SimpleUpload(stream oss.OSS_SimpleUploadServer) error {
+	l := logic.NewSimpleUploadLogic(stream.Context(), s.svcCtx)
+	return l.SimpleUpload(stream)
+}
+
 // 初始化分片上传，返回 UploadId
 func (s *OSSServer) InitiateMultipartUpload(ctx context.Context, in *oss.InitiateUploadReq) (*oss.InitiateUploadResp, error) {
 	l := logic.NewInitiateMultipartUploadLogic(ctx, s.svcCtx)
@@ -45,4 +51,22 @@ func (s *OSSServer) CompleteMultipartUpload(ctx context.Context, in *oss.Complet
 func (s *OSSServer) AbortMultipartUpload(ctx context.Context, in *oss.AbortUploadReq) (*oss.AbortUploadResp, error) {
 	l := logic.NewAbortMultipartUploadLogic(ctx, s.svcCtx)
 	return l.AbortMultipartUpload(in)
+}
+
+// 获取文件下载 URL
+func (s *OSSServer) GetDownloadURL(ctx context.Context, in *oss.GetDownloadURLReq) (*oss.GetDownloadURLResp, error) {
+	l := logic.NewGetDownloadURLLogic(ctx, s.svcCtx)
+	return l.GetDownloadURL(in)
+}
+
+// 删除文件
+func (s *OSSServer) DeleteFile(ctx context.Context, in *oss.DeleteFileReq) (*oss.DeleteFileResp, error) {
+	l := logic.NewDeleteFileLogic(ctx, s.svcCtx)
+	return l.DeleteFile(in)
+}
+
+// 获取文件信息
+func (s *OSSServer) GetFileInfo(ctx context.Context, in *oss.GetFileInfoReq) (*oss.GetFileInfoResp, error) {
+	l := logic.NewGetFileInfoLogic(ctx, s.svcCtx)
+	return l.GetFileInfo(in)
 }

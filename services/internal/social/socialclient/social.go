@@ -33,6 +33,8 @@ type (
 	GetFriendRequestsResp    = social.GetFriendRequestsResp
 	GetFriendsReq            = social.GetFriendsReq
 	GetFriendsResp           = social.GetFriendsResp
+	GetGroupAnnouncementReq  = social.GetGroupAnnouncementReq
+	GetGroupAnnouncementResp = social.GetGroupAnnouncementResp
 	GetGroupInfoReq          = social.GetGroupInfoReq
 	GetGroupInfoResp         = social.GetGroupInfoResp
 	GetGroupInvitesReq       = social.GetGroupInvitesReq
@@ -41,6 +43,14 @@ type (
 	GetGroupJoinRequestsResp = social.GetGroupJoinRequestsResp
 	GetGroupMembersReq       = social.GetGroupMembersReq
 	GetGroupMembersResp      = social.GetGroupMembersResp
+	GetOnlineStatusReq       = social.GetOnlineStatusReq
+	GetOnlineStatusResp      = social.GetOnlineStatusResp
+	GetUserGroupsReq         = social.GetUserGroupsReq
+	GetUserGroupsResp        = social.GetUserGroupsResp
+	GetUserInfoReq           = social.GetUserInfoReq
+	GetUserInfoResp          = social.GetUserInfoResp
+	GetUserProfileReq        = social.GetUserProfileReq
+	GetUserProfileResp       = social.GetUserProfileResp
 	GroupInfo                = social.GroupInfo
 	GroupInviteItem          = social.GroupInviteItem
 	GroupJoinRequestItem     = social.GroupJoinRequestItem
@@ -71,14 +81,25 @@ type (
 	MuteMemberResp           = social.MuteMemberResp
 	RemoveBlacklistReq       = social.RemoveBlacklistReq
 	RemoveBlacklistResp      = social.RemoveBlacklistResp
+	SearchUserReq            = social.SearchUserReq
+	SearchUserResp           = social.SearchUserResp
 	SendFriendReq            = social.SendFriendReq
 	SendFriendResp           = social.SendFriendResp
+	SetGroupAnnouncementReq  = social.SetGroupAnnouncementReq
+	SetGroupAnnouncementResp = social.SetGroupAnnouncementResp
+	SetGroupNickReq          = social.SetGroupNickReq
+	SetGroupNickResp         = social.SetGroupNickResp
 	TransferOwnerReq         = social.TransferOwnerReq
 	TransferOwnerResp        = social.TransferOwnerResp
 	UpdateFriendRemarkReq    = social.UpdateFriendRemarkReq
 	UpdateFriendRemarkResp   = social.UpdateFriendRemarkResp
 	UpdateGroupReq           = social.UpdateGroupReq
 	UpdateGroupResp          = social.UpdateGroupResp
+	UpdateOnlineStatusReq    = social.UpdateOnlineStatusReq
+	UpdateOnlineStatusResp   = social.UpdateOnlineStatusResp
+	UpdateUserInfoReq        = social.UpdateUserInfoReq
+	UpdateUserInfoResp       = social.UpdateUserInfoResp
+	UserInfo                 = social.UserInfo
 
 	Social interface {
 		// 好友
@@ -102,6 +123,7 @@ type (
 		LeaveGroup(ctx context.Context, in *LeaveGroupReq, opts ...grpc.CallOption) (*LeaveGroupResp, error)
 		KickMember(ctx context.Context, in *KickMemberReq, opts ...grpc.CallOption) (*KickMemberResp, error)
 		MuteMember(ctx context.Context, in *MuteMemberReq, opts ...grpc.CallOption) (*MuteMemberResp, error)
+		SetGroupNick(ctx context.Context, in *SetGroupNickReq, opts ...grpc.CallOption) (*SetGroupNickResp, error)
 		TransferOwner(ctx context.Context, in *TransferOwnerReq, opts ...grpc.CallOption) (*TransferOwnerResp, error)
 		GetGroupMembers(ctx context.Context, in *GetGroupMembersReq, opts ...grpc.CallOption) (*GetGroupMembersResp, error)
 		HandleGroupJoinRequest(ctx context.Context, in *HandleGroupJoinReq, opts ...grpc.CallOption) (*HandleGroupJoinResp, error)
@@ -111,10 +133,22 @@ type (
 		// 群公告
 		CreateAnnouncement(ctx context.Context, in *CreateAnnouncementReq, opts ...grpc.CallOption) (*CreateAnnouncementResp, error)
 		GetAnnouncements(ctx context.Context, in *GetAnnouncementsReq, opts ...grpc.CallOption) (*GetAnnouncementsResp, error)
+		SetGroupAnnouncement(ctx context.Context, in *SetGroupAnnouncementReq, opts ...grpc.CallOption) (*SetGroupAnnouncementResp, error)
+		GetGroupAnnouncement(ctx context.Context, in *GetGroupAnnouncementReq, opts ...grpc.CallOption) (*GetGroupAnnouncementResp, error)
 		// 邀请进群
 		InviteToGroup(ctx context.Context, in *InviteToGroupReq, opts ...grpc.CallOption) (*InviteToGroupResp, error)
 		HandleGroupInvite(ctx context.Context, in *HandleGroupInviteReq, opts ...grpc.CallOption) (*HandleGroupInviteResp, error)
 		GetGroupInvites(ctx context.Context, in *GetGroupInvitesReq, opts ...grpc.CallOption) (*GetGroupInvitesResp, error)
+		// 用户
+		GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserInfoResp, error)
+		UpdateUserInfo(ctx context.Context, in *UpdateUserInfoReq, opts ...grpc.CallOption) (*UpdateUserInfoResp, error)
+		SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error)
+		GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...grpc.CallOption) (*GetUserProfileResp, error)
+		// 用户群组
+		GetUserGroups(ctx context.Context, in *GetUserGroupsReq, opts ...grpc.CallOption) (*GetUserGroupsResp, error)
+		// 在线状态
+		GetOnlineStatus(ctx context.Context, in *GetOnlineStatusReq, opts ...grpc.CallOption) (*GetOnlineStatusResp, error)
+		UpdateOnlineStatus(ctx context.Context, in *UpdateOnlineStatusReq, opts ...grpc.CallOption) (*UpdateOnlineStatusResp, error)
 	}
 
 	defaultSocial struct {
@@ -221,6 +255,11 @@ func (m *defaultSocial) MuteMember(ctx context.Context, in *MuteMemberReq, opts 
 	return client.MuteMember(ctx, in, opts...)
 }
 
+func (m *defaultSocial) SetGroupNick(ctx context.Context, in *SetGroupNickReq, opts ...grpc.CallOption) (*SetGroupNickResp, error) {
+	client := social.NewSocialClient(m.cli.Conn())
+	return client.SetGroupNick(ctx, in, opts...)
+}
+
 func (m *defaultSocial) TransferOwner(ctx context.Context, in *TransferOwnerReq, opts ...grpc.CallOption) (*TransferOwnerResp, error) {
 	client := social.NewSocialClient(m.cli.Conn())
 	return client.TransferOwner(ctx, in, opts...)
@@ -262,6 +301,16 @@ func (m *defaultSocial) GetAnnouncements(ctx context.Context, in *GetAnnouncemen
 	return client.GetAnnouncements(ctx, in, opts...)
 }
 
+func (m *defaultSocial) SetGroupAnnouncement(ctx context.Context, in *SetGroupAnnouncementReq, opts ...grpc.CallOption) (*SetGroupAnnouncementResp, error) {
+	client := social.NewSocialClient(m.cli.Conn())
+	return client.SetGroupAnnouncement(ctx, in, opts...)
+}
+
+func (m *defaultSocial) GetGroupAnnouncement(ctx context.Context, in *GetGroupAnnouncementReq, opts ...grpc.CallOption) (*GetGroupAnnouncementResp, error) {
+	client := social.NewSocialClient(m.cli.Conn())
+	return client.GetGroupAnnouncement(ctx, in, opts...)
+}
+
 // 邀请进群
 func (m *defaultSocial) InviteToGroup(ctx context.Context, in *InviteToGroupReq, opts ...grpc.CallOption) (*InviteToGroupResp, error) {
 	client := social.NewSocialClient(m.cli.Conn())
@@ -276,4 +325,42 @@ func (m *defaultSocial) HandleGroupInvite(ctx context.Context, in *HandleGroupIn
 func (m *defaultSocial) GetGroupInvites(ctx context.Context, in *GetGroupInvitesReq, opts ...grpc.CallOption) (*GetGroupInvitesResp, error) {
 	client := social.NewSocialClient(m.cli.Conn())
 	return client.GetGroupInvites(ctx, in, opts...)
+}
+
+// 用户
+func (m *defaultSocial) GetUserInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserInfoResp, error) {
+	client := social.NewSocialClient(m.cli.Conn())
+	return client.GetUserInfo(ctx, in, opts...)
+}
+
+func (m *defaultSocial) UpdateUserInfo(ctx context.Context, in *UpdateUserInfoReq, opts ...grpc.CallOption) (*UpdateUserInfoResp, error) {
+	client := social.NewSocialClient(m.cli.Conn())
+	return client.UpdateUserInfo(ctx, in, opts...)
+}
+
+func (m *defaultSocial) SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error) {
+	client := social.NewSocialClient(m.cli.Conn())
+	return client.SearchUser(ctx, in, opts...)
+}
+
+func (m *defaultSocial) GetUserProfile(ctx context.Context, in *GetUserProfileReq, opts ...grpc.CallOption) (*GetUserProfileResp, error) {
+	client := social.NewSocialClient(m.cli.Conn())
+	return client.GetUserProfile(ctx, in, opts...)
+}
+
+// 用户群组
+func (m *defaultSocial) GetUserGroups(ctx context.Context, in *GetUserGroupsReq, opts ...grpc.CallOption) (*GetUserGroupsResp, error) {
+	client := social.NewSocialClient(m.cli.Conn())
+	return client.GetUserGroups(ctx, in, opts...)
+}
+
+// 在线状态
+func (m *defaultSocial) GetOnlineStatus(ctx context.Context, in *GetOnlineStatusReq, opts ...grpc.CallOption) (*GetOnlineStatusResp, error) {
+	client := social.NewSocialClient(m.cli.Conn())
+	return client.GetOnlineStatus(ctx, in, opts...)
+}
+
+func (m *defaultSocial) UpdateOnlineStatus(ctx context.Context, in *UpdateOnlineStatusReq, opts ...grpc.CallOption) (*UpdateOnlineStatusResp, error) {
+	client := social.NewSocialClient(m.cli.Conn())
+	return client.UpdateOnlineStatus(ctx, in, opts...)
 }

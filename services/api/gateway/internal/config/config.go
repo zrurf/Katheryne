@@ -19,5 +19,7 @@ type Config struct {
 	OssRpc          zrpc.RpcClientConf
 	BotRpc          zrpc.RpcClientConf
 
-	RedisAddr string
+	RedisAddr   string
+	AiBotUrl    string
+	MaxFileSize int64 `json:",default=104857600"`
 }

@@ -37,6 +37,7 @@ const (
 	Social_LeaveGroup_FullMethodName             = "/social.social/LeaveGroup"
 	Social_KickMember_FullMethodName             = "/social.social/KickMember"
 	Social_MuteMember_FullMethodName             = "/social.social/MuteMember"
+	Social_SetGroupNick_FullMethodName           = "/social.social/SetGroupNick"
 	Social_TransferOwner_FullMethodName          = "/social.social/TransferOwner"
 	Social_GetGroupMembers_FullMethodName        = "/social.social/GetGroupMembers"
 	Social_HandleGroupJoinRequest_FullMethodName = "/social.social/HandleGroupJoinRequest"
@@ -86,6 +87,7 @@ type SocialClient interface {
 	LeaveGroup(ctx context.Context, in *LeaveGroupReq, opts ...grpc.CallOption) (*LeaveGroupResp, error)
 	KickMember(ctx context.Context, in *KickMemberReq, opts ...grpc.CallOption) (*KickMemberResp, error)
 	MuteMember(ctx context.Context, in *MuteMemberReq, opts ...grpc.CallOption) (*MuteMemberResp, error)
+	SetGroupNick(ctx context.Context, in *SetGroupNickReq, opts ...grpc.CallOption) (*SetGroupNickResp, error)
 	TransferOwner(ctx context.Context, in *TransferOwnerReq, opts ...grpc.CallOption) (*TransferOwnerResp, error)
 	GetGroupMembers(ctx context.Context, in *GetGroupMembersReq, opts ...grpc.CallOption) (*GetGroupMembersResp, error)
 	HandleGroupJoinRequest(ctx context.Context, in *HandleGroupJoinReq, opts ...grpc.CallOption) (*HandleGroupJoinResp, error)
@@ -295,6 +297,16 @@ func (c *socialClient) MuteMember(ctx context.Context, in *MuteMemberReq, opts .
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(MuteMemberResp)
 	err := c.cc.Invoke(ctx, Social_MuteMember_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socialClient) SetGroupNick(ctx context.Context, in *SetGroupNickReq, opts ...grpc.CallOption) (*SetGroupNickResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetGroupNickResp)
+	err := c.cc.Invoke(ctx, Social_SetGroupNick_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -528,6 +540,7 @@ type SocialServer interface {
 	LeaveGroup(context.Context, *LeaveGroupReq) (*LeaveGroupResp, error)
 	KickMember(context.Context, *KickMemberReq) (*KickMemberResp, error)
 	MuteMember(context.Context, *MuteMemberReq) (*MuteMemberResp, error)
+	SetGroupNick(context.Context, *SetGroupNickReq) (*SetGroupNickResp, error)
 	TransferOwner(context.Context, *TransferOwnerReq) (*TransferOwnerResp, error)
 	GetGroupMembers(context.Context, *GetGroupMembersReq) (*GetGroupMembersResp, error)
 	HandleGroupJoinRequest(context.Context, *HandleGroupJoinReq) (*HandleGroupJoinResp, error)
@@ -616,6 +629,9 @@ func (UnimplementedSocialServer) KickMember(context.Context, *KickMemberReq) (*K
 }
 func (UnimplementedSocialServer) MuteMember(context.Context, *MuteMemberReq) (*MuteMemberResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method MuteMember not implemented")
+}
+func (UnimplementedSocialServer) SetGroupNick(context.Context, *SetGroupNickReq) (*SetGroupNickResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetGroupNick not implemented")
 }
 func (UnimplementedSocialServer) TransferOwner(context.Context, *TransferOwnerReq) (*TransferOwnerResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method TransferOwner not implemented")
@@ -1018,6 +1034,24 @@ func _Social_MuteMember_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SocialServer).MuteMember(ctx, req.(*MuteMemberReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Social_SetGroupNick_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetGroupNickReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).SetGroupNick(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_SetGroupNick_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).SetGroupNick(ctx, req.(*SetGroupNickReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1460,6 +1494,10 @@ var Social_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "MuteMember",
 			Handler:    _Social_MuteMember_Handler,
+		},
+		{
+			MethodName: "SetGroupNick",
+			Handler:    _Social_SetGroupNick_Handler,
 		},
 		{
 			MethodName: "TransferOwner",

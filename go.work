@@ -1,6 +1,7 @@
 go 1.26.2
 
 use (
+	./services/api
 	./services/api/gateway
 	./services/api/ws-gateway
 	./services/internal/auth

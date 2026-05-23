@@ -8,10 +8,12 @@ import (
 
 	auth "gateway/internal/handler/auth"
 	bot "gateway/internal/handler/bot"
+	bot_interact "gateway/internal/handler/bot_interact"
 	conversation "gateway/internal/handler/conversation"
 	message "gateway/internal/handler/message"
 	oauth2 "gateway/internal/handler/oauth2"
 	oss "gateway/internal/handler/oss"
+	oss_public "gateway/internal/handler/oss_public"
 	social "gateway/internal/handler/social"
 	"gateway/internal/svc"
 
@@ -33,11 +35,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
-				Path:    "/logout",
-				Handler: auth.LogoutHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
 				Path:    "/refresh",
 				Handler: auth.RefreshTokenHandler(serverCtx),
 			},
@@ -56,12 +53,31 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/tfa-verify",
 				Handler: auth.TFAVerifyHandler(serverCtx),
 			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/user_info/:uid",
-				Handler: auth.GetUserInfoHandler(serverCtx),
-			},
 		},
+		rest.WithPrefix("/api/v1/auth"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/logout",
+					Handler: auth.LogoutHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/user/profile",
+					Handler: auth.UpdateProfileHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/user_info/:uid",
+					Handler: auth.GetUserInfoHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithPrefix("/api/v1/auth"),
 	)
 
@@ -256,6 +272,40 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.AuthMiddleware},
 			[]rest.Route{
 				{
+					Method:  http.MethodPost,
+					Path:    "/bot/moderate",
+					Handler: bot_interact.BotModerateHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/bot/suggest",
+					Handler: bot_interact.BotSuggestHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/bot/summarize",
+					Handler: bot_interact.BotSummarizeHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/bot/summarize/result",
+					Handler: bot_interact.BotSummarizeResultHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/bot/translate",
+					Handler: bot_interact.BotTranslateHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/v1"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
 					Method:  http.MethodGet,
 					Path:    "/:conv_id",
 					Handler: conversation.GetConversationHandler(serverCtx),
@@ -365,6 +415,26 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.AuthMiddleware},
 			[]rest.Route{
 				{
+					Method:  http.MethodGet,
+					Path:    "/config",
+					Handler: oss.GetConfigHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/delete",
+					Handler: oss.DeleteFileHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/download-url",
+					Handler: oss.GetDownloadURLHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/file/info",
+					Handler: oss.GetFileInfoHandler(serverCtx),
+				},
+				{
 					Method:  http.MethodPost,
 					Path:    "/upload",
 					Handler: oss.UploadHandler(serverCtx),
@@ -386,6 +456,17 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 			}...,
 		),
+		rest.WithPrefix("/api/v1/oss"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/file",
+				Handler: oss_public.OssProxyHandler(serverCtx),
+			},
+		},
 		rest.WithPrefix("/api/v1/oss"),
 	)
 
@@ -507,6 +588,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/group/mute",
 					Handler: social.MuteMemberHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/group/nick",
+					Handler: social.UpdateGroupNickHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,

@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS "message" (
     "receiver"      BIGINT NOT NULL,         -- 接收者ID（群消息为群ID）
     "type"          VARCHAR(16) NOT NULL,    -- 消息类型
     "content"       TEXT NOT NULL,           -- 内容（如果非text则为对象引用）
-    "content_type"  VARCHAR(64) NOT NULL DEFAULT 'text', -- 内容类型
+    "content_type"  VARCHAR(255) NOT NULL DEFAULT 'text', -- 内容类型
     "quote_msg_id"  BIGINT,                  -- 引用消息ID
     "recalled"      BOOLEAN NOT NULL DEFAULT FALSE, -- 是否被撤回
     "recall_time"   TIMESTAMP,               -- 撤回时间

@@ -180,6 +180,13 @@ message TransferOwnerReq {
 }
 message TransferOwnerResp {}
 
+message SetGroupNickReq {
+  int64 group_id = 1;
+  int64 uid = 2;
+  string nick = 3;
+}
+message SetGroupNickResp {}
+
 message GetGroupMembersReq {
   int64 group_id = 1;
   string role = 2;
@@ -407,6 +414,7 @@ service social {
   rpc LeaveGroup(LeaveGroupReq) returns (LeaveGroupResp);
   rpc KickMember(KickMemberReq) returns (KickMemberResp);
   rpc MuteMember(MuteMemberReq) returns (MuteMemberResp);
+  rpc SetGroupNick(SetGroupNickReq) returns (SetGroupNickResp);
   rpc TransferOwner(TransferOwnerReq) returns (TransferOwnerResp);
   rpc GetGroupMembers(GetGroupMembersReq) returns (GetGroupMembersResp);
   rpc HandleGroupJoinRequest(HandleGroupJoinReq) returns (HandleGroupJoinResp);

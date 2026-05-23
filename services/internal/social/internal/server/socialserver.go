@@ -116,6 +116,11 @@ func (s *SocialServer) MuteMember(ctx context.Context, in *social.MuteMemberReq)
 	return l.MuteMember(in)
 }
 
+func (s *SocialServer) SetGroupNick(ctx context.Context, in *social.SetGroupNickReq) (*social.SetGroupNickResp, error) {
+	l := logic.NewSetGroupNickLogic(ctx, s.svcCtx)
+	return l.SetGroupNick(in)
+}
+
 func (s *SocialServer) TransferOwner(ctx context.Context, in *social.TransferOwnerReq) (*social.TransferOwnerResp, error) {
 	l := logic.NewTransferOwnerLogic(ctx, s.svcCtx)
 	return l.TransferOwner(in)
@@ -157,6 +162,16 @@ func (s *SocialServer) GetAnnouncements(ctx context.Context, in *social.GetAnnou
 	return l.GetAnnouncements(in)
 }
 
+func (s *SocialServer) SetGroupAnnouncement(ctx context.Context, in *social.SetGroupAnnouncementReq) (*social.SetGroupAnnouncementResp, error) {
+	l := logic.NewSetGroupAnnouncementLogic(ctx, s.svcCtx)
+	return l.SetGroupAnnouncement(in)
+}
+
+func (s *SocialServer) GetGroupAnnouncement(ctx context.Context, in *social.GetGroupAnnouncementReq) (*social.GetGroupAnnouncementResp, error) {
+	l := logic.NewGetGroupAnnouncementLogic(ctx, s.svcCtx)
+	return l.GetGroupAnnouncement(in)
+}
+
 // 邀请进群
 func (s *SocialServer) InviteToGroup(ctx context.Context, in *social.InviteToGroupReq) (*social.InviteToGroupResp, error) {
 	l := logic.NewInviteToGroupLogic(ctx, s.svcCtx)
@@ -173,16 +188,7 @@ func (s *SocialServer) GetGroupInvites(ctx context.Context, in *social.GetGroupI
 	return l.GetGroupInvites(in)
 }
 
-func (s *SocialServer) SetGroupAnnouncement(ctx context.Context, in *social.SetGroupAnnouncementReq) (*social.SetGroupAnnouncementResp, error) {
-	l := logic.NewSetGroupAnnouncementLogic(ctx, s.svcCtx)
-	return l.SetGroupAnnouncement(in)
-}
-
-func (s *SocialServer) GetGroupAnnouncement(ctx context.Context, in *social.GetGroupAnnouncementReq) (*social.GetGroupAnnouncementResp, error) {
-	l := logic.NewGetGroupAnnouncementLogic(ctx, s.svcCtx)
-	return l.GetGroupAnnouncement(in)
-}
-
+// 用户
 func (s *SocialServer) GetUserInfo(ctx context.Context, in *social.GetUserInfoReq) (*social.GetUserInfoResp, error) {
 	l := logic.NewGetUserInfoLogic(ctx, s.svcCtx)
 	return l.GetUserInfo(in)
@@ -203,11 +209,13 @@ func (s *SocialServer) GetUserProfile(ctx context.Context, in *social.GetUserPro
 	return l.GetUserProfile(in)
 }
 
+// 用户群组
 func (s *SocialServer) GetUserGroups(ctx context.Context, in *social.GetUserGroupsReq) (*social.GetUserGroupsResp, error) {
 	l := logic.NewGetUserGroupsLogic(ctx, s.svcCtx)
 	return l.GetUserGroups(in)
 }
 
+// 在线状态
 func (s *SocialServer) GetOnlineStatus(ctx context.Context, in *social.GetOnlineStatusReq) (*social.GetOnlineStatusResp, error) {
 	l := logic.NewGetOnlineStatusLogic(ctx, s.svcCtx)
 	return l.GetOnlineStatus(in)

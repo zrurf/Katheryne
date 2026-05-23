@@ -27,21 +27,29 @@ type BotSender interface {
 }
 
 type MessageHandler struct {
-	engine     *LLMEngine
-	sender     BotSender
-	config     HandlerConfig
+	engine *LLMEngine
+	sender BotSender
+	config HandlerConfig
 
 	convCache   map[string][]types.ChatMessage
 	cacheMu     sync.RWMutex
 	maxCacheLen int
+
+	// Stats
+	totalMessages  int64
+	totalTokens    int64
+	messagesByConv map[string]int64
+	statsMu        sync.RWMutex
+	lastActivity   int64
 }
 
 func NewMessageHandler(cfg HandlerConfig) *MessageHandler {
 	return &MessageHandler{
-		engine:      NewLLMEngine(cfg),
-		config:      cfg,
-		convCache:   make(map[string][]types.ChatMessage),
-		maxCacheLen: 50,
+		engine:         NewLLMEngine(cfg),
+		config:         cfg,
+		convCache:      make(map[string][]types.ChatMessage),
+		maxCacheLen:    50,
+		messagesByConv: make(map[string]int64),
 	}
 }
 
@@ -77,6 +85,8 @@ func (h *MessageHandler) handleMessageCreate(event *types.EventMessage) {
 	logx.Infof("message.create: convID=%s, sender=%s, content=%s",
 		msgEvent.ConvID, msgEvent.SenderName, truncate(msgEvent.Content, 100))
 
+	h.trackMessage(msgEvent.ConvID)
+
 	h.cacheMessage(msgEvent.ConvID, types.ChatMessage{
 		Role:    "user",
 		Content: msgEvent.SenderName + ": " + msgEvent.Content,
@@ -92,6 +102,8 @@ func (h *MessageHandler) handleMessageCreate(event *types.EventMessage) {
 		h.handleTranslate(msgEvent.ConvID, content)
 	} else if strings.HasPrefix(content, "/moderate") || strings.HasPrefix(content, "/审核") {
 		h.handleModerate(msgEvent.ConvID, content)
+	} else if strings.HasPrefix(content, "/suggest") || strings.HasPrefix(content, "/建议") {
+		h.handleSuggest(msgEvent.ConvID)
 	}
 }
 
@@ -112,8 +124,14 @@ func (h *MessageHandler) handleAtBot(event *types.MessageCreateEvent, content st
 		Content: prompt,
 	})
 
-	systemPrompt := `你是 Katheryne AI，一个友好的智能助手。你是 Katheryne 即时通讯平台的内置 AI 助手。
+	systemPrompt := `你是 Katheryne，一个友好的智能助手。你是 Katheryne 即时通讯平台的内置 AI 助手。
 你可以帮助用户回答问题、总结对话、翻译文本、审核内容等。
+你还可以使用以下工具：
+- web_search: 搜索互联网获取实时信息（天气、新闻、技术问答等）。当你需要实时信息时，请使用工具调用。
+
+使用工具时，请按以下格式输出:
+<tool_call>{"name": "web_search", "args": {"query": "搜索关键词"}}</tool_call>
+
 请用自然、友好的语言回复用户。如果用户使用中文，请用中文回复；如果用户使用其他语言，请用相同语言回复。`
 
 	go func() {
@@ -129,6 +147,8 @@ func (h *MessageHandler) handleAtBot(event *types.MessageCreateEvent, content st
 			h.sendTextMessage(convID, "抱歉，我暂时无法回答你的问题，请稍后再试。")
 			return
 		}
+
+		h.trackTokens(int64(len(reply)))
 
 		h.sendTextMessage(convID, reply)
 
@@ -257,6 +277,36 @@ func (h *MessageHandler) handleModerate(convID, content string) {
 	}()
 }
 
+func (h *MessageHandler) handleSuggest(convID string) {
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				logx.Errorf("panic in handleSuggest: %v", r)
+			}
+		}()
+
+		messages := h.getCachedMessages(convID)
+		result, err := h.engine.SuggestReplies(messages, 3)
+		if err != nil {
+			logx.Errorf("suggest replies failed: %v", err)
+			h.sendTextMessage(convID, "生成回复建议失败，请稍后再试。")
+			return
+		}
+
+		if result == nil || len(result.Suggestions) == 0 {
+			h.sendTextMessage(convID, "暂无回复建议。")
+			return
+		}
+
+		var sb strings.Builder
+		sb.WriteString("💡 **回复建议**\n\n")
+		for i, s := range result.Suggestions {
+			sb.WriteString(fmt.Sprintf("%d. %s\n", i+1, s))
+		}
+		h.sendTextMessage(convID, sb.String())
+	}()
+}
+
 func (h *MessageHandler) handleGroupJoin(event *types.EventMessage) {
 	var data struct {
 		ConvID     string `json:"conv_id"`
@@ -349,6 +399,111 @@ func (h *MessageHandler) cleanExpiredCache() {
 			delete(h.convCache, k)
 		}
 	}
+}
+
+// GetStatus returns the current connection status of the bot
+func (h *MessageHandler) GetStatus() string {
+	return "connected"
+}
+
+// ReloadConfig reloads the LLM engine with new configuration
+func (h *MessageHandler) ReloadConfig(cfg HandlerConfig) {
+	h.config.LLMProvider = cfg.LLMProvider
+	h.config.LLMAPIKey = cfg.LLMAPIKey
+	h.config.LLMBaseURL = cfg.LLMBaseURL
+	h.config.LLMModel = cfg.LLMModel
+	h.config.LLMMaxTokens = cfg.LLMMaxTokens
+	h.config.LLMTemperature = cfg.LLMTemperature
+	h.engine = NewLLMEngine(h.config)
+	logx.Infof("Bot LLM config reloaded: provider=%s, model=%s", cfg.LLMProvider, cfg.LLMModel)
+}
+
+// GetStats returns bot usage statistics
+func (h *MessageHandler) GetStats() map[string]interface{} {
+	h.statsMu.RLock()
+	defer h.statsMu.RUnlock()
+
+	h.cacheMu.RLock()
+	activeConvs := len(h.convCache)
+	h.cacheMu.RUnlock()
+
+	return map[string]interface{}{
+		"total_messages": h.totalMessages,
+		"total_tokens":   h.totalTokens,
+		"active_convs":   activeConvs,
+		"last_activity":  h.lastActivity,
+	}
+}
+
+// GetMemory returns conversation memory for a specific conversation or all
+func (h *MessageHandler) GetMemory(convID string) map[string][]types.ChatMessage {
+	h.cacheMu.RLock()
+	defer h.cacheMu.RUnlock()
+
+	if convID != "" {
+		messages, ok := h.convCache[convID]
+		if !ok {
+			return nil
+		}
+		result := make(map[string][]types.ChatMessage)
+		result[convID] = messages
+		return result
+	}
+
+	result := make(map[string][]types.ChatMessage)
+	for k, v := range h.convCache {
+		result[k] = v
+	}
+	return result
+}
+
+// ClearMemory clears conversation memory
+func (h *MessageHandler) ClearMemory(convID string) {
+	h.cacheMu.Lock()
+	defer h.cacheMu.Unlock()
+
+	if convID != "" {
+		delete(h.convCache, convID)
+	} else {
+		h.convCache = make(map[string][]types.ChatMessage)
+	}
+}
+
+// trackMessage increments message stats
+func (h *MessageHandler) trackMessage(convID string) {
+	h.statsMu.Lock()
+	defer h.statsMu.Unlock()
+	h.totalMessages++
+	h.messagesByConv[convID]++
+	h.lastActivity = time.Now().Unix()
+}
+
+func (h *MessageHandler) trackTokens(count int64) {
+	h.statsMu.Lock()
+	defer h.statsMu.Unlock()
+	h.totalTokens += count
+}
+
+// Public Bot API methods for REST endpoints
+
+func (h *MessageHandler) SummarizeContext(messages []types.ChatMessage) (*types.SummarizeResponse, error) {
+	return h.engine.Summarize(messages)
+}
+
+func (h *MessageHandler) TranslateText(text, sourceLang, targetLang string) (*types.TranslateResponse, error) {
+	return h.engine.Translate(text, sourceLang, targetLang)
+}
+
+func (h *MessageHandler) SuggestRepliesContext(messages []types.ChatMessage) (*types.ReplySuggestionResponse, error) {
+	return h.engine.SuggestReplies(messages, 3)
+}
+
+func (h *MessageHandler) ModerateText(text string) (*types.ModerateResponse, error) {
+	safe, reason, err := h.engine.Moderate(text)
+	if err != nil {
+		return nil, err
+	}
+	return &types.ModerateResponse{Safe: safe, Reason: reason}, nil
 }
 
 func truncate(s string, maxLen int) string {

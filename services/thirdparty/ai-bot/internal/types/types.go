@@ -107,3 +107,8 @@ type LLMConfig struct {
 	MaxTokens   int     `json:"max_tokens"`
 	Temperature float64 `json:"temperature"`
 }
+
+type ModerateResponse struct {
+	Safe   bool   `json:"safe"`
+	Reason string `json:"reason"`
+}

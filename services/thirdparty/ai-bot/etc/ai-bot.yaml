@@ -1,6 +1,7 @@
 Name: ai-bot
 Host: 0.0.0.0
 Port: 8889
+Timeout: 120000
 
 Middlewares:
   Metrics: true
@@ -20,8 +21,8 @@ BotClientSecret: "kth_official_secret_v1_production"
 
 LLM:
   Provider: "openai"
-  APIKey: "${OPENAI_API_KEY:-}"
-  BaseURL: "${OPENAI_BASE_URL:-https://api.openai.com/v1}"
-  Model: "${LLM_MODEL:-gpt-4o}"
+  APIKey: "${OPENAI_API_KEY}"
+  BaseURL: "${OPENAI_BASE_URL}"
+  Model: "${LLM_MODEL}"
   MaxTokens: 4096
   Temperature: 0.7

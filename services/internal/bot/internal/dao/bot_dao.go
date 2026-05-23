@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"strings"
 	"time"
 
 	"bot/bot"
@@ -149,8 +150,12 @@ func (d *BotDao) CheckBotOwnership(ctx context.Context, botID, uid int64) error 
 
 func (d *BotDao) ListBotsByOwner(ctx context.Context, uid int64) ([]*bot.BotInfo, error) {
 	rows, err := d.db.Query(ctx,
-		`SELECT b.bot_id, b.name, b.avatar, b.description, b.owner_uid,
-		        b.webhook_url, b.subscribe_events, b.status,
+		`SELECT b.bot_id, b.name,
+		        COALESCE(b.avatar, ''),
+		        COALESCE(b.description, ''),
+		        b.owner_uid,
+		        COALESCE(b.webhook_url, ''),
+		        b.subscribe_events, b.status,
 		        EXTRACT(EPOCH FROM b.created_at)::bigint,
 		        COALESCE(bc.client_id, '')
 		 FROM bot b
@@ -193,11 +198,17 @@ func (d *BotDao) ListCommunityBots(ctx context.Context, keyword string) ([]*bot.
 	var rows pgx.Rows
 	var err error
 
-	if keyword == "" {
+	kw := strings.TrimSpace(keyword)
+
+	if len(kw) == 0 {
 		// No keyword: return only official bots
 		rows, err = d.db.Query(ctx,
-			`SELECT b.bot_id, b.name, b.avatar, b.description, b.owner_uid,
-			        b.webhook_url, b.subscribe_events, b.status,
+			`SELECT b.bot_id, b.name,
+			        COALESCE(b.avatar, ''),
+			        COALESCE(b.description, ''),
+			        b.owner_uid,
+			        COALESCE(b.webhook_url, ''),
+			        b.subscribe_events, b.status,
 			        EXTRACT(EPOCH FROM b.created_at)::bigint,
 			        COALESCE(bc.client_id, '')
 			 FROM bot b
@@ -207,15 +218,19 @@ func (d *BotDao) ListCommunityBots(ctx context.Context, keyword string) ([]*bot.
 	} else {
 		// With keyword: search by name (include official + community bots)
 		rows, err = d.db.Query(ctx,
-			`SELECT b.bot_id, b.name, b.avatar, b.description, b.owner_uid,
-			        b.webhook_url, b.subscribe_events, b.status,
+			`SELECT b.bot_id, b.name,
+			        COALESCE(b.avatar, ''),
+			        COALESCE(b.description, ''),
+			        b.owner_uid,
+			        COALESCE(b.webhook_url, ''),
+			        b.subscribe_events, b.status,
 			        EXTRACT(EPOCH FROM b.created_at)::bigint,
 			        COALESCE(bc.client_id, '')
 			 FROM bot b
 			 LEFT JOIN bot_credential bc ON b.bot_id = bc.bot_id
 			 WHERE (b.owner_uid = 0 OR b.owner_uid > 0) AND b.status = 'ACTIVE'
 			   AND b.name ILIKE $1
-			 ORDER BY b.bot_id DESC`, "%"+keyword+"%")
+			 ORDER BY b.bot_id DESC`, "%"+kw+"%")
 	}
 	if err != nil {
 		return nil, err

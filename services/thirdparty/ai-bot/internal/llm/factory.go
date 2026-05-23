@@ -30,6 +30,12 @@ func NewFactory() *Factory {
 	f.Register("openai", func(cfg ProviderConfig) Provider {
 		return NewOpenAIProvider(cfg)
 	})
+	f.Register("anthropic", func(cfg ProviderConfig) Provider {
+		return NewAnthropicProvider(cfg)
+	})
+	f.Register("claude", func(cfg ProviderConfig) Provider {
+		return NewAnthropicProvider(cfg)
+	})
 	return f
 }
 

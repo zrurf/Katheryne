@@ -14,17 +14,29 @@ import (
 )
 
 type (
-	AbortUploadReq     = oss.AbortUploadReq
-	AbortUploadResp    = oss.AbortUploadResp
-	CompleteUploadReq  = oss.CompleteUploadReq
-	InitiateUploadReq  = oss.InitiateUploadReq
-	InitiateUploadResp = oss.InitiateUploadResp
-	PartInfo           = oss.PartInfo
-	UploadPartReq      = oss.UploadPartReq
-	UploadPartResp     = oss.UploadPartResp
-	UploadResp         = oss.UploadResp
+	AbortUploadReq        = oss.AbortUploadReq
+	AbortUploadResp       = oss.AbortUploadResp
+	CompleteUploadReq     = oss.CompleteUploadReq
+	DeleteFileReq         = oss.DeleteFileReq
+	DeleteFileResp        = oss.DeleteFileResp
+	FileMeta              = oss.FileMeta
+	GetDownloadURLReq     = oss.GetDownloadURLReq
+	GetDownloadURLResp    = oss.GetDownloadURLResp
+	GetFileInfoReq        = oss.GetFileInfoReq
+	GetFileInfoResp       = oss.GetFileInfoResp
+	InitiateUploadReq     = oss.InitiateUploadReq
+	InitiateUploadResp    = oss.InitiateUploadResp
+	PartInfo              = oss.PartInfo
+	SimpleUploadReq       = oss.SimpleUploadReq
+	SimpleUploadReq_Meta  = oss.SimpleUploadReq_Meta
+	SimpleUploadReq_Chunk = oss.SimpleUploadReq_Chunk
+	UploadPartReq         = oss.UploadPartReq
+	UploadPartResp        = oss.UploadPartResp
+	UploadResp            = oss.UploadResp
 
 	OSS interface {
+		// 简单上传（流式，适用于中小文件如图片、音频等）
+		SimpleUpload(ctx context.Context, opts ...grpc.CallOption) (oss.OSS_SimpleUploadClient, error)
 		// 初始化分片上传，返回 UploadId
 		InitiateMultipartUpload(ctx context.Context, in *InitiateUploadReq, opts ...grpc.CallOption) (*InitiateUploadResp, error)
 		// 上传分片（流式）
@@ -33,6 +45,12 @@ type (
 		CompleteMultipartUpload(ctx context.Context, in *CompleteUploadReq, opts ...grpc.CallOption) (*UploadResp, error)
 		// 取消上传
 		AbortMultipartUpload(ctx context.Context, in *AbortUploadReq, opts ...grpc.CallOption) (*AbortUploadResp, error)
+		// 获取文件下载 URL
+		GetDownloadURL(ctx context.Context, in *GetDownloadURLReq, opts ...grpc.CallOption) (*GetDownloadURLResp, error)
+		// 删除文件
+		DeleteFile(ctx context.Context, in *DeleteFileReq, opts ...grpc.CallOption) (*DeleteFileResp, error)
+		// 获取文件信息
+		GetFileInfo(ctx context.Context, in *GetFileInfoReq, opts ...grpc.CallOption) (*GetFileInfoResp, error)
 	}
 
 	defaultOSS struct {
@@ -44,6 +62,12 @@ func NewOSS(cli zrpc.Client) OSS {
 	return &defaultOSS{
 		cli: cli,
 	}
+}
+
+// 简单上传（流式，适用于中小文件如图片、音频等）
+func (m *defaultOSS) SimpleUpload(ctx context.Context, opts ...grpc.CallOption) (oss.OSS_SimpleUploadClient, error) {
+	client := oss.NewOSSClient(m.cli.Conn())
+	return client.SimpleUpload(ctx, opts...)
 }
 
 // 初始化分片上传，返回 UploadId
@@ -68,4 +92,22 @@ func (m *defaultOSS) CompleteMultipartUpload(ctx context.Context, in *CompleteUp
 func (m *defaultOSS) AbortMultipartUpload(ctx context.Context, in *AbortUploadReq, opts ...grpc.CallOption) (*AbortUploadResp, error) {
 	client := oss.NewOSSClient(m.cli.Conn())
 	return client.AbortMultipartUpload(ctx, in, opts...)
+}
+
+// 获取文件下载 URL
+func (m *defaultOSS) GetDownloadURL(ctx context.Context, in *GetDownloadURLReq, opts ...grpc.CallOption) (*GetDownloadURLResp, error) {
+	client := oss.NewOSSClient(m.cli.Conn())
+	return client.GetDownloadURL(ctx, in, opts...)
+}
+
+// 删除文件
+func (m *defaultOSS) DeleteFile(ctx context.Context, in *DeleteFileReq, opts ...grpc.CallOption) (*DeleteFileResp, error) {
+	client := oss.NewOSSClient(m.cli.Conn())
+	return client.DeleteFile(ctx, in, opts...)
+}
+
+// 获取文件信息
+func (m *defaultOSS) GetFileInfo(ctx context.Context, in *GetFileInfoReq, opts ...grpc.CallOption) (*GetFileInfoResp, error) {
+	client := oss.NewOSSClient(m.cli.Conn())
+	return client.GetFileInfo(ctx, in, opts...)
 }

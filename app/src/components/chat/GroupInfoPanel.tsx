@@ -3,7 +3,9 @@ import { chatStore } from "../../stores/chat";
 import { authStore } from "../../stores/auth";
 import { api } from "../../services/api";
 import type { ConvBotItem, BotInfo } from "../../services/api";
+import type { MessageItem } from "../../services/api";
 import { Avatar } from "../ui/avatar";
+import { downloadFile } from "../../services/download";
 import { formatTime } from "../../lib/utils";
 import {
   X,
@@ -21,10 +23,12 @@ import {
   Check,
   Bot,
   Plus,
+  Edit,
+  Loader2,
 } from "lucide-solid";
 
 export function GroupInfoPanel() {
-  const [activeSection, setActiveSection] = createSignal<"info" | "members" | "announcements" | "bots">("info");
+  const [activeSection, setActiveSection] = createSignal<"info" | "members" | "announcements" | "bots" | "files">("info");
   const [showInvite, setShowInvite] = createSignal(false);
   const [inviteSearch, setInviteSearch] = createSignal("");
   const [selectedInvitees, setSelectedInvitees] = createSignal<Set<string>>(new Set<string>());
@@ -48,6 +52,82 @@ export function GroupInfoPanel() {
   } | null>(null);
   const [hoverPosition, setHoverPosition] = createSignal({ x: 0, y: 0 });
   let hoverTimer: ReturnType<typeof setTimeout> | null = null;
+  // Group files state
+  const [groupFiles, setGroupFiles] = createSignal<MessageItem[]>([]);
+  const [filesLoading, setFilesLoading] = createSignal(false);
+  // Group editing state
+  const [editingGroupName, setEditingGroupName] = createSignal(false);
+  const [groupNameInput, setGroupNameInput] = createSignal("");
+  const [editingMyNick, setEditingMyNick] = createSignal(false);
+  const [myNickInput, setMyNickInput] = createSignal("");
+  const [saving, setSaving] = createSignal(false);
+  const [uploadingAvatar, setUploadingAvatar] = createSignal(false);
+  let avatarInputRef: HTMLInputElement | undefined;
+
+  const handleAvatarChange = async (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const g = info();
+    if (!g) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("请选择图片文件");
+      input.value = "";
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const uploadResp = await api.oss.uploadWithProgress(file, () => {});
+      const proxyPath = `/api/v1/oss/file?key=${encodeURIComponent(uploadResp.oss_index)}`;
+      await api.social.updateGroup(g.group_id, undefined, proxyPath, undefined);
+      await chatStore.loadGroupInfo(g.group_id);
+    } catch (err) {
+      alert("上传群头像失败: " + (err as Error).message);
+    } finally {
+      setUploadingAvatar(false);
+      input.value = "";
+    }
+  };
+
+  const handleSaveGroupName = async () => {
+    const g = info();
+    const name = groupNameInput().trim();
+    if (!g || !name || saving()) return;
+    setSaving(true);
+    try {
+      await api.social.updateGroup(g.group_id, name, undefined, undefined);
+      await chatStore.loadGroupInfo(g.group_id);
+      setEditingGroupName(false);
+    } catch {
+      alert("修改群名失败");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveMyNick = async () => {
+    const g = info();
+    const nick = myNickInput().trim();
+    if (!g || saving()) return;
+    setSaving(true);
+    try {
+      await api.social.updateGroupNick(g.group_id, nick);
+      await chatStore.loadGroupMembers(g.group_id);
+      setEditingMyNick(false);
+    } catch {
+      alert("修改群昵称失败");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const info = () => chatStore.groupInfo();
+  const members = () => chatStore.groupMembers();
+  const announcements = () => chatStore.announcements();
+
+  const myMember = createMemo(() => members().find((m) => m.uid === authStore.uid()));
 
   const handleMemberMouseEnter = (e: MouseEvent, member: {
     uid: string;
@@ -58,8 +138,12 @@ export function GroupInfoPanel() {
     join_time: number;
   }) => {
     if (hoverTimer) clearTimeout(hoverTimer);
+    const target = e.currentTarget as HTMLElement;
+    if (!target) return;
+    // Capture rect immediately — by the time setTimeout fires, the element
+    // may have been removed from the DOM (e.g. when Solid re-renders the list).
+    const rect = target.getBoundingClientRect();
     hoverTimer = setTimeout(() => {
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       const cardWidth = 224;
       let left = rect.left - cardWidth - 8;
       if (left < 8) left = 8;
@@ -77,9 +161,6 @@ export function GroupInfoPanel() {
     }, 200);
   };
 
-  const info = () => chatStore.groupInfo();
-  const members = () => chatStore.groupMembers();
-  const announcements = () => chatStore.announcements();
   const isOwner = () => info()?.owner === authStore.uid();
   const isAdmin = () => {
     const member = members().find((m) => m.uid === authStore.uid());
@@ -210,6 +291,28 @@ export function GroupInfoPanel() {
   const isBotInstalled = (botId: string) =>
     installedBots().some(b => String(b.bot_id) === String(botId) || String(b.bot_id) === botId);
 
+  const loadGroupFiles = async () => {
+    const convId = chatStore.activeConvId();
+    if (!convId) return;
+    setFilesLoading(true);
+    try {
+      // Fetch recent messages and filter for file/image types
+      const resp = await api.message.list(convId, undefined, 100);
+      const files = (resp.list || []).filter(
+        (m) => m.type === "file" || (m.content_type && m.content_type.startsWith("image/"))
+      );
+      setGroupFiles(files);
+    } catch {
+      setGroupFiles([]);
+    } finally {
+      setFilesLoading(false);
+    }
+  };
+
+  createResource(activeSection, (section) => {
+    if (section === "files") loadGroupFiles();
+  });
+
   return (
     <div class="w-72 h-full bg-bg-secondary border-l border-border flex flex-col shrink-0">
       <div class="p-4 border-b border-border flex items-center justify-between">
@@ -255,15 +358,86 @@ export function GroupInfoPanel() {
         >
           Bot
         </button>
+        <button
+          class={`flex-1 py-2 text-xs font-medium transition-colors ${
+            activeSection() === "files" ? "text-primary border-b-2 border-primary" : "text-text-muted hover:text-text"
+          }`}
+          onClick={() => setActiveSection("files")}
+        >
+          文件
+        </button>
       </div>
 
       <div class="flex-1 overflow-y-auto">
         <Show when={activeSection() === "info"}>
           <div class="p-4 space-y-4">
             <div class="flex flex-col items-center gap-3">
-              <Avatar name={info()?.name} src={info()?.avatar} size="xl" />
+              <div class="relative group/avatar cursor-pointer" onClick={() => isAdmin() && avatarInputRef?.click()} title={isAdmin() ? "点击更换群头像" : undefined}>
+                <Avatar name={info()?.name} src={info()?.avatar} size="xl" />
+                <Show when={isAdmin()}>
+                  <div class="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 opacity-0 group-hover/avatar:opacity-100 transition-opacity">
+                    {uploadingAvatar() ? (
+                      <Loader2 size={20} class="animate-spin text-white" />
+                    ) : (
+                      <Edit size={18} class="text-white" />
+                    )}
+                  </div>
+                </Show>
+              </div>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                class="hidden"
+                onChange={handleAvatarChange}
+              />
               <div class="text-center">
-                <h3 class="text-base font-semibold text-text">{info()?.name}</h3>
+                <Show
+                  when={editingGroupName()}
+                  fallback={
+                    <div class="flex items-center gap-1.5">
+                      <h3 class="text-base font-semibold text-text">{info()?.name}</h3>
+                      <Show when={isAdmin()}>
+                        <button
+                          onClick={() => {
+                            setGroupNameInput(info()?.name || "");
+                            setEditingGroupName(true);
+                          }}
+                          class="p-1 text-text-muted hover:text-text transition-colors"
+                          title="修改群名"
+                        >
+                          <Edit size={12} />
+                        </button>
+                      </Show>
+                    </div>
+                  }
+                >
+                  <div class="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      value={groupNameInput()}
+                      onInput={(e) => setGroupNameInput(e.currentTarget.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSaveGroupName()}
+                      class="w-40 px-2 py-0.5 bg-bg border border-border rounded text-sm text-text focus:outline-none focus:border-primary"
+                      placeholder="群名称"
+                    />
+                    <button
+                      onClick={handleSaveGroupName}
+                      disabled={saving()}
+                      class="p-1 text-primary hover:bg-primary/10 rounded transition-colors disabled:opacity-40"
+                      title="保存"
+                    >
+                      <Check size={12} />
+                    </button>
+                    <button
+                      onClick={() => setEditingGroupName(false)}
+                      class="p-1 text-text-muted hover:text-text transition-colors"
+                      title="取消"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                </Show>
                 <p class="text-xs text-text-muted mt-1">
                   {info()?.member_count} 名成员
                 </p>
@@ -285,6 +459,60 @@ export function GroupInfoPanel() {
                   {info()?.verify_mode === "open" ? "公开" : info()?.verify_mode === "approval" ? "需审核" : "仅邀请"}
                 </span>
               </div>
+            </div>
+
+            {/* 我的群昵称 */}
+            <div class="bg-surface rounded-xl p-3 border border-border">
+              <Show
+                when={editingMyNick()}
+                fallback={
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <span class="text-xs text-text-muted">我的群昵称</span>
+                      <p class="text-sm text-text mt-0.5">{myMember()?.nick || "未设置"}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setMyNickInput(myMember()?.nick || "");
+                        setEditingMyNick(true);
+                      }}
+                      class="p-1 text-text-muted hover:text-text transition-colors"
+                      title="修改群昵称"
+                    >
+                      <Edit size={14} />
+                    </button>
+                  </div>
+                }
+              >
+                <div>
+                  <span class="text-xs text-text-muted">我的群昵称</span>
+                  <div class="flex items-center gap-1.5 mt-1">
+                    <input
+                      type="text"
+                      value={myNickInput()}
+                      onInput={(e) => setMyNickInput(e.currentTarget.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSaveMyNick()}
+                      class="flex-1 px-2 py-1 bg-bg border border-border rounded text-sm text-text focus:outline-none focus:border-primary"
+                      placeholder="输入群昵称"
+                    />
+                    <button
+                      onClick={handleSaveMyNick}
+                      disabled={saving()}
+                      class="p-1 text-primary hover:bg-primary/10 rounded transition-colors disabled:opacity-40"
+                      title="保存"
+                    >
+                      <Check size={14} />
+                    </button>
+                    <button
+                      onClick={() => setEditingMyNick(false)}
+                      class="p-1 text-text-muted hover:text-text transition-colors"
+                      title="取消"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                </div>
+              </Show>
             </div>
 
             <div class="space-y-1">
@@ -532,6 +760,63 @@ export function GroupInfoPanel() {
                 </For>
               </div>
             </Show>
+          </div>
+        </Show>
+
+        <Show when={activeSection() === "files"}>
+          <div class="p-3 space-y-3">
+            <Show when={filesLoading()}>
+              <div class="text-center py-6 text-text-muted text-xs">加载中...</div>
+            </Show>
+            <Show when={!filesLoading() && groupFiles().length === 0}>
+              <div class="text-center py-6 text-text-muted text-xs">暂无共享文件</div>
+            </Show>
+            <For each={groupFiles()}>
+              {(msg) => {
+                let fileInfo: { name?: string; size?: number; url?: string } = {};
+                try { fileInfo = JSON.parse(msg.content); } catch { /* not json */ }
+                const displayName = msg.type === "file"
+                  ? (fileInfo.name || "未知文件")
+                  : "图片消息";
+                const isImage = msg.content_type?.startsWith("image/");
+                const fileUrl = isImage ? msg.content : (fileInfo.url || msg.content);
+                const fileSize = fileInfo.size || 0;
+
+                const formatSize = (bytes: number) => {
+                  if (bytes < 1024) return bytes + " B";
+                  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+                  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+                };
+
+                const handleDownload = (e: Event) => {
+                  e.preventDefault();
+                  if (!fileUrl) return;
+                  downloadFile(fileUrl, { filename: displayName });
+                };
+
+                return (
+                  <div class="flex items-center gap-3 p-2 rounded-xl bg-surface border border-border hover:bg-surface-hover transition-colors">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-lg">
+                      {isImage ? "🖼" : "📁"}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-text truncate">{displayName}</p>
+                      <p class="text-xs text-text-muted">
+                        {msg.sender_name} · {formatTime(msg.created_at)}
+                        {fileSize > 0 ? ` · ${formatSize(fileSize)}` : ""}
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleDownload}
+                      class="flex-shrink-0 p-2 hover:bg-surface rounded-lg transition-colors text-text-muted hover:text-primary"
+                      title="下载"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </button>
+                  </div>
+                );
+              }}
+            </For>
           </div>
         </Show>
       </div>

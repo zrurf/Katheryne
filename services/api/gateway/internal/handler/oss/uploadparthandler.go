@@ -5,25 +5,34 @@ package oss
 
 import (
 	"net/http"
+	"strconv"
 
 	"gateway/internal/logic/oss"
 	"gateway/internal/svc"
 	"gateway/internal/types"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	xhttp "github.com/zeromicro/x/http"
 )
 
 func UploadPartHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.UploadPartRequest
-		if err := httpx.Parse(r, &req); err != nil {
+		// Parse query params (raw binary body, not JSON)
+		uploadID := r.URL.Query().Get("upload_id")
+		partNumStr := r.URL.Query().Get("part_number")
+		partNumber, err := strconv.Atoi(partNumStr)
+		if err != nil || uploadID == "" {
 			xhttp.JsonBaseResponseCtx(r.Context(), w, err)
 			return
 		}
 
+		req := &types.UploadPartRequest{
+			UploadID:   uploadID,
+			PartNumber: partNumber,
+		}
+
 		l := oss.NewUploadPartLogic(r.Context(), svcCtx)
-		resp, err := l.UploadPart(&req)
+		l.SetBody(r.Body)
+		resp, err := l.UploadPart(req)
 		if err != nil {
 			xhttp.JsonBaseResponseCtx(r.Context(), w, err)
 		} else {

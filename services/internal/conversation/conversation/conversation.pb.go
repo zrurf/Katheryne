@@ -1545,6 +1545,102 @@ func (*IncrementUnreadResp) Descriptor() ([]byte, []int) {
 	return file_conversation_proto_rawDescGZIP(), []int{28}
 }
 
+type UpdateGroupConvInfoReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GroupId       int64                  `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Avatar        string                 `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateGroupConvInfoReq) Reset() {
+	*x = UpdateGroupConvInfoReq{}
+	mi := &file_conversation_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateGroupConvInfoReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateGroupConvInfoReq) ProtoMessage() {}
+
+func (x *UpdateGroupConvInfoReq) ProtoReflect() protoreflect.Message {
+	mi := &file_conversation_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateGroupConvInfoReq.ProtoReflect.Descriptor instead.
+func (*UpdateGroupConvInfoReq) Descriptor() ([]byte, []int) {
+	return file_conversation_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *UpdateGroupConvInfoReq) GetGroupId() int64 {
+	if x != nil {
+		return x.GroupId
+	}
+	return 0
+}
+
+func (x *UpdateGroupConvInfoReq) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpdateGroupConvInfoReq) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+type UpdateGroupConvInfoResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateGroupConvInfoResp) Reset() {
+	*x = UpdateGroupConvInfoResp{}
+	mi := &file_conversation_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateGroupConvInfoResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateGroupConvInfoResp) ProtoMessage() {}
+
+func (x *UpdateGroupConvInfoResp) ProtoReflect() protoreflect.Message {
+	mi := &file_conversation_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateGroupConvInfoResp.ProtoReflect.Descriptor instead.
+func (*UpdateGroupConvInfoResp) Descriptor() ([]byte, []int) {
+	return file_conversation_proto_rawDescGZIP(), []int{30}
+}
+
 var File_conversation_proto protoreflect.FileDescriptor
 
 const file_conversation_proto_rawDesc = "" +
@@ -1640,7 +1736,13 @@ const file_conversation_proto_rawDesc = "" +
 	"\x12IncrementUnreadReq\x12\x17\n" +
 	"\aconv_id\x18\x01 \x01(\x03R\x06convId\x12\x12\n" +
 	"\x04uids\x18\x02 \x03(\x03R\x04uids\"\x15\n" +
-	"\x13IncrementUnreadResp2\xd8\t\n" +
+	"\x13IncrementUnreadResp\"_\n" +
+	"\x16UpdateGroupConvInfoReq\x12\x19\n" +
+	"\bgroup_id\x18\x01 \x01(\x03R\agroupId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
+	"\x06avatar\x18\x03 \x01(\tR\x06avatar\"\x19\n" +
+	"\x17UpdateGroupConvInfoResp2\xbc\n" +
+	"\n" +
 	"\fconversation\x12Y\n" +
 	"\x10GetConversations\x12!.conversation.GetConversationsReq\x1a\".conversation.GetConversationsResp\x12h\n" +
 	"\x15GetOrCreateSingleConv\x12&.conversation.GetOrCreateSingleConvReq\x1a'.conversation.GetOrCreateSingleConvResp\x12V\n" +
@@ -1656,7 +1758,8 @@ const file_conversation_proto_rawDesc = "" +
 	"\vClearUnread\x12\x1c.conversation.ClearUnreadReq\x1a\x1d.conversation.ClearUnreadResp\x12S\n" +
 	"\x0eGetTotalUnread\x12\x1f.conversation.GetTotalUnreadReq\x1a .conversation.GetTotalUnreadResp\x12\\\n" +
 	"\x11UpdateLastMessage\x12\".conversation.UpdateLastMessageReq\x1a#.conversation.UpdateLastMessageResp\x12V\n" +
-	"\x0fIncrementUnread\x12 .conversation.IncrementUnreadReq\x1a!.conversation.IncrementUnreadRespB\x10Z\x0e./conversationb\x06proto3"
+	"\x0fIncrementUnread\x12 .conversation.IncrementUnreadReq\x1a!.conversation.IncrementUnreadResp\x12b\n" +
+	"\x13UpdateGroupConvInfo\x12$.conversation.UpdateGroupConvInfoReq\x1a%.conversation.UpdateGroupConvInfoRespB\x10Z\x0e./conversationb\x06proto3"
 
 var (
 	file_conversation_proto_rawDescOnce sync.Once
@@ -1670,7 +1773,7 @@ func file_conversation_proto_rawDescGZIP() []byte {
 	return file_conversation_proto_rawDescData
 }
 
-var file_conversation_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_conversation_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
 var file_conversation_proto_goTypes = []any{
 	(*ConversationItem)(nil),          // 0: conversation.ConversationItem
 	(*GetConversationsReq)(nil),       // 1: conversation.GetConversationsReq
@@ -1701,6 +1804,8 @@ var file_conversation_proto_goTypes = []any{
 	(*UpdateLastMessageResp)(nil),     // 26: conversation.UpdateLastMessageResp
 	(*IncrementUnreadReq)(nil),        // 27: conversation.IncrementUnreadReq
 	(*IncrementUnreadResp)(nil),       // 28: conversation.IncrementUnreadResp
+	(*UpdateGroupConvInfoReq)(nil),    // 29: conversation.UpdateGroupConvInfoReq
+	(*UpdateGroupConvInfoResp)(nil),   // 30: conversation.UpdateGroupConvInfoResp
 }
 var file_conversation_proto_depIdxs = []int32{
 	0,  // 0: conversation.GetConversationsResp.list:type_name -> conversation.ConversationItem
@@ -1718,22 +1823,24 @@ var file_conversation_proto_depIdxs = []int32{
 	23, // 12: conversation.conversation.GetTotalUnread:input_type -> conversation.GetTotalUnreadReq
 	25, // 13: conversation.conversation.UpdateLastMessage:input_type -> conversation.UpdateLastMessageReq
 	27, // 14: conversation.conversation.IncrementUnread:input_type -> conversation.IncrementUnreadReq
-	2,  // 15: conversation.conversation.GetConversations:output_type -> conversation.GetConversationsResp
-	4,  // 16: conversation.conversation.GetOrCreateSingleConv:output_type -> conversation.GetOrCreateSingleConvResp
-	6,  // 17: conversation.conversation.GetConversation:output_type -> conversation.GetConversationResp
-	8,  // 18: conversation.conversation.DeleteConversation:output_type -> conversation.DeleteConversationResp
-	10, // 19: conversation.conversation.SetConvMute:output_type -> conversation.SetConvMuteResp
-	12, // 20: conversation.conversation.SetConvPin:output_type -> conversation.SetConvPinResp
-	14, // 21: conversation.conversation.CreateGroupConv:output_type -> conversation.CreateGroupConvResp
-	16, // 22: conversation.conversation.AddConvMembers:output_type -> conversation.AddConvMembersResp
-	18, // 23: conversation.conversation.RemoveConvMembers:output_type -> conversation.RemoveConvMembersResp
-	20, // 24: conversation.conversation.GetConvMembers:output_type -> conversation.GetConvMembersResp
-	22, // 25: conversation.conversation.ClearUnread:output_type -> conversation.ClearUnreadResp
-	24, // 26: conversation.conversation.GetTotalUnread:output_type -> conversation.GetTotalUnreadResp
-	26, // 27: conversation.conversation.UpdateLastMessage:output_type -> conversation.UpdateLastMessageResp
-	28, // 28: conversation.conversation.IncrementUnread:output_type -> conversation.IncrementUnreadResp
-	15, // [15:29] is the sub-list for method output_type
-	1,  // [1:15] is the sub-list for method input_type
+	29, // 15: conversation.conversation.UpdateGroupConvInfo:input_type -> conversation.UpdateGroupConvInfoReq
+	2,  // 16: conversation.conversation.GetConversations:output_type -> conversation.GetConversationsResp
+	4,  // 17: conversation.conversation.GetOrCreateSingleConv:output_type -> conversation.GetOrCreateSingleConvResp
+	6,  // 18: conversation.conversation.GetConversation:output_type -> conversation.GetConversationResp
+	8,  // 19: conversation.conversation.DeleteConversation:output_type -> conversation.DeleteConversationResp
+	10, // 20: conversation.conversation.SetConvMute:output_type -> conversation.SetConvMuteResp
+	12, // 21: conversation.conversation.SetConvPin:output_type -> conversation.SetConvPinResp
+	14, // 22: conversation.conversation.CreateGroupConv:output_type -> conversation.CreateGroupConvResp
+	16, // 23: conversation.conversation.AddConvMembers:output_type -> conversation.AddConvMembersResp
+	18, // 24: conversation.conversation.RemoveConvMembers:output_type -> conversation.RemoveConvMembersResp
+	20, // 25: conversation.conversation.GetConvMembers:output_type -> conversation.GetConvMembersResp
+	22, // 26: conversation.conversation.ClearUnread:output_type -> conversation.ClearUnreadResp
+	24, // 27: conversation.conversation.GetTotalUnread:output_type -> conversation.GetTotalUnreadResp
+	26, // 28: conversation.conversation.UpdateLastMessage:output_type -> conversation.UpdateLastMessageResp
+	28, // 29: conversation.conversation.IncrementUnread:output_type -> conversation.IncrementUnreadResp
+	30, // 30: conversation.conversation.UpdateGroupConvInfo:output_type -> conversation.UpdateGroupConvInfoResp
+	16, // [16:31] is the sub-list for method output_type
+	1,  // [1:16] is the sub-list for method input_type
 	1,  // [1:1] is the sub-list for extension type_name
 	1,  // [1:1] is the sub-list for extension extendee
 	0,  // [0:1] is the sub-list for field type_name
@@ -1750,7 +1857,7 @@ func file_conversation_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_conversation_proto_rawDesc), len(file_conversation_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   29,
+			NumMessages:   31,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

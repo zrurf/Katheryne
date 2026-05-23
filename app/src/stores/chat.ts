@@ -27,6 +27,8 @@ function createChatStore() {
   const [showGroupPanel, setShowGroupPanel] = createSignal(false);
   const [readReceipts, setReadReceipts] = createSignal<Record<string, ReadMemberItem[]>>({});
   const [readReceiptsLoading, setReadReceiptsLoading] = createSignal<Record<string, boolean>>({});
+  const [activeConvUnreadCount, setActiveConvUnreadCount] = createSignal(0);
+  const [firstUnreadMsgId, setFirstUnreadMsgId] = createSignal<string>("");
 
   let wsUnsubs: (() => void)[] = [];
 
@@ -255,8 +257,8 @@ function createChatStore() {
     try {
       const resp = await api.conversation.list();
       setConversations(resp.list);
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error('[chat] loadConversations failed:', e);
     }
   }
 
@@ -264,8 +266,8 @@ function createChatStore() {
     try {
       const resp = await api.social.friends();
       setFriends(resp.list);
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error('[chat] loadFriends failed:', e);
     }
   }
 
@@ -273,8 +275,8 @@ function createChatStore() {
     try {
       const resp = await api.conversation.totalUnread();
       setTotalUnread(resp.count);
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error('[chat] loadTotalUnread failed:', e);
     }
   }
 
@@ -288,8 +290,8 @@ function createChatStore() {
         setMessages(resp.list);
       }
       setHasMore(resp.has_more);
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error('[chat] loadMessages failed:', e);
     } finally {
       setLoading(false);
     }
@@ -302,9 +304,24 @@ function createChatStore() {
     setGroupMembers([]);
     setAnnouncements([]);
     setShowGroupPanel(false);
+
+    // 保存当前会话的未读数
+    const conv = conversations().find((c) => c.conv_id === convId);
+    const unreadCount = conv?.unread_count || 0;
+    setActiveConvUnreadCount(unreadCount);
+    setFirstUnreadMsgId("");
+
     await loadMessages(convId);
 
-    const conv = conversations().find((c) => c.conv_id === convId);
+    // 计算第一条未读消息 ID
+    if (unreadCount > 0) {
+      const msgs = messages();
+      const count = Math.min(unreadCount, msgs.length);
+      if (count > 0) {
+        setFirstUnreadMsgId(String(msgs[msgs.length - count].id));
+      }
+    }
+
     if (conv?.type === "GROUP" && conv.group_id) {
       await loadGroupInfo(conv.group_id);
       await loadGroupMembers(conv.group_id);
@@ -340,7 +357,8 @@ function createChatStore() {
     msgType: string,
     content: string,
     contentType: string,
-    quoteMsgId?: string
+    quoteMsgId?: string,
+    extra?: string
   ) {
     const conv = conversations().find((c) => c.conv_id === convId);
     let actualReceiver = receiver;
@@ -361,7 +379,7 @@ function createChatStore() {
       quote_msg_id: quoteMsgId,
       recalled: false,
       edited: false,
-      extra: "",
+      extra: extra || "",
       created_at: Date.now(),
     };
 
@@ -392,6 +410,7 @@ function createChatStore() {
         content,
         content_type: contentType,
         quote_msg_id: quoteMsgId,
+        extra: extra || undefined,
         temp_id: tempId,
       });
     } else {
@@ -403,6 +422,7 @@ function createChatStore() {
           content,
           content_type: contentType,
           quote_msg_id: quoteMsgId,
+          extra: extra || undefined,
         });
         setMessages((prev) =>
           prev.map((m) =>
@@ -537,6 +557,16 @@ function createChatStore() {
     try {
       const info = await api.social.getGroupInfo(groupId);
       setGroupInfo(info);
+      // Sync group avatar/name to conversations list for sidebar and header
+      if (info) {
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.group_id === groupId
+              ? { ...c, name: info.name ?? c.name, avatar: info.avatar ?? c.avatar }
+              : c
+          )
+        );
+      }
     } catch {
       // ignore
     }
@@ -672,8 +702,13 @@ function createChatStore() {
     announcements,
     showGroupPanel,
     setShowGroupPanel,
+    toggleGroupPanel() {
+      setShowGroupPanel(!showGroupPanel());
+    },
     readReceipts,
     readReceiptsLoading,
+    activeConvUnreadCount,
+    firstUnreadMsgId,
     loadConversations,
     loadFriends,
     loadTotalUnread,

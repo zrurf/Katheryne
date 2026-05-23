@@ -2,6 +2,7 @@ Name: gateway-api
 Host: 0.0.0.0
 Port: 80
 MaxConns: 10000
+MaxBytes: 104857600
 Timeout: 3000
 
 Middlewares:
@@ -50,3 +51,4 @@ BotRpc:
     Key: bot.rpc
 
 RedisAddr: "garnet:6379"
+AiBotUrl: "http://ai-bot:8889"

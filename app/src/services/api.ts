@@ -200,6 +200,11 @@ export const api = {
       }),
     getUserInfo: (uid: string) =>
       request<UserInfo>("/auth/user_info/" + uid),
+    updateProfile: (name?: string, avatar?: string) =>
+      request<{ name: string; avatar: string }>("/auth/user/profile", {
+        method: "POST",
+        body: JSON.stringify({ name, avatar }),
+      }),
     tfaVerify: (tfaToken: string, code: string) =>
       request<TFAVerifyResp>("/auth/tfa-verify", {
         method: "POST",
@@ -340,6 +345,11 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ group_id: groupId, name, avatar, verify_mode: verifyMode }),
       }),
+    updateGroupNick: (groupId: string, nick: string) =>
+      request<{ result: boolean }>("/social/group/nick", {
+        method: "POST",
+        body: JSON.stringify({ group_id: groupId, nick }),
+      }),
     getMembers: (groupId: string, role?: string) => {
       const params = role ? `?role=${role}` : "";
       return request<GetGroupMembersResp>(`/social/group/${groupId}/members${params}`);
@@ -436,19 +446,192 @@ export const api = {
       request<void>(`/developer/bots/${botId}`, {
         method: "DELETE",
       }, getBotApiBase()),
+    // AI features via official bot
+    summarize: (convId: string) =>
+      request<SummarizeTicket>(`/bot/summarize`, {
+        method: "POST",
+        body: JSON.stringify({ conv_id: convId }),
+      }),
+    summarizeResult: (ticket: string) =>
+      request<SummarizeResultResp>(`/bot/summarize/result?ticket=${encodeURIComponent(ticket)}`),
+    translate: (text: string, targetLang?: string, sourceLang?: string) =>
+      request<BotTranslateResp>(`/bot/translate`, {
+        method: "POST",
+        body: JSON.stringify({ text, target_lang: targetLang, source_lang: sourceLang }),
+      }),
+    suggestReplies: (convId: string) =>
+      request<BotSuggestResp>(`/bot/suggest`, {
+        method: "POST",
+        body: JSON.stringify({ conv_id: convId }),
+      }),
+    moderate: (text: string) =>
+      request<BotModerateResp>(`/bot/moderate`, {
+        method: "POST",
+        body: JSON.stringify({ text }),
+      }),
   },
 
   oss: {
+    upload: async (file: File): Promise<UploadResp> => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const headers: Record<string, string> = {};
+      if (accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+      }
+      const res = await fetch(`${getApiBase()}/oss/upload`, {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+      if (!res.ok) {
+        let errMsg = `HTTP ${res.status}`;
+        try {
+          const wrapper: ApiResponse<null> = await res.json();
+          if (wrapper.msg) errMsg = wrapper.msg;
+        } catch {
+          // ignore
+        }
+        throw new Error(errMsg);
+      }
+      const wrapper: ApiResponse<UploadResp> = await res.json();
+      if (wrapper.code !== 0) {
+        throw new Error(wrapper.msg || `Error code: ${wrapper.code}`);
+      }
+      // Resolve relative URL (returned by backend as a path) to a full URL
+      if (wrapper.data.url && wrapper.data.url.startsWith("/")) {
+        wrapper.data.url = new URL(wrapper.data.url, getApiBase()).href;
+      }
+      return wrapper.data;
+    },
+
+    /** Upload file with progress callback. Returns UploadResp on success. */
+    uploadWithProgress: (
+      file: File,
+      onProgress: (pct: number) => void
+    ): Promise<UploadResp> => {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `${getApiBase()}/oss/upload`);
+
+        if (accessToken) {
+          xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`);
+        }
+
+        xhr.upload.addEventListener("progress", (e) => {
+          if (e.lengthComputable) {
+            onProgress(Math.round((e.loaded / e.total) * 100));
+          }
+        });
+
+        xhr.addEventListener("load", () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const wrapper: ApiResponse<UploadResp> = JSON.parse(xhr.responseText);
+              if (wrapper.code !== 0) {
+                reject(new Error(wrapper.msg || `Error code: ${wrapper.code}`));
+              } else {
+                // Resolve relative URL (returned by backend as a path) to a full URL
+                if (wrapper.data.url && wrapper.data.url.startsWith("/")) {
+                  wrapper.data.url = new URL(wrapper.data.url, getApiBase()).href;
+                }
+                resolve(wrapper.data);
+              }
+            } catch {
+              reject(new Error("Invalid response"));
+            }
+          } else {
+            let errMsg = `HTTP ${xhr.status}`;
+            try {
+              const wrapper: ApiResponse<null> = JSON.parse(xhr.responseText);
+              if (wrapper.msg) errMsg = wrapper.msg;
+            } catch {
+              // ignore
+            }
+            reject(new Error(errMsg));
+          }
+        });
+
+        xhr.addEventListener("error", () => reject(new Error("Network error")));
+        xhr.addEventListener("abort", () => reject(new Error("Upload aborted")));
+
+        const formData = new FormData();
+        formData.append("file", file);
+        xhr.send(formData);
+      });
+    },
     initiateUpload: (fileName: string, contentType?: string, totalSize?: number) =>
       request<InitiateUploadResp>("/oss/upload/initiate", {
         method: "POST",
         body: JSON.stringify({ file_name: fileName, content_type: contentType, total_size: totalSize }),
       }),
     completeUpload: (uploadId: string, parts: PartInfo[]) =>
-      request<void>("/oss/upload/complete", {
+      request<UploadResp>("/oss/upload/complete", {
         method: "POST",
         body: JSON.stringify({ upload_id: uploadId, parts }),
       }),
+    getDownloadUrl: (objectKey: string, expireSecs?: number) =>
+      request<GetDownloadURLResp>("/oss/download-url", {
+        method: "POST",
+        body: JSON.stringify({ object_key: objectKey, expire_secs: expireSecs }),
+      }),
+    getConfig: () =>
+      request<OssConfig>("/oss/config"),
+    /** Upload a single chunk of a multipart upload using raw binary body. */
+    uploadPart: async (uploadId: string, partNumber: number, data: Blob): Promise<UploadPartResp> => {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/octet-stream",
+      };
+      if (accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+      }
+      const queryStr = `?upload_id=${encodeURIComponent(uploadId)}&part_number=${partNumber}`;
+      const res = await fetch(`${getApiBase()}/oss/upload/part${queryStr}`, {
+        method: "POST",
+        headers,
+        body: data,
+      });
+      if (!res.ok) {
+        let errMsg = `HTTP ${res.status}`;
+        try { const wrapper: ApiResponse<null> = await res.json(); if (wrapper.msg) errMsg = wrapper.msg; } catch { /* ignore */ }
+        throw new Error(errMsg);
+      }
+      const wrapper: ApiResponse<UploadPartResp> = await res.json();
+      if (wrapper.code !== 0) throw new Error(wrapper.msg || `Error code: ${wrapper.code}`);
+      return wrapper.data;
+    },
+    /** Upload file using multipart chunked upload for large files. */
+    chunkedUpload: async (
+      file: File,
+      onProgress: (pct: number) => void,
+    ): Promise<UploadResp> => {
+      const config = await api.oss.getConfig();
+      const chunkSize = config.chunk_size || 5 * 1024 * 1024;
+      const maxParts = config.max_parts || 100;
+      const totalParts = Math.ceil(file.size / chunkSize);
+      if (totalParts > maxParts) {
+        throw new Error(`文件过大，超过最大分片数限制 (${maxParts})`);
+      }
+
+      // Initiate multipart upload
+      const initResp = await api.oss.initiateUpload(file.name, file.type, file.size);
+      const parts: PartInfo[] = [];
+
+      for (let i = 0; i < totalParts; i++) {
+        const start = i * chunkSize;
+        const end = Math.min(start + chunkSize, file.size);
+        const blob = file.slice(start, end);
+        const partResp = await api.oss.uploadPart(initResp.upload_id, i + 1, blob);
+        parts.push({ part_number: partResp.part_number, etag: partResp.etag });
+        onProgress(Math.round(((i + 1) / totalParts) * 100));
+      }
+
+      const completeResp = await api.oss.completeUpload(initResp.upload_id, parts);
+      if (completeResp.url && completeResp.url.startsWith("/")) {
+        completeResp.url = new URL(completeResp.url, getApiBase()).href;
+      }
+      return completeResp;
+    },
   },
 };
 
@@ -788,9 +971,34 @@ export interface InitiateUploadResp {
   object_key: string;
 }
 
+export interface UploadResp {
+  filename: string;
+  size: number;
+  url: string;
+  oss_index: string;
+  index_id: string;
+  expires_at: number;
+}
+
 export interface PartInfo {
   part_number: number;
   etag: string;
+}
+
+export interface UploadPartResp {
+  etag: string;
+  part_number: number;
+}
+
+export interface OssConfig {
+  max_file_size: number;
+  chunk_size: number;
+  max_parts: number;
+}
+
+export interface GetDownloadURLResp {
+  url: string;
+  expires_at: number;
 }
 
 export interface GetConvBotsResp {
@@ -836,4 +1044,35 @@ export interface UpdateBotReq {
   avatar?: string;
   description?: string;
   webhook_url?: string;
+}
+
+export interface SummarizeTicket {
+  ticket: string;
+}
+
+export interface SummarizeResultResp {
+  status: string; // pending | processing | completed | error
+  result?: BotSummarizeResp;
+  error?: string;
+}
+
+export interface BotSummarizeResp {
+  summary: string;
+  key_points: string[];
+  action_items: string[];
+}
+
+export interface BotTranslateResp {
+  text: string;
+  source_lang: string;
+  target_lang: string;
+}
+
+export interface BotSuggestResp {
+  suggestions: string[];
+}
+
+export interface BotModerateResp {
+  safe: boolean;
+  reason: string;
 }

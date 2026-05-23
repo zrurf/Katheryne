@@ -1,6 +1,8 @@
 import { createSignal, Show, onMount, For, createResource } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { authStore } from "../stores/auth";
+import { appNav } from "../services/nav";
+import { themeStore } from "../stores/theme";
 import {
   getSavedServers,
   getActiveServer,
@@ -9,6 +11,7 @@ import {
   removeServer,
   generateServerId,
   parseServerUrl,
+  getServerApiBase,
   type ServerConfig,
 } from "../services/config";
 import { checkServerHealth, api } from "../services/api";
@@ -37,7 +40,35 @@ export function SettingsPage() {
   const [newServerUrl, setNewServerUrl] = createSignal("");
   const [addingServer, setAddingServer] = createSignal(false);
   const [serverError, setServerError] = createSignal("");
-  const [activeTab, setActiveTab] = createSignal<"general" | "servers" | "account" | "bots">("general");
+  const [activeTab, setActiveTab] = createSignal<"general" | "servers" | "account" | "bots" | "community">("general");
+  const [editingName, setEditingName] = createSignal(false);
+  const [newName, setNewName] = createSignal("");
+
+  const handleAvatarUpload = async (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    try {
+      const uploadResp = await api.oss.upload(file);
+      const proxyPath = `/api/v1/oss/file?key=${encodeURIComponent(uploadResp.oss_index)}`;
+      await authStore.updateProfile(undefined, proxyPath);
+    } catch {
+      alert("头像上传失败，请稍后再试");
+    } finally {
+      input.value = "";
+    }
+  };
+
+  const handleSaveName = async () => {
+    const name = newName().trim();
+    if (!name) return;
+    try {
+      await authStore.updateProfile(name, undefined);
+      setEditingName(false);
+    } catch {
+      alert("昵称修改失败");
+    }
+  };
 
   onMount(() => {
     const saved = getSavedServers();
@@ -105,6 +136,9 @@ export function SettingsPage() {
 
   const [bots, setBots] = createSignal<BotInfo[]>([]);
   const [botsLoading, setBotsLoading] = createSignal(false);
+  const [communityBots, setCommunityBots] = createSignal<BotInfo[]>([]);
+  const [communityBotsLoading, setCommunityBotsLoading] = createSignal(false);
+  const [communitySearch, setCommunitySearch] = createSignal("");
   const [showCreateBot, setShowCreateBot] = createSignal(false);
   const [botName, setBotName] = createSignal("");
   const [botDesc, setBotDesc] = createSignal("");
@@ -128,6 +162,30 @@ export function SettingsPage() {
   };
 
   createResource(() => activeTab() === "bots", () => { if (activeTab() === "bots") loadBots(); });
+
+  const loadCommunityBots = async (keyword?: string) => {
+    setCommunityBotsLoading(true);
+    try {
+      const resp = await api.bot.listCommunityBots(keyword || undefined);
+      setCommunityBots(resp.list || []);
+    } catch {
+      setCommunityBots([]);
+    } finally {
+      setCommunityBotsLoading(false);
+    }
+  };
+
+  createResource(() => activeTab() === "community", () => { if (activeTab() === "community") loadCommunityBots(); });
+
+  const handleInstallBot = async (botId: string) => {
+    // For now, just alert success - could be enhanced to select conversation
+    try {
+      await api.bot.install(botId, "");
+      alert("Bot 安装成功！");
+    } catch {
+      alert("Bot 安装失败，请稍后再试");
+    }
+  };
 
   const handleCreateBot = async (e: Event) => {
     e.preventDefault();
@@ -190,12 +248,18 @@ export function SettingsPage() {
     setEditBotWebhook(bot.webhook_url || "");
   };
 
+  const resolveUrl = (url?: string) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    return getServerApiBase() + url;
+  };
+
   return (
     <div class="h-screen flex flex-col bg-bg">
       {/* Header */}
       <div class="h-14 px-4 border-b border-border flex items-center gap-3 shrink-0 bg-bg-secondary/50">
         <button
-          onClick={() => navigate("/chat")}
+          onClick={() => appNav.goChat()}
           class="p-1.5 hover:bg-surface rounded-lg transition-colors text-text-secondary hover:text-text"
         >
           <ArrowLeft size={18} />
@@ -250,6 +314,17 @@ export function SettingsPage() {
             <Bot size={16} />
             Bot 管理
           </button>
+          <button
+            onClick={() => setActiveTab("community")}
+            class={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+              activeTab() === "community"
+                ? "bg-primary/10 text-primary"
+                : "text-text-secondary hover:bg-surface hover:text-text"
+            }`}
+          >
+            <Globe size={16} />
+            Bot 社区
+          </button>
         </div>
 
         {/* Content */}
@@ -262,15 +337,24 @@ export function SettingsPage() {
                   <div class="bg-surface rounded-xl p-4 border border-border">
                     <div class="flex items-center justify-between">
                       <div class="flex items-center gap-3">
-                        <Bell size={18} class="text-text-muted" />
+                        <Palette size={18} class="text-text-muted" />
                         <div>
-                          <p class="text-sm font-medium text-text">消息通知</p>
-                          <p class="text-xs text-text-muted">接收新消息通知</p>
+                          <p class="text-sm font-medium text-text">浅色模式</p>
+                          <p class="text-xs text-text-muted">切换亮色/暗色主题</p>
                         </div>
                       </div>
-                      <div class="w-10 h-6 bg-primary rounded-full relative cursor-pointer">
-                        <div class="w-4 h-4 bg-white rounded-full absolute top-1 right-1 transition-all" />
-                      </div>
+                      <button
+                        onClick={themeStore.toggleTheme}
+                        class={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${
+                          themeStore.theme() === "light" ? "bg-primary" : "bg-bg-tertiary"
+                        }`}
+                      >
+                        <div
+                          class={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all ${
+                            themeStore.theme() === "light" ? "right-1" : "left-1"
+                          }`}
+                        />
+                      </button>
                     </div>
                   </div>
 
@@ -370,11 +454,63 @@ export function SettingsPage() {
                 <h2 class="text-lg font-semibold text-text mb-4">账号信息</h2>
                 <div class="bg-surface rounded-xl p-4 border border-border space-y-4">
                   <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xl font-bold">
-                      {authStore.name()?.charAt(0) || "U"}
-                    </div>
-                    <div>
-                      <p class="text-base font-semibold text-text">{authStore.name() || "用户"}</p>
+                    <label class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xl font-bold cursor-pointer hover:opacity-80 transition-opacity overflow-hidden relative group shrink-0">
+                      <Show when={authStore.avatar()} fallback={<span>{authStore.name()?.charAt(0) || "U"}</span>}>
+                        <img src={resolveUrl(authStore.avatar())} alt="" class="w-full h-full object-cover" />
+                      </Show>
+                      <span class="absolute inset-0 bg-black/40 items-center justify-center text-white text-xs hidden group-hover:flex rounded-full">
+                        更换
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        class="hidden"
+                        onChange={handleAvatarUpload}
+                      />
+                    </label>
+                    <div class="flex-1">
+                      <Show
+                        when={editingName()}
+                        fallback={
+                          <div class="flex items-center gap-2">
+                            <p class="text-base font-semibold text-text">{authStore.name() || "用户"}</p>
+                            <button
+                              onClick={() => {
+                                setEditingName(true);
+                                setNewName(authStore.name() || "");
+                              }}
+                              class="p-1 text-text-muted hover:text-text transition-colors"
+                              title="修改昵称"
+                            >
+                              <Edit size={14} />
+                            </button>
+                          </div>
+                        }
+                      >
+                        <div class="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={newName()}
+                            onInput={(e) => setNewName(e.currentTarget.value)}
+                            class="flex-1 px-2 py-1 bg-bg border border-border rounded-lg text-sm text-text focus:outline-none focus:border-primary"
+                            placeholder="输入新昵称"
+                          />
+                          <button
+                            onClick={handleSaveName}
+                            class="p-1.5 text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                            title="保存"
+                          >
+                            <Check size={14} />
+                          </button>
+                          <button
+                            onClick={() => setEditingName(false)}
+                            class="p-1.5 text-text-muted hover:text-text transition-colors"
+                            title="取消"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      </Show>
                       <p class="text-sm text-text-muted">UID: {authStore.uid()}</p>
                     </div>
                   </div>
@@ -470,6 +606,71 @@ export function SettingsPage() {
                           <span class="text-text-muted">创建时间</span>
                           <span class="text-text">{bot.created_at ? new Date(bot.created_at * 1000).toLocaleString() : "-"}</span>
                         </div>
+                      </div>
+                    </div>
+                  )}
+                </For>
+              </div>
+            </div>
+          </Show>
+
+          <Show when={activeTab() === "community"}>
+            <div class="max-w-lg space-y-6">
+              <div>
+                <h2 class="text-lg font-semibold text-text mb-4">Bot 社区</h2>
+                <p class="text-sm text-text-muted mb-4">发现和安装社区中优秀的 Bot</p>
+                <div class="flex gap-2 mb-4">
+                  <input
+                    type="text"
+                    value={communitySearch()}
+                    onInput={(e) => setCommunitySearch(e.currentTarget.value)}
+                    placeholder="搜索 Bot..."
+                    class="flex-1 px-3 py-2 bg-surface border border-border rounded-xl text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-primary transition-colors"
+                    onKeyDown={(e) => { if (e.key === "Enter") loadCommunityBots(communitySearch()); }}
+                  />
+                  <button
+                    onClick={() => loadCommunityBots(communitySearch())}
+                    class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-xl text-sm font-medium transition-colors shrink-0"
+                  >
+                    搜索
+                  </button>
+                </div>
+              </div>
+
+              <Show when={communityBotsLoading()}>
+                <div class="text-center py-8 text-text-muted text-sm">加载中...</div>
+              </Show>
+
+              <Show when={!communityBotsLoading() && communityBots().length === 0}>
+                <div class="text-center py-12 text-text-muted text-sm">
+                  <Globe size={40} class="mx-auto mb-3 text-text-muted/30" />
+                  <p>暂无社区 Bot</p>
+                  <p class="text-xs mt-1">尝试搜索其他关键词</p>
+                </div>
+              </Show>
+
+              <div class="space-y-2">
+                <For each={communityBots()}>
+                  {(bot) => (
+                    <div class="bg-surface rounded-xl p-4 border border-border">
+                      <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                          <Bot size={18} class="text-primary" />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-semibold text-text truncate">{bot.name}</p>
+                          <p class="text-xs text-text-muted truncate">{bot.description || "暂无描述"}</p>
+                        </div>
+                        <button
+                          onClick={() => handleInstallBot(bot.bot_id)}
+                          class="px-3 py-1.5 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-medium transition-colors shrink-0 flex items-center gap-1"
+                        >
+                          <Plus size={12} />
+                          安装
+                        </button>
+                      </div>
+                      <div class="bg-bg rounded-lg p-2.5 text-xs text-text-muted">
+                        Bot ID: {bot.bot_id}
                       </div>
                     </div>
                   )}

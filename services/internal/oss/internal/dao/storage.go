@@ -40,25 +40,39 @@ func NewStorageDao(endpoint, accessKey, secretKey, bucket, region string, useSSL
 		return nil, err
 	}
 
-	// 确保 bucket 存在
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	exists, err := client.BucketExists(ctx, bucket)
-	if err != nil {
-		return nil, err
-	}
-	if !exists {
-		err = client.MakeBucket(ctx, bucket, minio.MakeBucketOptions{Region: region})
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return &StorageDao{
+	d := &StorageDao{
 		core:   core,
 		client: client,
 		bucket: bucket,
-	}, nil
+	}
+
+	// Ensure bucket exists — non‑fatal on startup.
+	// The bucket should already exist from initial deployment.
+	// If this is a transient DNS/network issue, operations will still
+	// work once connectivity is restored.
+	if err := d.ensureBucket(); err != nil {
+		// Log would go here if we had a logger; caller handles it.
+		return d, err
+	}
+
+	return d, nil
+}
+
+// ensureBucket checks bucket existence and creates it if missing.
+func (d *StorageDao) ensureBucket() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	exists, err := d.client.BucketExists(ctx, d.bucket)
+	if err != nil {
+		return fmt.Errorf("bucket check failed: %w", err)
+	}
+	if !exists {
+		if err := d.client.MakeBucket(ctx, d.bucket, minio.MakeBucketOptions{}); err != nil {
+			return fmt.Errorf("make bucket failed: %w", err)
+		}
+	}
+	return nil
 }
 
 // InitiateMultipartUpload 初始化分片上传，返回 uploadID
@@ -99,6 +113,32 @@ func (d *StorageDao) PresignedGetObject(ctx context.Context, objectKey string, e
 	return d.client.PresignedGetObject(ctx, d.bucket, objectKey, expiry, nil)
 }
 
+// PutObjectSimple 简单上传（非分片，直接存储整个对象）
+func (d *StorageDao) PutObjectSimple(ctx context.Context, objectKey, contentType string, data io.Reader, size int64) (minio.UploadInfo, error) {
+	return d.client.PutObject(ctx, d.bucket, objectKey, data, size, minio.PutObjectOptions{
+		ContentType: contentType,
+	})
+}
+
+// CopyObject copies an object within the same bucket (used to move temp upload to hash-based key).
+func (d *StorageDao) CopyObject(ctx context.Context, srcKey, dstKey string, contentType string) (minio.UploadInfo, error) {
+	src := minio.CopySrcOptions{Bucket: d.bucket, Object: srcKey}
+	dst := minio.CopyDestOptions{Bucket: d.bucket, Object: dstKey}
+	info, err := d.client.CopyObject(ctx, dst, src)
+	if err != nil {
+		return minio.UploadInfo{}, err
+	}
+	return minio.UploadInfo{
+		Key:  dstKey,
+		Size: info.Size,
+	}, nil
+}
+
+// GetObject returns a reader for streaming an object's content.
+func (d *StorageDao) GetObject(ctx context.Context, objectKey string) (io.ReadCloser, error) {
+	return d.client.GetObject(ctx, d.bucket, objectKey, minio.GetObjectOptions{})
+}
+
 // StatObject 获取对象信息（大小等）
 func (d *StorageDao) StatObject(ctx context.Context, objectKey string) (minio.ObjectInfo, error) {
 	return d.client.StatObject(ctx, d.bucket, objectKey, minio.StatObjectOptions{})
@@ -109,15 +149,22 @@ func (d *StorageDao) RemoveObject(ctx context.Context, objectKey string) error {
 	return d.client.RemoveObject(ctx, d.bucket, objectKey, minio.RemoveObjectOptions{})
 }
 
-// BuildObjectKey 构建对象存储路径：uploads/{uploadID}/{fileName}
-func BuildObjectKey(uploadID, fileName string) string {
-	return path.Join("uploads", uploadID, fileName)
+// BuildObjectKey 基于文件 Hash 构建对象存储路径：uploads/{hash[:2]}/{hash}
+// 相同文件（相同 Hash）永远只存储一次，URL 不包含原始文件名。
+func BuildObjectKey(fileHash string) string {
+	if len(fileHash) < 4 {
+		return path.Join("uploads", "unknown", fileHash)
+	}
+	return path.Join("uploads", fileHash[:2], fileHash)
 }
 
-// BuildURL 生成访问 URL
+// BuildURL 生成访问 URL（默认 7 天有效期）
 func (d *StorageDao) BuildURL(ctx context.Context, objectKey string) (string, int64, error) {
-	// 默认 URL 有效期 7 天
-	expiry := 7 * 24 * time.Hour
+	return d.BuildURLWithExpiry(ctx, objectKey, 7*24*time.Hour)
+}
+
+// BuildURLWithExpiry 生成带自定义有效期的访问 URL
+func (d *StorageDao) BuildURLWithExpiry(ctx context.Context, objectKey string, expiry time.Duration) (string, int64, error) {
 	u, err := d.PresignedGetObject(ctx, objectKey, expiry)
 	if err != nil {
 		return "", 0, err

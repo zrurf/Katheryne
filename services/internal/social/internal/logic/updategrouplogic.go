@@ -35,5 +35,20 @@ func (l *UpdateGroupLogic) UpdateGroup(in *social.UpdateGroupReq) (*social.Updat
 		l.Logger.Error("del group info cache error:", err)
 	}
 
+	// Sync conversation table so group avatar shows in chat list
+	err = l.svcCtx.SocialDao.UpdateConversationByGroupId(l.ctx, in.GroupId, in.Name, in.Avatar)
+	if err != nil {
+		l.Logger.Error("update conversation error:", err)
+	} else {
+		members, err := l.svcCtx.SocialDao.ListGroupMembers(l.ctx, in.GroupId, "")
+		if err != nil {
+			l.Logger.Error("list group members error:", err)
+		} else {
+			for _, m := range members {
+				_ = l.svcCtx.RedisDao.DelConvListCache(l.ctx, m.Uid)
+			}
+		}
+	}
+
 	return &social.UpdateGroupResp{}, nil
 }

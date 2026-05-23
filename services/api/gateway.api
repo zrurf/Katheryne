@@ -80,6 +80,14 @@ type (
 		UpdatedAt int64  `json:"updated_at"`
 		LastLogin int64  `json:"last_login"`
 	}
+	UpdateProfileReq {
+		Name   string `json:"name,optional"`
+		Avatar string `json:"avatar,optional"`
+	}
+	UpdateProfileResp {
+		Name   string `json:"name"`
+		Avatar string `json:"avatar"`
+	}
 	// 刷新令牌
 	RefreshTokenRequest {
 		RefreshToken string `json:"refresh_token"`
@@ -125,7 +133,13 @@ type (
 		Size      int64  `json:"size"`
 		Url       string `json:"url"`
 		OssIndex  string `json:"oss_index"`
+		IndexId   string `json:"index_id"`
 		ExpiresAt int64  `json:"expires_at"`
+	}
+	OssConfigResponse {
+		MaxFileSize int64 `json:"max_file_size"`
+		ChunkSize   int64 `json:"chunk_size"`
+		MaxParts    int   `json:"max_parts"`
 	}
 	InitiateUploadRequest {
 		FileName    string `json:"file_name"`
@@ -153,6 +167,35 @@ type (
 	CompleteUploadRequest {
 		UploadID string     `json:"upload_id"`
 		Parts    []PartInfo `json:"parts"`
+	}
+	GetDownloadURLRequest {
+		ObjectKey  string `json:"object_key"`
+		IndexId    string `json:"index_id,optional"`
+		ExpireSecs int64  `json:"expire_secs,optional"`
+	}
+	GetDownloadURLResponse {
+		Url       string `json:"url"`
+		ExpiresAt int64  `json:"expires_at"`
+	}
+	DeleteFileRequest {
+		ObjectKey string `json:"object_key"`
+		IndexId   string `json:"index_id,optional"`
+	}
+	DeleteFileResponse {
+		Deleted bool `json:"deleted"`
+	}
+	GetFileInfoResponse {
+		ObjectKey    string `json:"object_key"`
+		Size         int64  `json:"size"`
+		ContentType  string `json:"content_type"`
+		Etag         string `json:"etag"`
+		LastModified int64  `json:"last_modified"`
+		FileName     string `json:"file_name"`
+		IndexId      string `json:"index_id"`
+	}
+	// 文件代理请求 - 通过 gateway 代理访问内部 MinIO
+	OssProxyRequest {
+		Key string `form:"key"`
 	}
 )
 
@@ -332,6 +375,13 @@ type (
 		NewOwner string `json:"new_owner"`
 	}
 	TransferOwnerResp {
+		Result bool `json:"result"`
+	}
+	UpdateGroupNickReq {
+		GroupID string `json:"group_id"`
+		Nick    string `json:"nick"`
+	}
+	UpdateGroupNickResp {
 		Result bool `json:"result"`
 	}
 	GetGroupMembersReq {
@@ -586,6 +636,9 @@ service gateway-api {
 	@handler GetUserInfo
 	get /user_info/:uid (UserInfoRequest) returns (UserInfoResponse)
 
+	@handler UpdateProfile
+	post /user/profile (UpdateProfileReq) returns (UpdateProfileResp)
+
 	@handler RefreshToken
 	post /refresh (RefreshTokenRequest) returns (RefreshTokenResponse)
 }
@@ -613,6 +666,9 @@ service gateway-api {
 	@handler Upload
 	post /upload returns (UploadResponse)
 
+	@handler GetConfig
+	get /config returns (OssConfigResponse)
+
 	@handler InitiateUpload
 	post /upload/initiate (InitiateUploadRequest) returns (InitiateUploadResponse)
 
@@ -621,6 +677,25 @@ service gateway-api {
 
 	@handler CompleteUpload
 	post /upload/complete (CompleteUploadRequest) returns (UploadResponse)
+
+	@handler GetDownloadURL
+	post /download-url (GetDownloadURLRequest) returns (GetDownloadURLResponse)
+
+	@handler DeleteFile
+	post /delete (DeleteFileRequest) returns (DeleteFileResponse)
+
+	@handler GetFileInfo
+	get /file/info (GetDownloadURLRequest) returns (GetFileInfoResponse)
+}
+
+// 对象存储文件代理 - 无需认证，供客户端直接加载图片/文件
+@server (
+	prefix: /api/v1/oss
+	group:  oss_public
+)
+service gateway-api {
+	@handler OssProxy
+	get /file (OssProxyRequest) returns (EmptyReponse)
 }
 
 // 社交服务
@@ -683,6 +758,9 @@ service gateway-api {
 
 	@handler TransferOwner
 	post /group/transfer (TransferOwnerReq) returns (TransferOwnerResp)
+
+	@handler UpdateGroupNick
+	post /group/nick (UpdateGroupNickReq) returns (UpdateGroupNickResp)
 
 	@handler GetGroupMembers
 	get /group/:group_id/members (GetGroupMembersReq) returns (GetGroupMembersResp)
@@ -1219,5 +1297,74 @@ service gateway-api {
 service gateway-api {
 	@handler ApproveAuthorize
 	post /authorize (ApproveAuthorizeReq) returns (ApproveAuthorizeResp)
+}
+
+// Bot交互 - AI 功能接口
+type (
+	BotSummarizeReq {
+		ConvID     string `json:"conv_id"`
+		SinceMsgId int64  `json:"since_msg_id,optional"`
+	}
+	BotSummarizeResp {
+		Summary     string   `json:"summary"`
+		KeyPoints   []string `json:"key_points"`
+		ActionItems []string `json:"action_items"`
+	}
+	SummarizeTicket {
+		Ticket string `json:"ticket"`
+	}
+	SummarizeResultReq {
+		Ticket string `form:"ticket"`
+	}
+	SummarizeResultResp {
+		Status string            `json:"status"`
+		Result *BotSummarizeResp `json:"result,optional"`
+		Error  string            `json:"error,optional"`
+	}
+	BotTranslateReq {
+		Text       string `json:"text"`
+		TargetLang string `json:"target_lang,optional"`
+		SourceLang string `json:"source_lang,optional"`
+	}
+	BotTranslateResp {
+		Text       string `json:"text"`
+		SourceLang string `json:"source_lang"`
+		TargetLang string `json:"target_lang"`
+	}
+	BotSuggestReq {
+		ConvID string `json:"conv_id"`
+	}
+	BotSuggestResp {
+		Suggestions []string `json:"suggestions"`
+	}
+	BotModerateReq {
+		Text string `json:"text"`
+	}
+	BotModerateResp {
+		Safe   bool   `json:"safe"`
+		Reason string `json:"reason"`
+	}
+)
+
+@server (
+	prefix:     /api/v1
+	group:      bot_interact
+	middleware: AuthMiddleware
+)
+service gateway-api {
+	@handler BotSummarize
+	post /bot/summarize (BotSummarizeReq) returns (SummarizeTicket)
+
+	@handler BotSummarizeResult
+	get /bot/summarize/result (SummarizeResultReq) returns (SummarizeResultResp)
+
+	@handler BotTranslate
+	post /bot/translate (BotTranslateReq) returns (BotTranslateResp)
+
+	@handler BotSuggest
+	post /bot/suggest (BotSuggestReq) returns (BotSuggestResp)
+
+	@handler BotModerate
+	post /bot/moderate (BotModerateReq) returns (BotModerateResp)
 }
 
