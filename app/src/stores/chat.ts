@@ -204,11 +204,25 @@ function createChatStore() {
           uid: string;
         };
         setMessages((prev) =>
-          prev.map((m) =>
-            m.id === data.msg_id
-              ? { ...m, content: data.content, edited: true }
-              : m
-          )
+          prev.map((m) => {
+            if (m.id === data.msg_id) {
+              // 构建新的 extra 字段
+              let newExtra = m.extra || "";
+              try {
+                const existing = m.extra ? JSON.parse(m.extra) : {};
+                const editHistory = existing.edit_history || [];
+                editHistory.push({
+                  old_content: m.content,
+                  edited_at: Date.now(),
+                });
+                newExtra = JSON.stringify({ ...existing, edit_history: editHistory });
+              } catch {
+                newExtra = JSON.stringify({ edit_history: [{ old_content: m.content, edited_at: Date.now() }] });
+              }
+              return { ...m, content: data.content, edited: true, extra: newExtra };
+            }
+            return m;
+          })
         );
       }),
 
@@ -465,11 +479,28 @@ function createChatStore() {
   }
 
   async function editMessage(convId: string, msgId: string, content: string) {
-    const originalContent = messages().find((m) => m.id === msgId)?.content || "";
+    const originalMsg = messages().find((m) => m.id === msgId);
+    const originalContent = originalMsg?.content || "";
+    const originalExtra = originalMsg?.extra || "";
+
+    // 构建新的 extra 字段，追加编辑历史
+    let newExtra = originalExtra;
+    try {
+      const existing = originalExtra ? JSON.parse(originalExtra) : {};
+      const editHistory = existing.edit_history || [];
+      editHistory.push({
+        old_content: originalContent,
+        edited_at: Date.now(),
+      });
+      newExtra = JSON.stringify({ ...existing, edit_history: editHistory });
+    } catch {
+      newExtra = JSON.stringify({ edit_history: [{ old_content: originalContent, edited_at: Date.now() }] });
+    }
+
     setMessages((prev) =>
       prev.map((m) =>
         m.id === msgId
-          ? { ...m, content, edited: true }
+          ? { ...m, content, edited: true, extra: newExtra }
           : m
       )
     );

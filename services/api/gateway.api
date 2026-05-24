@@ -1033,6 +1033,16 @@ type (
 		Permissions []string `json:"permissions,optional"`
 	}
 	InstallBotResp  {}
+	// BatchInstallBot
+	BatchInstallBotReq {
+		BotId       string   `json:"bot_id"`
+		ConvIds     []string `json:"conv_ids"`
+		Permissions []string `json:"permissions,optional"`
+	}
+	BatchInstallBotResp {
+		SuccessCount int32    `json:"success_count"`
+		FailedConvs  []string `json:"failed_convs"`
+	}
 	// UninstallBot
 	UninstallBotReq {
 		ConvId string `path:"conv_id"`
@@ -1238,6 +1248,9 @@ service gateway-api {
 
 	@handler InstallBot
 	post /convs/:conv_id/bots/install (InstallBotReq) returns (InstallBotResp)
+
+	@handler BatchInstallBot
+	post /bots/install (BatchInstallBotReq) returns (BatchInstallBotResp)
 
 	@handler UninstallBot
 	post /convs/:conv_id/bots/uninstall (UninstallBotReq) returns (UninstallBotResp)

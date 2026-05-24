@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"errors"
+	"time"
 
 	"message/internal/svc"
 	"message/message"
@@ -37,6 +38,11 @@ func (l *RecallMessageLogic) RecallMessage(in *message.RecallMessageReq) (*messa
 
 	if m.Recalled {
 		return &message.RecallMessageResp{}, nil
+	}
+
+	// 限制撤回时间：仅发送后2分钟内可撤回
+	if time.Since(m.CreatedAt) > 2*time.Minute {
+		return nil, errors.New("消息发送已超过2分钟，无法撤回")
 	}
 
 	err = l.svcCtx.MessageDao.RecallMessage(l.ctx, in.MsgId)

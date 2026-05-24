@@ -94,10 +94,10 @@ func (d *MessageDao) RecallMessage(ctx context.Context, msgId int64) error {
 	return err
 }
 
-func (d *MessageDao) EditMessage(ctx context.Context, msgId int64, content string) error {
+func (d *MessageDao) EditMessage(ctx context.Context, msgId int64, content string, extra string) error {
 	_, err := d.db.Exec(ctx,
-		`UPDATE message SET content = $1, edited = TRUE, edited_at = NOW(), edit_count = edit_count + 1 WHERE id = $2`,
-		content, msgId)
+		`UPDATE message SET content = $1, extra = $2::jsonb, edited = TRUE, edited_at = NOW(), edit_count = edit_count + 1 WHERE id = $3`,
+		content, extra, msgId)
 	return err
 }
 

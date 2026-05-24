@@ -419,6 +419,11 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ bot_id: botId }),
       }, getBotApiBase()),
+    batchInstall: (botId: string, convIds: string[]) =>
+      request<{ success_count: number; failed_convs: string[] }>(`/installation/bots/install`, {
+        method: "POST",
+        body: JSON.stringify({ bot_id: botId, conv_ids: convIds }),
+      }, getBotApiBase()),
     uninstall: (botId: string, convId: string) =>
       request<void>(`/installation/convs/${convId}/bots/uninstall`, {
         method: "POST",

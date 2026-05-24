@@ -1214,11 +1214,10 @@ export function ChatView() {
 
         {/* Edit Preview */}
         <Show when={editingMsg()}>
-          <div class="px-5 py-2 bg-surface border-t border-border flex items-center gap-3">
-            <Edit3 size={14} class="text-text-muted" />
-            <div class="flex-1 min-w-0">
+          <div class="px-5 py-2 bg-surface border-t border-border flex items-center gap-3 min-w-0">
+            <div class="flex-1 min-w-0 overflow-hidden">
               <p class="text-xs text-primary font-medium">编辑消息</p>
-              <p class="text-xs text-text-muted truncate">
+              <p class="text-xs text-text-muted line-clamp-2 break-all">
                 {editingMsg()?.content}
               </p>
             </div>
@@ -1227,7 +1226,7 @@ export function ChatView() {
                 setEditingMsg(null);
                 setInputText("");
               }}
-              class="p-1 hover:bg-surface-hover rounded transition-colors text-text-muted"
+              class="p-1 hover:bg-surface-hover rounded transition-colors text-text-muted shrink-0"
             >
               <X size={14} />
             </button>
@@ -1526,6 +1525,26 @@ function MessageBubble(props: {
 }) {
   const [showMenu, setShowMenu] = createSignal(false);
   const [showReadList, setShowReadList] = createSignal(false);
+  const [showEditHistory, setShowEditHistory] = createSignal(false);
+
+  interface EditHistoryEntry {
+    old_content: string;
+    edited_at: number;
+  }
+
+  const editHistory = (): EditHistoryEntry[] => {
+    try {
+      if (props.msg.extra) {
+        const extra = JSON.parse(props.msg.extra);
+        if (extra.edit_history && Array.isArray(extra.edit_history)) {
+          return extra.edit_history;
+        }
+      }
+    } catch {}
+    return [];
+  };
+
+  const hasEditHistory = () => editHistory().length > 0;
 
   const activeConv = () => {
     const id = chatStore.activeConvId();
@@ -1533,6 +1552,8 @@ function MessageBubble(props: {
   };
 
   const isGroup = () => activeConv()?.type === "GROUP";
+
+  const canRecall = () => props.isMine && !props.msg.recalled && Date.now() - props.msg.created_at < 2 * 60 * 1000;
 
   const readKey = () => `${props.msg.conv_id}:${props.msg.id}`;
 
@@ -1583,7 +1604,8 @@ function MessageBubble(props: {
   };
 
   return (
-    <Show when={props.msg.recalled} fallback={
+    <>
+      <Show when={props.msg.recalled} fallback={
       <div
         id={`msg-${props.msg.id}`}
         data-msg-id={props.msg.id}
@@ -1707,13 +1729,15 @@ function MessageBubble(props: {
                   >
                     <Edit3 size={14} />
                   </button>
-                  <button
-                    onClick={props.onRecall}
-                    class="p-1 hover:bg-surface rounded transition-colors text-text-muted hover:text-danger"
-                    title="撤回"
-                  >
-                    <X size={14} />
-                  </button>
+                  <Show when={canRecall()}>
+                    <button
+                      onClick={props.onRecall}
+                      class="p-1 hover:bg-surface rounded transition-colors text-text-muted hover:text-danger"
+                      title="撤回"
+                    >
+                      <X size={14} />
+                    </button>
+                  </Show>
                 </Show>
               </div>
             </Show>
@@ -1740,12 +1764,21 @@ function MessageBubble(props: {
             <span class="text-xs text-text-muted">
               {formatTime(props.msg.created_at)}
             </span>
-            <Show when={props.isMine}>
-              {props.msg.edited ? (
-                <span class="text-xs text-text-muted">已编辑</span>
+            <Show when={props.msg.edited}>
+              {hasEditHistory() ? (
+                <button
+                  onClick={() => setShowEditHistory(true)}
+                  class="text-xs text-primary hover:text-primary-dark cursor-pointer transition-colors underline underline-offset-2"
+                  title="查看编辑历史"
+                >
+                  已编辑
+                </button>
               ) : (
-                <CheckCheck size={12} class="text-text-muted" />
+                <span class="text-xs text-text-muted">已编辑</span>
               )}
+            </Show>
+            <Show when={props.isMine && !props.msg.edited}>
+              <CheckCheck size={12} class="text-text-muted" />
             </Show>
             <Show when={isGroup() && props.isMine && readCount() > 0}>
               <div class="relative">
@@ -1785,6 +1818,44 @@ function MessageBubble(props: {
         </span>
       </div>
     </Show>
+
+      {/* Edit History Modal */}
+      <Show when={showEditHistory()}>
+        <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={() => setShowEditHistory(false)}>
+          <div class="bg-surface rounded-2xl p-6 border border-border w-full max-w-md mx-4 max-h-[70vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <h3 class="text-base font-semibold text-text mb-1">编辑历史</h3>
+            <p class="text-xs text-text-muted mb-4">共 {editHistory().length} 次编辑</p>
+            <div class="flex-1 overflow-y-auto space-y-3">
+              <div class="bg-bg rounded-xl p-3 border border-border">
+                <p class="text-xs text-text-muted mb-1">当前内容</p>
+                <p class="text-sm text-text whitespace-pre-wrap break-words">{props.msg.content}</p>
+              </div>
+              <For each={[...editHistory()].reverse()}>
+                {(entry, idx) => {
+                  const total = editHistory().length;
+                  const isOriginal = idx() === total - 1;
+                  const editNum = total - idx() - 1;
+                  return (
+                    <div class="bg-surface-hover rounded-xl p-3 border border-border/50">
+                      <p class="text-xs text-text-muted mb-1">
+                        {isOriginal ? "原始消息" : `第 ${editNum} 次编辑`} · {formatTime(entry.edited_at)}
+                      </p>
+                      <p class="text-sm text-text-muted whitespace-pre-wrap break-words">{entry.old_content}</p>
+                    </div>
+                  );
+                }}
+              </For>
+            </div>
+            <button
+              onClick={() => setShowEditHistory(false)}
+              class="mt-4 w-full px-4 py-2 bg-surface-hover hover:bg-bg rounded-xl text-sm text-text transition-colors"
+            >
+              关闭
+            </button>
+          </div>
+        </div>
+      </Show>
+    </>
   );
 }
 

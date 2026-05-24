@@ -145,6 +145,13 @@ export function SettingsPage() {
   const [botWebhook, setBotWebhook] = createSignal("");
   const [showCredentials, setShowCredentials] = createSignal<{ bot_id: string; client_id: string; client_secret: string } | null>(null);
   const [editingBot, setEditingBot] = createSignal<BotInfo | null>(null);
+
+  // Bot installation dialog state
+  const [showInstallDialog, setShowInstallDialog] = createSignal(false);
+  const [installBotId, setInstallBotId] = createSignal("");
+  const [convList, setConvList] = createSignal<{ conv_id: string; name: string; type: string; avatar: string }[]>([]);
+  const [selectedConvIds, setSelectedConvIds] = createSignal<Set<string>>(new Set());
+  const [convListLoading, setConvListLoading] = createSignal(false);
   const [editBotName, setEditBotName] = createSignal("");
   const [editBotDesc, setEditBotDesc] = createSignal("");
   const [editBotWebhook, setEditBotWebhook] = createSignal("");
@@ -177,11 +184,51 @@ export function SettingsPage() {
 
   createResource(() => activeTab() === "community", () => { if (activeTab() === "community") loadCommunityBots(); });
 
-  const handleInstallBot = async (botId: string) => {
-    // For now, just alert success - could be enhanced to select conversation
+  const handleInstallBot = (botId: string) => {
+    setInstallBotId(botId);
+    setSelectedConvIds(prev => new Set<string>());
+    setShowInstallDialog(true);
+    loadConvList();
+  };
+
+  const loadConvList = async () => {
+    setConvListLoading(true);
     try {
-      await api.bot.install(botId, "");
-      alert("Bot 安装成功！");
+      const resp = await api.conversation.list();
+      setConvList(resp.list || []);
+    } catch {
+      setConvList([]);
+    } finally {
+      setConvListLoading(false);
+    }
+  };
+
+  const toggleConvSelection = (convId: string) => {
+    setSelectedConvIds(prev => {
+      const next = new Set(prev);
+      if (next.has(convId)) {
+        next.delete(convId);
+      } else {
+        next.add(convId);
+      }
+      return next;
+    });
+  };
+
+  const handleConfirmInstall = async () => {
+    const convs = [...selectedConvIds()];
+    if (convs.length === 0) {
+      alert("请至少选择一个会话");
+      return;
+    }
+    try {
+      const resp = await api.bot.batchInstall(installBotId(), convs);
+      if (resp.failed_convs && resp.failed_convs.length > 0) {
+        alert(`安装完成：成功 ${resp.success_count} 个，失败 ${resp.failed_convs.length} 个`);
+      } else {
+        alert(`Bot 安装成功！已安装到 ${resp.success_count} 个会话`);
+      }
+      setShowInstallDialog(false);
     } catch {
       alert("Bot 安装失败，请稍后再试");
     }
@@ -798,6 +845,53 @@ export function SettingsPage() {
                 <button type="submit" class="flex-1 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-xl text-sm font-medium transition-colors">保存</button>
               </div>
             </form>
+          </div>
+        </div>
+      </Show>
+
+      {/* Install Bot Dialog */}
+      <Show when={showInstallDialog()}>
+        <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={() => setShowInstallDialog(false)}>
+          <div class="bg-surface rounded-2xl p-6 border border-border w-full max-w-md mx-4 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <h2 class="text-lg font-semibold text-text mb-2">选择安装会话</h2>
+            <p class="text-xs text-text-muted mb-3">请选择要安装 Bot 的会话（可多选）</p>
+            <Show when={convListLoading()}>
+              <p class="text-sm text-text-muted text-center py-8">加载中...</p>
+            </Show>
+            <Show when={!convListLoading()}>
+              <div class="flex-1 overflow-y-auto space-y-1 mb-4">
+                <For each={convList()}>
+                  {(conv) => (
+                    <div
+                      class={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors ${selectedConvIds().has(conv.conv_id) ? "bg-primary/10 border border-primary/30" : "hover:bg-bg border border-transparent"}`}
+                      onClick={() => toggleConvSelection(conv.conv_id)}
+                    >
+                      <div class={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${selectedConvIds().has(conv.conv_id) ? "bg-primary border-primary" : "border-border"}`}>
+                        <Show when={selectedConvIds().has(conv.conv_id)}>
+                          <Check size={12} class="text-white" />
+                        </Show>
+                      </div>
+                      <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <span class="text-xs text-primary font-bold">{conv.name.charAt(0)}</span>
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-text truncate">{conv.name}</p>
+                        <p class="text-xs text-text-muted">{conv.type === "group" ? "群聊" : "单聊"}</p>
+                      </div>
+                    </div>
+                  )}
+                </For>
+                <Show when={convList().length === 0}>
+                  <p class="text-sm text-text-muted text-center py-8">暂无会话</p>
+                </Show>
+              </div>
+            </Show>
+            <div class="flex gap-2 pt-2 border-t border-border">
+              <button onClick={() => setShowInstallDialog(false)} class="flex-1 px-4 py-2 bg-surface-hover hover:bg-bg rounded-xl text-sm text-text transition-colors">取消</button>
+              <button onClick={handleConfirmInstall} class="flex-1 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-xl text-sm font-medium transition-colors" disabled={convListLoading()}>
+                安装到 {selectedConvIds().size} 个会话
+              </button>
+            </div>
           </div>
         </div>
       </Show>

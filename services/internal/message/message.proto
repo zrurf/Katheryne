@@ -163,6 +163,21 @@ message UpdateConvLastMsgReq {
 }
 message UpdateConvLastMsgResp {}
 
+// 获取消息编辑历史
+message GetMsgEditHistoryReq {
+  int64 msg_id = 1;
+}
+message EditHistoryItem {
+  int64 id = 1;
+  int64 msg_id = 2;
+  string old_content = 3;
+  int64 edited_at = 4;
+  int64 edited_by = 5;
+}
+message GetMsgEditHistoryResp {
+  repeated EditHistoryItem list = 1;
+}
+
 service message {
   rpc SendMessage(SendMessageReq) returns (SendMessageResp);
   rpc RecallMessage(RecallMessageReq) returns (RecallMessageResp);
@@ -177,4 +192,5 @@ service message {
   rpc SyncOfflineMsgs(SyncOfflineMsgsReq) returns (SyncOfflineMsgsResp);
   rpc GetLastMsg(GetLastMsgReq) returns (GetLastMsgResp);
   rpc UpdateConvLastMsg(UpdateConvLastMsgReq) returns (UpdateConvLastMsgResp);
+  rpc GetMsgEditHistory(GetMsgEditHistoryReq) returns (GetMsgEditHistoryResp);
 }

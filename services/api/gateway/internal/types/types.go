@@ -653,6 +653,17 @@ type InstallBotReq struct {
 type InstallBotResp struct {
 }
 
+type BatchInstallBotReq struct {
+	BotId       string   `json:"bot_id"`
+	ConvIds     []string `json:"conv_ids"`
+	Permissions []string `json:"permissions,optional"`
+}
+
+type BatchInstallBotResp struct {
+	SuccessCount int32    `json:"success_count"`
+	FailedConvs  []string `json:"failed_convs"`
+}
+
 type InstallationItem struct {
 	InstId      int64    `json:"inst_id"`
 	BotId       string   `json:"bot_id"`
