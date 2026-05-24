@@ -272,7 +272,7 @@ services:
         - "5432"
 
   qdrant:
-    image: qdrant/qdrant:v1.17.1
+    image: qdrant/qdrant:v1.18.1
     container_name: qdrant
     restart: always
     expose:

@@ -78,3 +78,34 @@ export function base64url(input: string): string {
   const base64 = btoa(binary);
   return base64.replace(/\+/g, "-").replace(/\//g, "_");
 }
+
+/**
+ * Format message content into a readable snippet for conversation list
+ * and reply preview. Handles @mentions, files, images, and plain text.
+ */
+export function formatMessageSnippet(
+  content: string,
+  contentType?: string,
+  type?: string
+): string {
+  // File messages: content is JSON {name, size, url}
+  if (type === "file") {
+    try {
+      const info = JSON.parse(content);
+      return info.name ? `[文件] ${info.name}` : "[文件]";
+    } catch {
+      return "[文件]";
+    }
+  }
+  // Image messages
+  if (contentType?.startsWith("image/")) {
+    return "[图片]";
+  }
+  // Text messages: strip @mention format
+  if (contentType === "text") {
+    // @[member:123:张三] → @张三
+    return content.replace(/@\[[a-z]+:\d+:([^\]]+)\]/g, "@$1");
+  }
+  // Fallback: show content as-is or type label
+  return content || `[${contentType || type || "消息"}]`;
+}

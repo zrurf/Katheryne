@@ -1,11 +1,13 @@
-import { For, Show, createSignal, createResource, onMount } from "solid-js";
+import { For, Show, createSignal, createResource, onMount, onCleanup } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { chatStore } from "../../stores/chat";
 import { authStore } from "../../stores/auth";
 import { appNav } from "../../services/nav";
 import { api } from "../../services/api";
+import { downloadManager } from "../../services/download";
+import { toggleDownloadPanel } from "../ui/download-progress";
 import { Avatar } from "../ui/avatar";
-import { formatConversationTime, truncate } from "../../lib/utils";
+import { formatConversationTime, truncate, formatMessageSnippet } from "../../lib/utils";
 import type { ConversationItem, FriendItem, FriendRequestItem, GroupInviteItem, ConvBotItem, BotInfo } from "../../services/api";
 import {
   MessageSquare,
@@ -30,6 +32,7 @@ import {
   GripVertical,
   Inbox,
   Clock,
+  Download,
 } from "lucide-solid";
 
 export function ChatSidebar() {
@@ -58,6 +61,13 @@ export function ChatSidebar() {
     loadFriendRequests();
     loadGroupInvites();
   });
+
+  // Download badge count
+  const [downloadCount, setDownloadCount] = createSignal(0);
+  const downloadUnsub = downloadManager.onChange((tasks) => {
+    setDownloadCount(tasks.filter((t) => t.status === "downloading").length);
+  });
+  onCleanup(() => downloadUnsub());
 
   let resizeStartX = 0;
   let resizeStartWidth = 0;
@@ -402,6 +412,18 @@ export function ChatSidebar() {
                 <p class="text-xs text-text-muted">在线</p>
               </div>
               <button
+                class="p-1.5 hover:bg-surface rounded-lg transition-colors text-text-muted hover:text-text relative"
+                onClick={() => toggleDownloadPanel()}
+                title="下载管理"
+              >
+                <Download size={16} />
+                <Show when={downloadCount() > 0}>
+                  <span class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center leading-none">
+                    {downloadCount() > 99 ? "99+" : downloadCount()}
+                  </span>
+                </Show>
+              </button>
+              <button
                 class="p-1.5 hover:bg-surface rounded-lg transition-colors text-text-muted hover:text-text"
                 onClick={() => appNav.goSettings()}
               >
@@ -480,7 +502,26 @@ export function ChatSidebar() {
             </Show>
           </div>
 
-          <div class="mt-auto pb-2">
+          <div class="flex flex-col items-center gap-1.5 mt-auto pb-2">
+            <button
+              class="p-2 hover:bg-surface rounded-xl transition-colors text-text-muted hover:text-text relative"
+              onClick={() => toggleDownloadPanel()}
+              title="下载管理"
+            >
+              <Download size={18} />
+              <Show when={downloadCount() > 0}>
+                <span class="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center leading-none">
+                  {downloadCount() > 99 ? "99+" : downloadCount()}
+                </span>
+              </Show>
+            </button>
+            <button
+              class="p-2 hover:bg-surface rounded-xl transition-colors text-text-muted hover:text-text"
+              onClick={() => appNav.goSettings()}
+              title="设置"
+            >
+              <Settings size={18} />
+            </button>
             <Avatar name={authStore.name()} src={authStore.avatar()} size="sm" />
           </div>
         </div>

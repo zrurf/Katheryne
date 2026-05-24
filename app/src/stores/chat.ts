@@ -1,6 +1,7 @@
 import { createSignal, createRoot, createEffect } from "solid-js";
 import { api } from "../services/api";
 import { wsService } from "../services/websocket";
+import { formatMessageSnippet } from "../lib/utils";
 import type {
   ConversationItem,
   MessageItem,
@@ -95,9 +96,11 @@ function createChatStore() {
                   ...c,
                   last_msg_id: data.msg_id,
                   last_msg_snippet:
-                    data.content_type === "text"
-                      ? data.content
-                      : `[${data.msg_type}]`,
+                    formatMessageSnippet(
+                      data.content,
+                      data.content_type,
+                      data.msg_type
+                    ),
                   last_msg_time: data.created_at,
                   last_msg_sender: data.sender,
                   unread_count:
@@ -394,7 +397,7 @@ function createChatStore() {
               ...c,
               last_msg_id: tempId,
               last_msg_snippet:
-                contentType === "text" ? content : `[${msgType}]`,
+                formatMessageSnippet(content, contentType, msgType),
               last_msg_time: Date.now(),
               last_msg_sender: authStore.uid() || "",
             }

@@ -3,6 +3,7 @@ import { chatStore } from "../../stores/chat";
 import { authStore } from "../../stores/auth";
 import { api } from "../../services/api";
 import { downloadFile } from "../../services/download";
+import { formatMessageSnippet } from "../../lib/utils";
 import { getServerApiBase } from "../../services/config";
 import { Avatar } from "../ui/avatar";
 import { ImageViewer } from "../ui/image-viewer";
@@ -1189,18 +1190,22 @@ export function ChatView() {
         {/* Reply Preview */}
         <Show when={replyTo()}>
           <div class="px-5 py-2 bg-surface border-t border-border flex items-center gap-3">
-            <Reply size={14} class="text-text-muted" />
-            <div class="flex-1 min-w-0">
-              <p class="text-xs text-primary font-medium">
+            <Reply size={14} class="text-text-muted shrink-0" />
+            <div class="flex-1 min-w-0 overflow-hidden">
+              <p class="text-xs text-primary font-medium truncate">
                 回复 {replyTo()?.sender_name}
               </p>
-              <p class="text-xs text-text-muted truncate">
-                {replyTo()?.content}
+              <p class="text-xs text-text-muted line-clamp-2 break-all">
+                {formatMessageSnippet(
+                  replyTo()?.content || "",
+                  replyTo()?.content_type,
+                  replyTo()?.type
+                )}
               </p>
             </div>
             <button
               onClick={() => setReplyTo(null)}
-              class="p-1 hover:bg-surface-hover rounded transition-colors text-text-muted"
+              class="p-1 hover:bg-surface-hover rounded transition-colors text-text-muted shrink-0"
             >
               <X size={14} />
             </button>
@@ -1568,9 +1573,7 @@ function MessageBubble(props: {
     const q = quotedMsg();
     if (!q) return props.msg.quote_content || null;
     if (q.recalled) return "消息已撤回";
-    if (q.content_type === "text") return q.content;
-    if (q.content_type?.startsWith("image/")) return "[图片]";
-    return `[${q.content_type || "消息"}]`;
+    return formatMessageSnippet(q.content, q.content_type, q.type);
   };
 
   const quoteSender = () => {
@@ -1644,7 +1647,7 @@ function MessageBubble(props: {
                   <button
                     onClick={async (e) => {
                       e.stopPropagation();
-                      await downloadFile(props.msg.content, { filename: "image" });
+                      await downloadFile(props.msg.content, { filename: `image_${Date.now()}` });
                     }}
                     class="absolute top-1 right-1 p-1 rounded bg-black/40 text-white/90 hover:bg-black/60 opacity-0 group-hover/img:opacity-100 transition-opacity"
                     title="下载"

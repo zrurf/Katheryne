@@ -135,7 +135,7 @@ export function ImageViewer(props: ImageViewerProps) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              downloadFile(currentSrc(), { filename: "image" });
+              downloadFile(currentSrc(), { filename: `image_${Date.now()}` });
             }}
             class="p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors inline-flex items-center gap-1 text-sm"
             title="下载"

@@ -2,8 +2,10 @@ package oss_public
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 
 	"gateway/internal/svc"
 	"gateway/internal/types"
@@ -43,7 +45,25 @@ func (l *OssProxyLogic) OssProxy(req *types.OssProxyRequest) error {
 		return nil
 	}
 
-	l.Infof("OssProxy: requesting download URL for key=%s", req.Key)
+	l.Infof("OssProxy: requesting download for key=%s, range=%s", req.Key, l.r.Header.Get("Range"))
+
+	// Get file info first for metadata (size, content-type, filename, etag)
+	fileInfo, fiErr := l.svcCtx.OssRpc.GetFileInfo(l.ctx, &ossclient.GetFileInfoReq{
+		ObjectKey: req.Key,
+	})
+	var fileName string
+	var fileSize int64
+	var contentType string
+	var etag string
+	if fiErr == nil && fileInfo != nil {
+		fileName = fileInfo.FileName
+		fileSize = fileInfo.Size
+		contentType = fileInfo.ContentType
+		etag = fileInfo.Etag
+	}
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
 
 	// Get pre-signed download URL from OSS service
 	dlResp, err := l.svcCtx.OssRpc.GetDownloadURL(l.ctx, &ossclient.GetDownloadURLReq{
@@ -56,47 +76,91 @@ func (l *OssProxyLogic) OssProxy(req *types.OssProxyRequest) error {
 		return nil
 	}
 
-	// Get file info for proper filename and content-type
-	fileInfo, fiErr := l.svcCtx.OssRpc.GetFileInfo(l.ctx, &ossclient.GetFileInfoReq{
-		ObjectKey: req.Key,
-	})
-	var fileName string
-	if fiErr == nil && fileInfo != nil {
-		fileName = fileInfo.FileName
+	// Build request to OSS, forwarding Range header if present
+	ossReq, err := http.NewRequestWithContext(l.ctx, "GET", dlResp.Url, nil)
+	if err != nil {
+		l.Errorf("create OSS request failed: %v", err)
+		http.Error(l.w, "internal error", http.StatusInternalServerError)
+		return nil
 	}
 
-	l.Infof("OssProxy: got presigned URL, fetching from OSS")
+	rangeHeader := l.r.Header.Get("Range")
+	hasRange := rangeHeader != ""
 
-	// Fetch file content from OSS
-	httpResp, err := http.Get(dlResp.Url)
+	if hasRange {
+		ossReq.Header.Set("Range", rangeHeader)
+	}
+
+	ossResp, err := http.DefaultClient.Do(ossReq)
 	if err != nil {
 		l.Errorf("fetch file failed for key=%s: %v", req.Key, err)
 		http.Error(l.w, "failed to fetch file", http.StatusInternalServerError)
 		return nil
 	}
-	defer httpResp.Body.Close()
+	defer ossResp.Body.Close()
 
-	if httpResp.StatusCode != http.StatusOK {
-		l.Errorf("OSS returned %d for key=%s", httpResp.StatusCode, req.Key)
+	// Common headers
+	if fileName != "" {
+		l.w.Header().Set("Content-Disposition", `attachment; filename="`+fileName+`"`)
+	}
+	l.w.Header().Set("Content-Type", contentType)
+	l.w.Header().Set("Accept-Ranges", "bytes")
+	l.w.Header().Set("Cache-Control", "public, max-age=3600")
+	if etag != "" {
+		l.w.Header().Set("ETag", `"`+etag+`"`)
+	}
+
+	// Handle range request
+	if hasRange {
+		if ossResp.StatusCode == http.StatusPartialContent {
+			// Forward partial content headers from OSS
+			if cr := ossResp.Header.Get("Content-Range"); cr != "" {
+				l.w.Header().Set("Content-Range", cr)
+			}
+			if cl := ossResp.Header.Get("Content-Length"); cl != "" {
+				l.w.Header().Set("Content-Length", cl)
+			}
+			l.w.WriteHeader(http.StatusPartialContent)
+
+			written, _ := io.Copy(l.w, ossResp.Body)
+			l.Infof("OssProxy: served %d bytes (range) for key=%s", written, req.Key)
+			return nil
+		}
+
+		// Range not satisfiable — return 416 with total size
+		if fileSize > 0 {
+			l.w.Header().Set("Content-Range", fmt.Sprintf("bytes */%d", fileSize))
+		}
+		l.w.WriteHeader(http.StatusRequestedRangeNotSatisfiable)
+		l.Infof("OssProxy: range not satisfiable for key=%s", req.Key)
+		return nil
+	}
+
+	// Full download
+	if ossResp.StatusCode != http.StatusOK {
+		l.Errorf("OSS returned %d for key=%s", ossResp.StatusCode, req.Key)
 		http.Error(l.w, "file not found", http.StatusNotFound)
 		return nil
 	}
 
-	l.Infof("OssProxy: streaming file, content-type=%s, name=%s", httpResp.Header.Get("Content-Type"), fileName)
-
-	// Stream file content to client
-	contentType := httpResp.Header.Get("Content-Type")
-	if contentType == "" {
-		contentType = "application/octet-stream"
+	// Fallback: get file size from OSS response if GetFileInfo didn't provide it
+	if fileSize <= 0 {
+		if cl := ossResp.Header.Get("Content-Length"); cl != "" {
+			if parsed, parseErr := strconv.ParseInt(cl, 10, 64); parseErr == nil {
+				fileSize = parsed
+			}
+		}
 	}
-	l.w.Header().Set("Content-Type", contentType)
-	l.w.Header().Set("Cache-Control", "public, max-age=3600")
-	if fileName != "" {
-		l.w.Header().Set("Content-Disposition", `attachment; filename="`+fileName+`"`)
+
+	if fileSize > 0 {
+		l.w.Header().Set("Content-Length", strconv.FormatInt(fileSize, 10))
 	}
 	l.w.WriteHeader(http.StatusOK)
 
-	written, _ := io.Copy(l.w, httpResp.Body)
+	l.Infof("OssProxy: streaming file, content-type=%s, name=%s, size=%d", contentType, fileName, fileSize)
+
+	written, _ := io.Copy(l.w, ossResp.Body)
 	l.Infof("OssProxy: served %d bytes for key=%s", written, req.Key)
+
 	return nil
 }

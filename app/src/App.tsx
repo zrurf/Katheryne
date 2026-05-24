@@ -7,6 +7,7 @@ import { LoginPage } from "./pages/login";
 import { RegisterPage } from "./pages/Register";
 import { ChatPage } from "./pages/chat";
 import { SettingsPage } from "./pages/settings";
+import { DownloadProgress } from "./components/ui/download-progress";
 
 function ProtectedRoute(props: { children: JSX.Element }) {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ function AppShell() {
       <div style={{ display: appNav.page() === "settings" ? "" : "none" }}>
         <SettingsPage />
       </div>
+      <DownloadProgress />
     </>
   );
 }
