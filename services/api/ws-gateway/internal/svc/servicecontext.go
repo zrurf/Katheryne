@@ -2,6 +2,7 @@ package svc
 
 import (
 	"auth/authclient"
+	"bot/botclient"
 	"conversation/conversationclient"
 	"message/messageclient"
 	"social/socialclient"
@@ -22,6 +23,7 @@ type ServiceContext struct {
 	SocialRpc       socialclient.Social
 	MessageRpc      messageclient.Message
 	ConversationRpc conversationclient.Conversation
+	BotRpc          botclient.Bot
 
 	Hub *ws.Hub
 }
@@ -42,6 +44,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		SocialRpc:           socialclient.NewSocial(zrpc.MustNewClient(c.SocialRpc)),
 		MessageRpc:          messageclient.NewMessage(zrpc.MustNewClient(c.MessageRpc)),
 		ConversationRpc:     conversationclient.NewConversation(zrpc.MustNewClient(c.ConversationRpc)),
+		BotRpc:              botclient.NewBot(zrpc.MustNewClient(c.BotRpc)),
 	})
 	go hub.Run()
 
@@ -53,6 +56,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		SocialRpc:       socialclient.NewSocial(zrpc.MustNewClient(c.SocialRpc)),
 		MessageRpc:      messageclient.NewMessage(zrpc.MustNewClient(c.MessageRpc)),
 		ConversationRpc: conversationclient.NewConversation(zrpc.MustNewClient(c.ConversationRpc)),
+		BotRpc:          botclient.NewBot(zrpc.MustNewClient(c.BotRpc)),
 		Hub:             hub,
 	}
 }

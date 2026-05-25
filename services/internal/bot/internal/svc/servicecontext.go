@@ -24,6 +24,8 @@ type ServiceContext struct {
 	InstDao         *dao.InstallationDao
 	OAuthDao        *dao.OAuthDao
 	EventDao        *dao.EventDao
+	TemplateDao     *dao.TemplateDao
+	InstanceDao     *dao.InstanceDao
 }
 
 func buildDSN(cfg config.DBConfig) string {
@@ -64,6 +66,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	instDao := dao.NewInstallationDao(botDB, socialDB)
 	oauthDao := dao.NewOAuthDao(botDB, redisClient)
 	eventDao := dao.NewEventDao(botDB)
+	templateDao := dao.NewTemplateDao(botDB)
+	instanceDao := dao.NewInstanceDao(botDB, templateDao)
 
 	return &ServiceContext{
 		Config:          c,
@@ -75,5 +79,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		InstDao:         instDao,
 		OAuthDao:        oauthDao,
 		EventDao:        eventDao,
+		TemplateDao:     templateDao,
+		InstanceDao:     instanceDao,
 	}
 }

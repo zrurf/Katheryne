@@ -17,6 +17,7 @@ type Config struct {
 	MessageRpc      zrpc.RpcClientConf
 	ConversationRpc zrpc.RpcClientConf
 	OssRpc          zrpc.RpcClientConf
+	RagRpc          zrpc.RpcClientConf
 	BotRpc          zrpc.RpcClientConf
 
 	RedisAddr   string

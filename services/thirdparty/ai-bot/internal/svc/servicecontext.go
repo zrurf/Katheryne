@@ -1,29 +1,48 @@
 package svc
 
 import (
-	"ai-bot/internal/bot"
 	"ai-bot/internal/config"
 	"ai-bot/internal/logic"
+	"ai-bot/internal/orchestrator"
 	"net/http"
+
+	"bot/botclient"
+	"rag/ragclient"
+
+	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
 	Config         config.Config
-	BotClient      *bot.Client
-	MsgHandler     *logic.MessageHandler
+	Orchestrator   *orchestrator.Orchestrator
+	MsgHandler     *logic.MessageHandler // Default handler for utility APIs (summarize, translate, metrics)
 	HealthHandler  *HealthHandler
 	MetricsHandler *MetricsHandler
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	botClient := bot.NewClient(bot.ClientConfig{
-		TokenURL:     c.BotAPITokenURL,
-		RefreshURL:   c.BotAPIRefreshURL,
-		WSGatewayURL: c.WSGatewayURL,
-		ClientID:     c.BotClientID,
-		ClientSecret: c.BotClientSecret,
-	})
+	var ragClient ragclient.Rag
+	if c.RagRpc.Target != "" || len(c.RagRpc.Endpoints) > 0 {
+		client, err := zrpc.NewClient(c.RagRpc)
+		if err != nil {
+			logx.Errorf("create rag rpc client failed: %v", err)
+		} else {
+			ragClient = ragclient.NewRag(client)
+		}
+	}
 
+	var botRpcClient botclient.Bot
+	if c.BotRpc.Target != "" || len(c.BotRpc.Endpoints) > 0 {
+		client, err := zrpc.NewClient(c.BotRpc)
+		if err != nil {
+			logx.Errorf("create bot rpc client failed: %v", err)
+		} else {
+			botRpcClient = botclient.NewBot(client)
+		}
+	}
+
+	// Default handler for utility APIs (not tied to any specific bot instance)
 	msgHandler := logic.NewMessageHandler(logic.HandlerConfig{
 		LLMProvider:    c.LLM.Provider,
 		LLMAPIKey:      c.LLM.APIKey,
@@ -31,12 +50,29 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		LLMModel:       c.LLM.Model,
 		LLMMaxTokens:   c.LLM.MaxTokens,
 		LLMTemperature: c.LLM.Temperature,
+		RagClient:      ragClient,
+	})
+
+	orch := orchestrator.NewOrchestrator(orchestrator.OrchestratorConfig{
+		TokenURL:     c.BotAPITokenURL,
+		RefreshURL:   c.BotAPIRefreshURL,
+		WSGatewayURL: c.WSGatewayURL,
+		ClientID:     c.BotClientID,
+		ClientSecret: c.BotClientSecret,
+		RagClient:    ragClient,
+		BotRpcClient: botRpcClient,
+		DefaultLLM: orchestrator.LLMDefaults{
+			Provider:    c.LLM.Provider,
+			BaseURL:     c.LLM.BaseURL,
+			MaxTokens:   c.LLM.MaxTokens,
+			Temperature: c.LLM.Temperature,
+		},
 	})
 
 	svcCtx := &ServiceContext{
-		Config:     c,
-		BotClient:  botClient,
-		MsgHandler: msgHandler,
+		Config:       c,
+		Orchestrator: orch,
+		MsgHandler:   msgHandler,
 	}
 
 	svcCtx.HealthHandler = &HealthHandler{svcCtx: svcCtx}

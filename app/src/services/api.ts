@@ -412,45 +412,71 @@ export const api = {
   },
 
   bot: {
+    // ========== Template CRUD ==========
+    listMyTemplates: () =>
+      request<ListMyTemplatesResp>("/templates", {}, getBotApiBase()),
+    getTemplate: (templateId: number) =>
+      request<GetTemplateResp>(`/templates/${templateId}`, {}, getBotApiBase()),
+    createTemplate: (data: CreateTemplateReq) =>
+      request<CreateTemplateResp>("/templates", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }, getBotApiBase()),
+    updateTemplate: (templateId: number, data: Partial<CreateTemplateReq>) =>
+      request<void>(`/templates/${templateId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }, getBotApiBase()),
+    deleteTemplate: (templateId: number) =>
+      request<void>(`/templates/${templateId}`, {
+        method: "DELETE",
+      }, getBotApiBase()),
+
+    // ========== Instance CRUD ==========
+    listMyInstances: () =>
+      request<ListMyInstancesResp>("/instances", {}, getBotApiBase()),
+    getInstance: (instanceId: number) =>
+      request<GetInstanceResp>(`/instances/${instanceId}`, {}, getBotApiBase()),
+    createInstance: (data: CreateInstanceReq) =>
+      request<CreateInstanceResp>("/instances", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }, getBotApiBase()),
+    updateInstance: (instanceId: number, data: Partial<CreateInstanceReq>) =>
+      request<void>(`/instances/${instanceId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }, getBotApiBase()),
+    deleteInstance: (instanceId: number) =>
+      request<void>(`/instances/${instanceId}`, {
+        method: "DELETE",
+      }, getBotApiBase()),
+
+    // ========== Installation ==========
     getConvBots: (convId: string) =>
       request<GetConvBotsResp>(`/installation/convs/${convId}/bots`, {}, getBotApiBase()),
-    install: (botId: string, convId: string) =>
+    install: (botId: string, convId: string, opts?: { template_id?: string; model_provider?: string; model_name?: string; api_key?: string; kb_config?: string }) =>
       request<void>(`/installation/convs/${convId}/bots/install`, {
         method: "POST",
-        body: JSON.stringify({ bot_id: botId }),
+        body: JSON.stringify({ bot_id: botId, ...opts }),
       }, getBotApiBase()),
-    batchInstall: (botId: string, convIds: string[]) =>
+    batchInstall: (botId: string, convIds: string[], opts?: { template_id?: string; model_provider?: string; model_name?: string; api_key?: string; kb_config?: string }) =>
       request<{ success_count: number; failed_convs: string[] }>(`/installation/bots/install`, {
         method: "POST",
-        body: JSON.stringify({ bot_id: botId, conv_ids: convIds }),
+        body: JSON.stringify({ bot_id: botId, conv_ids: convIds, ...opts }),
       }, getBotApiBase()),
     uninstall: (botId: string, convId: string) =>
       request<void>(`/installation/convs/${convId}/bots/uninstall`, {
         method: "POST",
         body: JSON.stringify({ bot_id: botId }),
       }, getBotApiBase()),
-    listMyBots: () =>
-      request<ListMyBotsResp>("/developer/bots", {}, getBotApiBase()),
+
+    // ========== Community (old API, backward compat) ==========
     listCommunityBots: (keyword?: string) => {
       const path = keyword ? `/community/bots?keyword=${encodeURIComponent(keyword)}` : "/community/bots";
       return request<ListCommunityBotsResp>(path, {}, getBotApiBase());
     },
-    getBot: (botId: string) =>
-      request<BotInfo>(`/developer/bots/${botId}`, {}, getBotApiBase()),
-    createBot: (data: CreateBotReq) =>
-      request<BotInfo>("/developer/bots", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }, getBotApiBase()),
-    updateBot: (data: UpdateBotReq) =>
-      request<BotInfo>(`/developer/bots/${data.bot_id}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      }, getBotApiBase()),
-    deleteBot: (botId: string) =>
-      request<void>(`/developer/bots/${botId}`, {
-        method: "DELETE",
-      }, getBotApiBase()),
+
     // AI features via official bot
     summarize: (convId: string) =>
       request<SummarizeTicket>(`/bot/summarize`, {
@@ -474,6 +500,96 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ text }),
       }),
+  },
+
+  rag: {
+    // ========== Knowledge Base CRUD ==========
+    listKBs: () =>
+      request<ListKBsResp>("/rag/kb/list"),
+    getKB: (kbId: string) =>
+      request<GetKBResp>(`/rag/kb/${kbId}`),
+    createKB: (data: CreateKBReq) =>
+      request<CreateKBResp>("/rag/kb/create", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    updateKB: (kbId: string, data: Partial<CreateKBReq>) =>
+      request<void>(`/rag/kb/${kbId}/update`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    deleteKB: (kbId: string) =>
+      request<void>(`/rag/kb/${kbId}/delete`, {
+        method: "POST",
+      }),
+
+    // ========== Document Management ==========
+    listDocs: (kbId: string) =>
+      request<ListDocsResp>(`/rag/kb/${kbId}/doc/list`),
+    getDocStatus: (kbId: string, docId: string) =>
+      request<GetDocStatusResp>(`/rag/kb/${kbId}/doc/${docId}`),
+    uploadDoc: async (kbId: string, file: File): Promise<UploadDocResp> => {
+      // Step 1: Upload file to OSS
+      const ossResp = await api.oss.upload(file);
+      // Step 2: Notify RAG service with the OSS key + file metadata
+      return request<UploadDocResp>(`/rag/kb/${kbId}/doc/upload`, {
+        method: "POST",
+        body: JSON.stringify({
+          oss_key: ossResp.oss_index,
+          file_name: file.name,
+          content_type: file.type || "application/octet-stream",
+          file_size: file.size,
+        }),
+      });
+    },
+    deleteDoc: (kbId: string, docId: string) =>
+      request<void>(`/rag/kb/${kbId}/doc/${docId}/delete`, {
+        method: "POST",
+      }),
+    getDocChunks: (kbId: string, docId: string) =>
+      request<GetDocChunksResp>(`/rag/kb/${kbId}/doc/${docId}/chunks`),
+
+    // ========== External Sync ==========
+    triggerSync: (kbId: string) =>
+      request<TriggerSyncResp>(`/rag/kb/${kbId}/sync/trigger`, {
+        method: "POST",
+      }),
+    getSyncStatus: (kbId: string, syncId: string) =>
+      request<GetSyncStatusResp>(`/rag/kb/${kbId}/sync/${syncId}`),
+    listSyncs: (kbId: string) =>
+      request<ListSyncsResp>(`/rag/kb/${kbId}/sync/list`),
+
+    // ========== Search ==========
+    search: (data: SearchKBReq) =>
+      request<SearchKBResp>("/rag/search", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+
+    // ========== KB Health ==========
+    getKBHealth: (kbId: string) =>
+      request<GetKBHealthResp>(`/rag/kb/${kbId}/health`),
+
+    // ========== Authorization ==========
+    authorizeKB: (data: AuthorizeKBReq) =>
+      request<void>("/rag/auth/authorize-kb", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    grantBotAccess: (data: GrantBotKBAccessReq) =>
+      request<void>("/rag/auth/grant-bot", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    revokeBotAccess: (data: RevokeBotKBAccessReq) =>
+      request<void>("/rag/auth/revoke-bot", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    listKBAuthorizations: () =>
+      request<ListKBAuthsResp>("/rag/auth/list"),
+    listBotKBs: () =>
+      request<ListBotKBsResp>("/rag/auth/bot-kbs"),
   },
 
   oss: {
@@ -1018,12 +1134,140 @@ export interface ConvBotItem {
   enabled: boolean;
 }
 
+// ============ Bot Template Types ============
+
+export interface BotTemplateItem {
+  template_id: number;
+  name: string;
+  avatar?: string;
+  description?: string;
+  category?: string;
+  version?: string;
+  system_prompt?: string;
+  welcome_message?: string;
+  conversation_style?: string;
+  tool_definitions?: string;
+  kb_structure?: string;
+  config_schema?: string;
+  supported_models?: string;
+  is_official: boolean;
+  tags?: string[];
+  status?: string;
+  created_at?: number;
+}
+
+export interface ListMyTemplatesResp {
+  list: BotTemplateItem[];
+}
+
+export interface GetTemplateResp {
+  template: BotTemplateItem;
+}
+
+export interface CreateTemplateReq {
+  name: string;
+  avatar?: string;
+  description?: string;
+  category?: string;
+  system_prompt?: string;
+  welcome_message?: string;
+  conversation_style?: string;
+  tool_definitions?: string;
+  kb_structure?: string;
+  config_schema?: string;
+  supported_models?: string;
+  tags?: string[];
+}
+
+export interface CreateTemplateResp {
+  template_id: number;
+}
+
+// ============ Bot Instance Types ============
+
+export interface BotInstanceItem {
+  instance_id: number;
+  bot_id: number;
+  template_id: number;
+  name: string;
+  avatar?: string;
+  is_self_hosted: boolean;
+  hosted_by?: number;
+  model_provider?: string;
+  model_name?: string;
+  kb_config?: string;
+  status?: string;
+  created_at?: number;
+}
+
+export interface ListMyInstancesResp {
+  list: BotInstanceItem[];
+}
+
+export interface GetInstanceResp {
+  instance: BotInstanceItem;
+}
+
+export interface CreateInstanceReq {
+  template_id: number;
+  name?: string;
+  avatar?: string;
+  is_self_hosted?: boolean;
+  hosted_by?: number;
+  model_provider?: string;
+  model_name?: string;
+  api_key?: string;
+  api_base_url?: string;
+  kb_config?: string;
+  instance_config?: string;
+}
+
+export interface CreateInstanceResp {
+  instance_id: number;
+  bot_id: number;
+}
+
+// ============ Legacy Bot Types (backward compat) ============
+
 export interface ListMyBotsResp {
   list: BotInfo[];
 }
 
 export interface ListCommunityBotsResp {
-  list: BotInfo[];
+  hosted_bots: CommunityHostedBot[];
+  templates: CommunityTemplate[];
+}
+
+export interface CommunityHostedBot {
+  type: "hosted";
+  instance_id: string;
+  bot_id: string;
+  name: string;
+  avatar?: string;
+  description?: string;
+  hosted_by: string;
+  installed_count: number;
+  status: string;
+  template_id: string;
+  category?: string;
+  tags?: string[];
+  is_official: boolean;
+}
+
+export interface CommunityTemplate {
+  type: "template";
+  instance_id: string;
+  bot_id: string;
+  name: string;
+  avatar?: string;
+  description?: string;
+  hosted_by: string;
+  installed_count: number;
+  status: string;
+  template_id: string;
+  category?: string;
+  tags?: string[];
+  is_official: boolean;
 }
 
 export interface BotInfo {
@@ -1050,6 +1294,183 @@ export interface UpdateBotReq {
   description?: string;
   webhook_url?: string;
 }
+
+// ============ RAG Types ============
+
+export interface CreateKBReq {
+  name: string;
+  description?: string;
+  source_type?: string;
+  source_config?: string;
+}
+
+export interface CreateKBResp {
+  kb_id: string;
+}
+
+export interface ListKBsResp {
+  list: KBItem[];
+}
+
+export interface GetKBResp {
+  kb_id: string;
+  name: string;
+  description: string;
+  source_type: string;
+  source_config: string;
+  doc_count: number;
+  total_size: number;
+  status: string;
+  created_at: number;
+  updated_at: number;
+}
+
+export interface KBItem {
+  kb_id: string;
+  name: string;
+  description: string;
+  source_type: string;
+  doc_count: number;
+  total_size: number;
+  status: string;
+  created_at: number;
+}
+
+export interface ListDocsResp {
+  list: DocItem[];
+}
+
+export interface GetDocStatusResp {
+  doc: DocItem;
+}
+
+export interface DocItem {
+  doc_id: string;
+  kb_id: string;
+  file_name: string;
+  content_type: string;
+  file_size: number;
+  status: string;
+  chunk_count: number;
+  error_msg?: string;
+  created_at: number;
+  updated_at: number;
+}
+
+export interface UploadDocResp {
+  doc_id: string;
+  status: string;
+}
+
+export interface GetDocChunksResp {
+  list: DocChunkItem[];
+}
+
+export interface DocChunkItem {
+  chunk_id: string;
+  content: string;
+  index: number;
+  metadata?: string;
+}
+
+export interface TriggerSyncResp {
+  sync_id: string;
+}
+
+export interface GetSyncStatusResp {
+  sync_id: string;
+  kb_id: string;
+  status: string;
+  progress: number;
+  error_msg?: string;
+  started_at: number;
+  completed_at?: number;
+}
+
+export interface ListSyncsResp {
+  list: SyncItem[];
+}
+
+export interface SyncItem {
+  sync_id: string;
+  kb_id: string;
+  source_type: string;
+  status: string;
+  progress: number;
+  started_at: number;
+  completed_at?: number;
+}
+
+export interface SearchKBReq {
+  kb_ids: string[];
+  query: string;
+  top_k?: number;
+  vector_weight?: number;
+  graph_weight?: number;
+  keyword_weight?: number;
+}
+
+export interface SearchKBResp {
+  items: RecallItem[];
+  kb_counts: Record<string, number>;
+  latency_ms: number;
+}
+
+export interface RecallItem {
+  doc_id: string;
+  kb_id: string;
+  content: string;
+  score: number;
+  metadata?: string;
+}
+
+export interface GetKBHealthResp {
+  kb_id: string;
+  status: string;
+  doc_count: number;
+  total_size: number;
+  avg_chunk_size: number;
+  issues: string[];
+}
+
+export interface AuthorizeKBReq {
+  kb_id: string;
+  client_id: string;
+}
+
+export interface GrantBotKBAccessReq {
+  kb_id: string;
+  bot_id: number;
+}
+
+export interface RevokeBotKBAccessReq {
+  kb_id: string;
+  bot_id: number;
+}
+
+export interface ListKBAuthsResp {
+  list: KBAuthItem[];
+}
+
+export interface KBAuthItem {
+  kb_id: string;
+  kb_name: string;
+  client_id: string;
+  granted_at: number;
+}
+
+export interface ListBotKBsResp {
+  list: BotKBItem[];
+}
+
+export interface BotKBItem {
+  kb_id: string;
+  kb_name: string;
+  client_id: string;
+  granted_at: number;
+}
+
+// ============ AI Feature Types ============
 
 export interface SummarizeTicket {
   ticket: string;

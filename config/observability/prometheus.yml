@@ -74,6 +74,12 @@ scrape_configs:
     scrape_interval: 10s
     metrics_path: '/metrics'
 
+  - job_name: 'rag-rpc'
+    static_configs:
+      - targets: [ 'rag-services:6068' ]
+    scrape_interval: 10s
+    metrics_path: '/metrics'
+
   - job_name: 'tempo'
     static_configs:
       - targets: [ 'tempo:3200' ]

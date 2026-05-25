@@ -33,17 +33,46 @@ func (l *ListCommunityBotsLogic) ListCommunityBots(req *types.ListCommunityBotsR
 		return nil, err
 	}
 
-	list := make([]types.BotItem, 0, len(result.List))
-	for _, item := range result.List {
-		list = append(list, types.BotItem{
-			BotId:       strconv.FormatInt(item.BotId, 10),
-			Name:        item.Name,
-			Description: item.Description,
-			Avatar:      item.Avatar,
-			Status:      item.Status,
-			ClientId:    item.ClientId,
-			CreatedAt:   item.CreatedAt,
-		})
+	hostedBots := convertCommunityBots(result.HostedBots)
+	templates := convertCommunityBots(result.Templates)
+
+	return &types.ListCommunityBotsResp{
+		HostedBots: hostedBots,
+		Templates:  templates,
+	}, nil
+}
+
+func convertCommunityBots(items []*botclient.CommunityBotItem) []types.CommunityBotItem {
+	list := make([]types.CommunityBotItem, 0, len(items))
+	for _, item := range items {
+		b := types.CommunityBotItem{
+			Type:           item.Type,
+			Name:           item.Name,
+			Avatar:         item.Avatar,
+			Description:    item.Description,
+			IsOfficial:     item.IsOfficial,
+			Status:         item.Status,
+			InstalledCount: item.InstalledCount,
+		}
+		if item.InstanceId > 0 {
+			b.InstanceId = strconv.FormatInt(item.InstanceId, 10)
+		}
+		if item.BotId > 0 {
+			b.BotId = strconv.FormatInt(item.BotId, 10)
+		}
+		if item.TemplateId > 0 {
+			b.TemplateId = strconv.FormatInt(item.TemplateId, 10)
+		}
+		if item.HostedBy > 0 {
+			b.HostedBy = strconv.FormatInt(item.HostedBy, 10)
+		}
+		if item.Category != "" {
+			b.Category = item.Category
+		}
+		if item.Tags != nil {
+			b.Tags = item.Tags
+		}
+		list = append(list, b)
 	}
-	return &types.ListCommunityBotsResp{List: list}, nil
+	return list
 }

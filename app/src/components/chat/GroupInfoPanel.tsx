@@ -2,7 +2,7 @@ import { For, Show, createSignal, createMemo, createResource } from "solid-js";
 import { chatStore } from "../../stores/chat";
 import { authStore } from "../../stores/auth";
 import { api } from "../../services/api";
-import type { ConvBotItem, BotInfo } from "../../services/api";
+import type { ConvBotItem } from "../../services/api";
 import type { MessageItem } from "../../services/api";
 import { Avatar } from "../ui/avatar";
 import { downloadFile } from "../../services/download";
@@ -40,7 +40,7 @@ export function GroupInfoPanel() {
   const [installedBots, setInstalledBots] = createSignal<ConvBotItem[]>([]);
   const [botsLoading, setBotsLoading] = createSignal(false);
   const [showAddBot, setShowAddBot] = createSignal(false);
-  const [myBots, setMyBots] = createSignal<BotInfo[]>([]);
+  const [myBots, setMyBots] = createSignal<{ bot_id: number; name: string; description?: string }[]>([]);
   const [myBotsLoading, setMyBotsLoading] = createSignal(false);
   const [hoveredMember, setHoveredMember] = createSignal<{
     uid: string;
@@ -240,22 +240,23 @@ export function GroupInfoPanel() {
   const loadMyBots = async () => {
     setMyBotsLoading(true);
     try {
-      const [myResp, communityResp] = await Promise.all([
-        api.bot.listMyBots(),
-        api.bot.listCommunityBots(),
-      ]);
-      const seen = new Set<string>();
-      const combined: typeof myResp.list = [];
-      for (const bot of myResp.list) {
-        if (!seen.has(bot.bot_id)) {
-          seen.add(bot.bot_id);
-          combined.push(bot);
-        }
-      }
-      for (const bot of communityResp.list) {
-        if (!seen.has(bot.bot_id)) {
-          seen.add(bot.bot_id);
-          combined.push(bot);
+      // Load user instances (new model)
+      const instResp = await api.bot.listMyInstances();
+      const mapped: { bot_id: number; name: string; description?: string }[] = (instResp.list || []).map(i => ({
+        bot_id: i.bot_id,
+        name: i.name,
+        description: `实例 #${i.instance_id} (模板 #${i.template_id})`,
+      }));
+      // Also load community hosted bots for legacy compat
+      const communityResp = await api.bot.listCommunityBots();
+      const seen = new Set<number>();
+      const combined = [...mapped];
+      for (const inst of combined) seen.add(inst.bot_id);
+      for (const bot of communityResp.hosted_bots || []) {
+        const numId = parseInt(bot.bot_id, 10);
+        if (!isNaN(numId) && !seen.has(numId)) {
+          seen.add(numId);
+          combined.push({ bot_id: numId, name: bot.name, description: bot.description });
         }
       }
       setMyBots(combined);
@@ -735,11 +736,11 @@ export function GroupInfoPanel() {
                   </div>
                 </Show>
                 <For each={myBots()}>
-                  {(bot) => {
+                  {(bot: { bot_id: number; name: string; description?: string }) => {
                     const installed = isBotInstalled(String(bot.bot_id));
                     return (
                       <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-surface-hover transition-colors">
-                        <Avatar name={bot.name} src={bot.avatar} size="sm" />
+                        <Avatar name={bot.name} size="sm" />
                         <div class="flex-1 min-w-0">
                           <p class="text-sm font-medium text-text truncate">{bot.name}</p>
                           <p class="text-xs text-text-muted truncate">{bot.description || ""}</p>

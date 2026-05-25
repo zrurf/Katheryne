@@ -539,95 +539,6 @@ func (x *ListMyBotsResp) GetList() []*BotInfo {
 	return nil
 }
 
-// Community bots: official bots + keyword search
-type ListCommunityBotsReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Keyword       string                 `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListCommunityBotsReq) Reset() {
-	*x = ListCommunityBotsReq{}
-	mi := &file_bot_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListCommunityBotsReq) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListCommunityBotsReq) ProtoMessage() {}
-
-func (x *ListCommunityBotsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListCommunityBotsReq.ProtoReflect.Descriptor instead.
-func (*ListCommunityBotsReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *ListCommunityBotsReq) GetKeyword() string {
-	if x != nil {
-		return x.Keyword
-	}
-	return ""
-}
-
-type ListCommunityBotsResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	List          []*BotInfo             `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListCommunityBotsResp) Reset() {
-	*x = ListCommunityBotsResp{}
-	mi := &file_bot_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListCommunityBotsResp) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListCommunityBotsResp) ProtoMessage() {}
-
-func (x *ListCommunityBotsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListCommunityBotsResp.ProtoReflect.Descriptor instead.
-func (*ListCommunityBotsResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *ListCommunityBotsResp) GetList() []*BotInfo {
-	if x != nil {
-		return x.List
-	}
-	return nil
-}
-
 type GetBotReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	BotId         int64                  `protobuf:"varint,1,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"`
@@ -638,7 +549,7 @@ type GetBotReq struct {
 
 func (x *GetBotReq) Reset() {
 	*x = GetBotReq{}
-	mi := &file_bot_proto_msgTypes[9]
+	mi := &file_bot_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -650,7 +561,7 @@ func (x *GetBotReq) String() string {
 func (*GetBotReq) ProtoMessage() {}
 
 func (x *GetBotReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[9]
+	mi := &file_bot_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -663,7 +574,7 @@ func (x *GetBotReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBotReq.ProtoReflect.Descriptor instead.
 func (*GetBotReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{9}
+	return file_bot_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetBotReq) GetBotId() int64 {
@@ -689,7 +600,7 @@ type GetBotResp struct {
 
 func (x *GetBotResp) Reset() {
 	*x = GetBotResp{}
-	mi := &file_bot_proto_msgTypes[10]
+	mi := &file_bot_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -701,7 +612,7 @@ func (x *GetBotResp) String() string {
 func (*GetBotResp) ProtoMessage() {}
 
 func (x *GetBotResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[10]
+	mi := &file_bot_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -714,7 +625,7 @@ func (x *GetBotResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBotResp.ProtoReflect.Descriptor instead.
 func (*GetBotResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{10}
+	return file_bot_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetBotResp) GetBot() *BotInfo {
@@ -739,7 +650,7 @@ type UpdateBotReq struct {
 
 func (x *UpdateBotReq) Reset() {
 	*x = UpdateBotReq{}
-	mi := &file_bot_proto_msgTypes[11]
+	mi := &file_bot_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -751,7 +662,7 @@ func (x *UpdateBotReq) String() string {
 func (*UpdateBotReq) ProtoMessage() {}
 
 func (x *UpdateBotReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[11]
+	mi := &file_bot_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -764,7 +675,7 @@ func (x *UpdateBotReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBotReq.ProtoReflect.Descriptor instead.
 func (*UpdateBotReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{11}
+	return file_bot_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdateBotReq) GetUid() int64 {
@@ -824,7 +735,7 @@ type UpdateBotResp struct {
 
 func (x *UpdateBotResp) Reset() {
 	*x = UpdateBotResp{}
-	mi := &file_bot_proto_msgTypes[12]
+	mi := &file_bot_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -836,7 +747,7 @@ func (x *UpdateBotResp) String() string {
 func (*UpdateBotResp) ProtoMessage() {}
 
 func (x *UpdateBotResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[12]
+	mi := &file_bot_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -849,7 +760,7 @@ func (x *UpdateBotResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBotResp.ProtoReflect.Descriptor instead.
 func (*UpdateBotResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{12}
+	return file_bot_proto_rawDescGZIP(), []int{10}
 }
 
 type DeleteBotReq struct {
@@ -862,7 +773,7 @@ type DeleteBotReq struct {
 
 func (x *DeleteBotReq) Reset() {
 	*x = DeleteBotReq{}
-	mi := &file_bot_proto_msgTypes[13]
+	mi := &file_bot_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -874,7 +785,7 @@ func (x *DeleteBotReq) String() string {
 func (*DeleteBotReq) ProtoMessage() {}
 
 func (x *DeleteBotReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[13]
+	mi := &file_bot_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -887,7 +798,7 @@ func (x *DeleteBotReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBotReq.ProtoReflect.Descriptor instead.
 func (*DeleteBotReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{13}
+	return file_bot_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *DeleteBotReq) GetUid() int64 {
@@ -912,7 +823,7 @@ type DeleteBotResp struct {
 
 func (x *DeleteBotResp) Reset() {
 	*x = DeleteBotResp{}
-	mi := &file_bot_proto_msgTypes[14]
+	mi := &file_bot_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -924,7 +835,7 @@ func (x *DeleteBotResp) String() string {
 func (*DeleteBotResp) ProtoMessage() {}
 
 func (x *DeleteBotResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[14]
+	mi := &file_bot_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -937,7 +848,7 @@ func (x *DeleteBotResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBotResp.ProtoReflect.Descriptor instead.
 func (*DeleteBotResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{14}
+	return file_bot_proto_rawDescGZIP(), []int{12}
 }
 
 type GetBotInstallationsReq struct {
@@ -950,7 +861,7 @@ type GetBotInstallationsReq struct {
 
 func (x *GetBotInstallationsReq) Reset() {
 	*x = GetBotInstallationsReq{}
-	mi := &file_bot_proto_msgTypes[15]
+	mi := &file_bot_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -962,7 +873,7 @@ func (x *GetBotInstallationsReq) String() string {
 func (*GetBotInstallationsReq) ProtoMessage() {}
 
 func (x *GetBotInstallationsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[15]
+	mi := &file_bot_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -975,7 +886,7 @@ func (x *GetBotInstallationsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBotInstallationsReq.ProtoReflect.Descriptor instead.
 func (*GetBotInstallationsReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{15}
+	return file_bot_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetBotInstallationsReq) GetUid() int64 {
@@ -1001,7 +912,7 @@ type GetBotInstallationsResp struct {
 
 func (x *GetBotInstallationsResp) Reset() {
 	*x = GetBotInstallationsResp{}
-	mi := &file_bot_proto_msgTypes[16]
+	mi := &file_bot_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1013,7 +924,7 @@ func (x *GetBotInstallationsResp) String() string {
 func (*GetBotInstallationsResp) ProtoMessage() {}
 
 func (x *GetBotInstallationsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[16]
+	mi := &file_bot_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1026,7 +937,7 @@ func (x *GetBotInstallationsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBotInstallationsResp.ProtoReflect.Descriptor instead.
 func (*GetBotInstallationsResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{16}
+	return file_bot_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetBotInstallationsResp) GetList() []*BotInstallationItem {
@@ -1046,7 +957,7 @@ type GetBotRateLimitReq struct {
 
 func (x *GetBotRateLimitReq) Reset() {
 	*x = GetBotRateLimitReq{}
-	mi := &file_bot_proto_msgTypes[17]
+	mi := &file_bot_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1058,7 +969,7 @@ func (x *GetBotRateLimitReq) String() string {
 func (*GetBotRateLimitReq) ProtoMessage() {}
 
 func (x *GetBotRateLimitReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[17]
+	mi := &file_bot_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1071,7 +982,7 @@ func (x *GetBotRateLimitReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBotRateLimitReq.ProtoReflect.Descriptor instead.
 func (*GetBotRateLimitReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{17}
+	return file_bot_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetBotRateLimitReq) GetUid() int64 {
@@ -1099,7 +1010,7 @@ type GetBotRateLimitResp struct {
 
 func (x *GetBotRateLimitResp) Reset() {
 	*x = GetBotRateLimitResp{}
-	mi := &file_bot_proto_msgTypes[18]
+	mi := &file_bot_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1111,7 +1022,7 @@ func (x *GetBotRateLimitResp) String() string {
 func (*GetBotRateLimitResp) ProtoMessage() {}
 
 func (x *GetBotRateLimitResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[18]
+	mi := &file_bot_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1124,7 +1035,7 @@ func (x *GetBotRateLimitResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBotRateLimitResp.ProtoReflect.Descriptor instead.
 func (*GetBotRateLimitResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{18}
+	return file_bot_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetBotRateLimitResp) GetMessagesPerMinute() int64 {
@@ -1161,7 +1072,7 @@ type UpdateBotRateLimitReq struct {
 
 func (x *UpdateBotRateLimitReq) Reset() {
 	*x = UpdateBotRateLimitReq{}
-	mi := &file_bot_proto_msgTypes[19]
+	mi := &file_bot_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1173,7 +1084,7 @@ func (x *UpdateBotRateLimitReq) String() string {
 func (*UpdateBotRateLimitReq) ProtoMessage() {}
 
 func (x *UpdateBotRateLimitReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[19]
+	mi := &file_bot_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1186,7 +1097,7 @@ func (x *UpdateBotRateLimitReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBotRateLimitReq.ProtoReflect.Descriptor instead.
 func (*UpdateBotRateLimitReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{19}
+	return file_bot_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *UpdateBotRateLimitReq) GetUid() int64 {
@@ -1232,7 +1143,7 @@ type UpdateBotRateLimitResp struct {
 
 func (x *UpdateBotRateLimitResp) Reset() {
 	*x = UpdateBotRateLimitResp{}
-	mi := &file_bot_proto_msgTypes[20]
+	mi := &file_bot_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1244,7 +1155,7 @@ func (x *UpdateBotRateLimitResp) String() string {
 func (*UpdateBotRateLimitResp) ProtoMessage() {}
 
 func (x *UpdateBotRateLimitResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[20]
+	mi := &file_bot_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1257,7 +1168,7 @@ func (x *UpdateBotRateLimitResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBotRateLimitResp.ProtoReflect.Descriptor instead.
 func (*UpdateBotRateLimitResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{20}
+	return file_bot_proto_rawDescGZIP(), []int{18}
 }
 
 type RegenerateCredentialReq struct {
@@ -1270,7 +1181,7 @@ type RegenerateCredentialReq struct {
 
 func (x *RegenerateCredentialReq) Reset() {
 	*x = RegenerateCredentialReq{}
-	mi := &file_bot_proto_msgTypes[21]
+	mi := &file_bot_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1282,7 +1193,7 @@ func (x *RegenerateCredentialReq) String() string {
 func (*RegenerateCredentialReq) ProtoMessage() {}
 
 func (x *RegenerateCredentialReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[21]
+	mi := &file_bot_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1295,7 +1206,7 @@ func (x *RegenerateCredentialReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegenerateCredentialReq.ProtoReflect.Descriptor instead.
 func (*RegenerateCredentialReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{21}
+	return file_bot_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *RegenerateCredentialReq) GetUid() int64 {
@@ -1322,7 +1233,7 @@ type RegenerateCredentialResp struct {
 
 func (x *RegenerateCredentialResp) Reset() {
 	*x = RegenerateCredentialResp{}
-	mi := &file_bot_proto_msgTypes[22]
+	mi := &file_bot_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1334,7 +1245,7 @@ func (x *RegenerateCredentialResp) String() string {
 func (*RegenerateCredentialResp) ProtoMessage() {}
 
 func (x *RegenerateCredentialResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[22]
+	mi := &file_bot_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1347,7 +1258,7 @@ func (x *RegenerateCredentialResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegenerateCredentialResp.ProtoReflect.Descriptor instead.
 func (*RegenerateCredentialResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{22}
+	return file_bot_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *RegenerateCredentialResp) GetClientId() string {
@@ -1374,7 +1285,7 @@ type RotateWebhookSecretReq struct {
 
 func (x *RotateWebhookSecretReq) Reset() {
 	*x = RotateWebhookSecretReq{}
-	mi := &file_bot_proto_msgTypes[23]
+	mi := &file_bot_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1386,7 +1297,7 @@ func (x *RotateWebhookSecretReq) String() string {
 func (*RotateWebhookSecretReq) ProtoMessage() {}
 
 func (x *RotateWebhookSecretReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[23]
+	mi := &file_bot_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1399,7 +1310,7 @@ func (x *RotateWebhookSecretReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RotateWebhookSecretReq.ProtoReflect.Descriptor instead.
 func (*RotateWebhookSecretReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{23}
+	return file_bot_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *RotateWebhookSecretReq) GetUid() int64 {
@@ -1425,7 +1336,7 @@ type RotateWebhookSecretResp struct {
 
 func (x *RotateWebhookSecretResp) Reset() {
 	*x = RotateWebhookSecretResp{}
-	mi := &file_bot_proto_msgTypes[24]
+	mi := &file_bot_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1437,7 +1348,7 @@ func (x *RotateWebhookSecretResp) String() string {
 func (*RotateWebhookSecretResp) ProtoMessage() {}
 
 func (x *RotateWebhookSecretResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[24]
+	mi := &file_bot_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1450,7 +1361,7 @@ func (x *RotateWebhookSecretResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RotateWebhookSecretResp.ProtoReflect.Descriptor instead.
 func (*RotateWebhookSecretResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{24}
+	return file_bot_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *RotateWebhookSecretResp) GetWebhookSecret() string {
@@ -1474,7 +1385,7 @@ type GetEventDeliveriesReq struct {
 
 func (x *GetEventDeliveriesReq) Reset() {
 	*x = GetEventDeliveriesReq{}
-	mi := &file_bot_proto_msgTypes[25]
+	mi := &file_bot_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1486,7 +1397,7 @@ func (x *GetEventDeliveriesReq) String() string {
 func (*GetEventDeliveriesReq) ProtoMessage() {}
 
 func (x *GetEventDeliveriesReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[25]
+	mi := &file_bot_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1499,7 +1410,7 @@ func (x *GetEventDeliveriesReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetEventDeliveriesReq.ProtoReflect.Descriptor instead.
 func (*GetEventDeliveriesReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{25}
+	return file_bot_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetEventDeliveriesReq) GetBotId() int64 {
@@ -1562,7 +1473,7 @@ type EventDeliveryItem struct {
 
 func (x *EventDeliveryItem) Reset() {
 	*x = EventDeliveryItem{}
-	mi := &file_bot_proto_msgTypes[26]
+	mi := &file_bot_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1574,7 +1485,7 @@ func (x *EventDeliveryItem) String() string {
 func (*EventDeliveryItem) ProtoMessage() {}
 
 func (x *EventDeliveryItem) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[26]
+	mi := &file_bot_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1587,7 +1498,7 @@ func (x *EventDeliveryItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EventDeliveryItem.ProtoReflect.Descriptor instead.
 func (*EventDeliveryItem) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{26}
+	return file_bot_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *EventDeliveryItem) GetEventId() string {
@@ -1670,7 +1581,7 @@ type GetEventDeliveriesResp struct {
 
 func (x *GetEventDeliveriesResp) Reset() {
 	*x = GetEventDeliveriesResp{}
-	mi := &file_bot_proto_msgTypes[27]
+	mi := &file_bot_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1682,7 +1593,7 @@ func (x *GetEventDeliveriesResp) String() string {
 func (*GetEventDeliveriesResp) ProtoMessage() {}
 
 func (x *GetEventDeliveriesResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[27]
+	mi := &file_bot_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1695,7 +1606,7 @@ func (x *GetEventDeliveriesResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetEventDeliveriesResp.ProtoReflect.Descriptor instead.
 func (*GetEventDeliveriesResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{27}
+	return file_bot_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GetEventDeliveriesResp) GetList() []*EventDeliveryItem {
@@ -1721,7 +1632,7 @@ type RetryEventDeliveryReq struct {
 
 func (x *RetryEventDeliveryReq) Reset() {
 	*x = RetryEventDeliveryReq{}
-	mi := &file_bot_proto_msgTypes[28]
+	mi := &file_bot_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1733,7 +1644,7 @@ func (x *RetryEventDeliveryReq) String() string {
 func (*RetryEventDeliveryReq) ProtoMessage() {}
 
 func (x *RetryEventDeliveryReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[28]
+	mi := &file_bot_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1746,7 +1657,7 @@ func (x *RetryEventDeliveryReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RetryEventDeliveryReq.ProtoReflect.Descriptor instead.
 func (*RetryEventDeliveryReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{28}
+	return file_bot_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *RetryEventDeliveryReq) GetEventId() string {
@@ -1764,7 +1675,7 @@ type RetryEventDeliveryResp struct {
 
 func (x *RetryEventDeliveryResp) Reset() {
 	*x = RetryEventDeliveryResp{}
-	mi := &file_bot_proto_msgTypes[29]
+	mi := &file_bot_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1776,7 +1687,7 @@ func (x *RetryEventDeliveryResp) String() string {
 func (*RetryEventDeliveryResp) ProtoMessage() {}
 
 func (x *RetryEventDeliveryResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[29]
+	mi := &file_bot_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1789,7 +1700,7 @@ func (x *RetryEventDeliveryResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RetryEventDeliveryResp.ProtoReflect.Descriptor instead.
 func (*RetryEventDeliveryResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{29}
+	return file_bot_proto_rawDescGZIP(), []int{27}
 }
 
 // ========== Installation APIs ==========
@@ -1802,7 +1713,7 @@ type GetConvBotsReq struct {
 
 func (x *GetConvBotsReq) Reset() {
 	*x = GetConvBotsReq{}
-	mi := &file_bot_proto_msgTypes[30]
+	mi := &file_bot_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1814,7 +1725,7 @@ func (x *GetConvBotsReq) String() string {
 func (*GetConvBotsReq) ProtoMessage() {}
 
 func (x *GetConvBotsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[30]
+	mi := &file_bot_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1827,7 +1738,7 @@ func (x *GetConvBotsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetConvBotsReq.ProtoReflect.Descriptor instead.
 func (*GetConvBotsReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{30}
+	return file_bot_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *GetConvBotsReq) GetConvId() int64 {
@@ -1846,7 +1757,7 @@ type GetConvBotsResp struct {
 
 func (x *GetConvBotsResp) Reset() {
 	*x = GetConvBotsResp{}
-	mi := &file_bot_proto_msgTypes[31]
+	mi := &file_bot_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1858,7 +1769,7 @@ func (x *GetConvBotsResp) String() string {
 func (*GetConvBotsResp) ProtoMessage() {}
 
 func (x *GetConvBotsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[31]
+	mi := &file_bot_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1871,7 +1782,7 @@ func (x *GetConvBotsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetConvBotsResp.ProtoReflect.Descriptor instead.
 func (*GetConvBotsResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{31}
+	return file_bot_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *GetConvBotsResp) GetList() []*InstalledBotItem {
@@ -1882,18 +1793,24 @@ func (x *GetConvBotsResp) GetList() []*InstalledBotItem {
 }
 
 type InstallBotReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	BotId         int64                  `protobuf:"varint,2,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"`
-	ConvId        int64                  `protobuf:"varint,3,opt,name=conv_id,json=convId,proto3" json:"conv_id,omitempty"`
-	Permissions   []string               `protobuf:"bytes,4,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Uid         int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	BotId       int64                  `protobuf:"varint,2,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"`
+	ConvId      int64                  `protobuf:"varint,3,opt,name=conv_id,json=convId,proto3" json:"conv_id,omitempty"`
+	Permissions []string               `protobuf:"bytes,4,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	// 自托管实例化参数（仅当安装模板时使用）
+	TemplateId    int64  `protobuf:"varint,5,opt,name=template_id,json=templateId,proto3" json:"template_id,omitempty"` // 非 0 表示从模板实例化
+	ModelProvider string `protobuf:"bytes,6,opt,name=model_provider,json=modelProvider,proto3" json:"model_provider,omitempty"`
+	ModelName     string `protobuf:"bytes,7,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
+	ApiKey        string `protobuf:"bytes,8,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"`
+	KbConfig      string `protobuf:"bytes,9,opt,name=kb_config,json=kbConfig,proto3" json:"kb_config,omitempty"` // JSON
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *InstallBotReq) Reset() {
 	*x = InstallBotReq{}
-	mi := &file_bot_proto_msgTypes[32]
+	mi := &file_bot_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1905,7 +1822,7 @@ func (x *InstallBotReq) String() string {
 func (*InstallBotReq) ProtoMessage() {}
 
 func (x *InstallBotReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[32]
+	mi := &file_bot_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1918,7 +1835,7 @@ func (x *InstallBotReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InstallBotReq.ProtoReflect.Descriptor instead.
 func (*InstallBotReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{32}
+	return file_bot_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *InstallBotReq) GetUid() int64 {
@@ -1949,15 +1866,51 @@ func (x *InstallBotReq) GetPermissions() []string {
 	return nil
 }
 
+func (x *InstallBotReq) GetTemplateId() int64 {
+	if x != nil {
+		return x.TemplateId
+	}
+	return 0
+}
+
+func (x *InstallBotReq) GetModelProvider() string {
+	if x != nil {
+		return x.ModelProvider
+	}
+	return ""
+}
+
+func (x *InstallBotReq) GetModelName() string {
+	if x != nil {
+		return x.ModelName
+	}
+	return ""
+}
+
+func (x *InstallBotReq) GetApiKey() string {
+	if x != nil {
+		return x.ApiKey
+	}
+	return ""
+}
+
+func (x *InstallBotReq) GetKbConfig() string {
+	if x != nil {
+		return x.KbConfig
+	}
+	return ""
+}
+
 type InstallBotResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	InstanceId    int64                  `protobuf:"varint,1,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"` // 自托管时返回新实例 ID，托管时为 0
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *InstallBotResp) Reset() {
 	*x = InstallBotResp{}
-	mi := &file_bot_proto_msgTypes[33]
+	mi := &file_bot_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1969,7 +1922,7 @@ func (x *InstallBotResp) String() string {
 func (*InstallBotResp) ProtoMessage() {}
 
 func (x *InstallBotResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[33]
+	mi := &file_bot_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1982,7 +1935,14 @@ func (x *InstallBotResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InstallBotResp.ProtoReflect.Descriptor instead.
 func (*InstallBotResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{33}
+	return file_bot_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *InstallBotResp) GetInstanceId() int64 {
+	if x != nil {
+		return x.InstanceId
+	}
+	return 0
 }
 
 type UninstallBotReq struct {
@@ -1996,7 +1956,7 @@ type UninstallBotReq struct {
 
 func (x *UninstallBotReq) Reset() {
 	*x = UninstallBotReq{}
-	mi := &file_bot_proto_msgTypes[34]
+	mi := &file_bot_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2008,7 +1968,7 @@ func (x *UninstallBotReq) String() string {
 func (*UninstallBotReq) ProtoMessage() {}
 
 func (x *UninstallBotReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[34]
+	mi := &file_bot_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2021,7 +1981,7 @@ func (x *UninstallBotReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UninstallBotReq.ProtoReflect.Descriptor instead.
 func (*UninstallBotReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{34}
+	return file_bot_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *UninstallBotReq) GetUid() int64 {
@@ -2053,7 +2013,7 @@ type UninstallBotResp struct {
 
 func (x *UninstallBotResp) Reset() {
 	*x = UninstallBotResp{}
-	mi := &file_bot_proto_msgTypes[35]
+	mi := &file_bot_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2065,7 +2025,7 @@ func (x *UninstallBotResp) String() string {
 func (*UninstallBotResp) ProtoMessage() {}
 
 func (x *UninstallBotResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[35]
+	mi := &file_bot_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2078,7 +2038,2536 @@ func (x *UninstallBotResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UninstallBotResp.ProtoReflect.Descriptor instead.
 func (*UninstallBotResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{33}
+}
+
+// ========== Bot 模板（Template） ==========
+type BotTemplateInfo struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	TemplateId        int64                  `protobuf:"varint,1,opt,name=template_id,json=templateId,proto3" json:"template_id,omitempty"`
+	Name              string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Avatar            string                 `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	Description       string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	OwnerUid          int64                  `protobuf:"varint,5,opt,name=owner_uid,json=ownerUid,proto3" json:"owner_uid,omitempty"`
+	Category          string                 `protobuf:"bytes,6,opt,name=category,proto3" json:"category,omitempty"` // OFFICIAL / COMMUNITY / CUSTOM
+	Version           string                 `protobuf:"bytes,7,opt,name=version,proto3" json:"version,omitempty"`
+	SystemPrompt      string                 `protobuf:"bytes,8,opt,name=system_prompt,json=systemPrompt,proto3" json:"system_prompt,omitempty"`
+	WelcomeMessage    string                 `protobuf:"bytes,9,opt,name=welcome_message,json=welcomeMessage,proto3" json:"welcome_message,omitempty"`
+	ConversationStyle string                 `protobuf:"bytes,10,opt,name=conversation_style,json=conversationStyle,proto3" json:"conversation_style,omitempty"` // JSON: {multi_message, split_delimiter, use_emoji, ...}
+	ToolDefinitions   string                 `protobuf:"bytes,11,opt,name=tool_definitions,json=toolDefinitions,proto3" json:"tool_definitions,omitempty"`       // JSON array
+	KbStructure       string                 `protobuf:"bytes,12,opt,name=kb_structure,json=kbStructure,proto3" json:"kb_structure,omitempty"`                   // JSON: {require_kb, kb_description}
+	ConfigSchema      string                 `protobuf:"bytes,13,opt,name=config_schema,json=configSchema,proto3" json:"config_schema,omitempty"`                // JSON schema for instance config
+	SupportedModels   string                 `protobuf:"bytes,14,opt,name=supported_models,json=supportedModels,proto3" json:"supported_models,omitempty"`       // JSON array
+	IsOfficial        bool                   `protobuf:"varint,15,opt,name=is_official,json=isOfficial,proto3" json:"is_official,omitempty"`
+	Tags              []string               `protobuf:"bytes,16,rep,name=tags,proto3" json:"tags,omitempty"`
+	Status            string                 `protobuf:"bytes,17,opt,name=status,proto3" json:"status,omitempty"`
+	CreatedAt         int64                  `protobuf:"varint,18,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt         int64                  `protobuf:"varint,19,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *BotTemplateInfo) Reset() {
+	*x = BotTemplateInfo{}
+	mi := &file_bot_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BotTemplateInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BotTemplateInfo) ProtoMessage() {}
+
+func (x *BotTemplateInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BotTemplateInfo.ProtoReflect.Descriptor instead.
+func (*BotTemplateInfo) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *BotTemplateInfo) GetTemplateId() int64 {
+	if x != nil {
+		return x.TemplateId
+	}
+	return 0
+}
+
+func (x *BotTemplateInfo) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *BotTemplateInfo) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *BotTemplateInfo) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *BotTemplateInfo) GetOwnerUid() int64 {
+	if x != nil {
+		return x.OwnerUid
+	}
+	return 0
+}
+
+func (x *BotTemplateInfo) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *BotTemplateInfo) GetVersion() string {
+	if x != nil {
+		return x.Version
+	}
+	return ""
+}
+
+func (x *BotTemplateInfo) GetSystemPrompt() string {
+	if x != nil {
+		return x.SystemPrompt
+	}
+	return ""
+}
+
+func (x *BotTemplateInfo) GetWelcomeMessage() string {
+	if x != nil {
+		return x.WelcomeMessage
+	}
+	return ""
+}
+
+func (x *BotTemplateInfo) GetConversationStyle() string {
+	if x != nil {
+		return x.ConversationStyle
+	}
+	return ""
+}
+
+func (x *BotTemplateInfo) GetToolDefinitions() string {
+	if x != nil {
+		return x.ToolDefinitions
+	}
+	return ""
+}
+
+func (x *BotTemplateInfo) GetKbStructure() string {
+	if x != nil {
+		return x.KbStructure
+	}
+	return ""
+}
+
+func (x *BotTemplateInfo) GetConfigSchema() string {
+	if x != nil {
+		return x.ConfigSchema
+	}
+	return ""
+}
+
+func (x *BotTemplateInfo) GetSupportedModels() string {
+	if x != nil {
+		return x.SupportedModels
+	}
+	return ""
+}
+
+func (x *BotTemplateInfo) GetIsOfficial() bool {
+	if x != nil {
+		return x.IsOfficial
+	}
+	return false
+}
+
+func (x *BotTemplateInfo) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *BotTemplateInfo) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *BotTemplateInfo) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *BotTemplateInfo) GetUpdatedAt() int64 {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return 0
+}
+
+type CreateBotTemplateReq struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	OwnerUid          int64                  `protobuf:"varint,1,opt,name=owner_uid,json=ownerUid,proto3" json:"owner_uid,omitempty"`
+	Name              string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Avatar            string                 `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	Description       string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	Category          string                 `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
+	SystemPrompt      string                 `protobuf:"bytes,6,opt,name=system_prompt,json=systemPrompt,proto3" json:"system_prompt,omitempty"`
+	WelcomeMessage    string                 `protobuf:"bytes,7,opt,name=welcome_message,json=welcomeMessage,proto3" json:"welcome_message,omitempty"`
+	ConversationStyle string                 `protobuf:"bytes,8,opt,name=conversation_style,json=conversationStyle,proto3" json:"conversation_style,omitempty"`
+	ToolDefinitions   string                 `protobuf:"bytes,9,opt,name=tool_definitions,json=toolDefinitions,proto3" json:"tool_definitions,omitempty"`
+	KbStructure       string                 `protobuf:"bytes,10,opt,name=kb_structure,json=kbStructure,proto3" json:"kb_structure,omitempty"`
+	ConfigSchema      string                 `protobuf:"bytes,11,opt,name=config_schema,json=configSchema,proto3" json:"config_schema,omitempty"`
+	SupportedModels   string                 `protobuf:"bytes,12,opt,name=supported_models,json=supportedModels,proto3" json:"supported_models,omitempty"`
+	Tags              []string               `protobuf:"bytes,13,rep,name=tags,proto3" json:"tags,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *CreateBotTemplateReq) Reset() {
+	*x = CreateBotTemplateReq{}
+	mi := &file_bot_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBotTemplateReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBotTemplateReq) ProtoMessage() {}
+
+func (x *CreateBotTemplateReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBotTemplateReq.ProtoReflect.Descriptor instead.
+func (*CreateBotTemplateReq) Descriptor() ([]byte, []int) {
 	return file_bot_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *CreateBotTemplateReq) GetOwnerUid() int64 {
+	if x != nil {
+		return x.OwnerUid
+	}
+	return 0
+}
+
+func (x *CreateBotTemplateReq) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateBotTemplateReq) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *CreateBotTemplateReq) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CreateBotTemplateReq) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *CreateBotTemplateReq) GetSystemPrompt() string {
+	if x != nil {
+		return x.SystemPrompt
+	}
+	return ""
+}
+
+func (x *CreateBotTemplateReq) GetWelcomeMessage() string {
+	if x != nil {
+		return x.WelcomeMessage
+	}
+	return ""
+}
+
+func (x *CreateBotTemplateReq) GetConversationStyle() string {
+	if x != nil {
+		return x.ConversationStyle
+	}
+	return ""
+}
+
+func (x *CreateBotTemplateReq) GetToolDefinitions() string {
+	if x != nil {
+		return x.ToolDefinitions
+	}
+	return ""
+}
+
+func (x *CreateBotTemplateReq) GetKbStructure() string {
+	if x != nil {
+		return x.KbStructure
+	}
+	return ""
+}
+
+func (x *CreateBotTemplateReq) GetConfigSchema() string {
+	if x != nil {
+		return x.ConfigSchema
+	}
+	return ""
+}
+
+func (x *CreateBotTemplateReq) GetSupportedModels() string {
+	if x != nil {
+		return x.SupportedModels
+	}
+	return ""
+}
+
+func (x *CreateBotTemplateReq) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+type CreateBotTemplateResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TemplateId    int64                  `protobuf:"varint,1,opt,name=template_id,json=templateId,proto3" json:"template_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateBotTemplateResp) Reset() {
+	*x = CreateBotTemplateResp{}
+	mi := &file_bot_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBotTemplateResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBotTemplateResp) ProtoMessage() {}
+
+func (x *CreateBotTemplateResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBotTemplateResp.ProtoReflect.Descriptor instead.
+func (*CreateBotTemplateResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *CreateBotTemplateResp) GetTemplateId() int64 {
+	if x != nil {
+		return x.TemplateId
+	}
+	return 0
+}
+
+type UpdateBotTemplateReq struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Uid               int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	TemplateId        int64                  `protobuf:"varint,2,opt,name=template_id,json=templateId,proto3" json:"template_id,omitempty"`
+	Name              string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Avatar            string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	Description       string                 `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
+	Category          string                 `protobuf:"bytes,6,opt,name=category,proto3" json:"category,omitempty"`
+	SystemPrompt      string                 `protobuf:"bytes,7,opt,name=system_prompt,json=systemPrompt,proto3" json:"system_prompt,omitempty"`
+	WelcomeMessage    string                 `protobuf:"bytes,8,opt,name=welcome_message,json=welcomeMessage,proto3" json:"welcome_message,omitempty"`
+	ConversationStyle string                 `protobuf:"bytes,9,opt,name=conversation_style,json=conversationStyle,proto3" json:"conversation_style,omitempty"`
+	ToolDefinitions   string                 `protobuf:"bytes,10,opt,name=tool_definitions,json=toolDefinitions,proto3" json:"tool_definitions,omitempty"`
+	KbStructure       string                 `protobuf:"bytes,11,opt,name=kb_structure,json=kbStructure,proto3" json:"kb_structure,omitempty"`
+	ConfigSchema      string                 `protobuf:"bytes,12,opt,name=config_schema,json=configSchema,proto3" json:"config_schema,omitempty"`
+	SupportedModels   string                 `protobuf:"bytes,13,opt,name=supported_models,json=supportedModels,proto3" json:"supported_models,omitempty"`
+	Tags              []string               `protobuf:"bytes,14,rep,name=tags,proto3" json:"tags,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *UpdateBotTemplateReq) Reset() {
+	*x = UpdateBotTemplateReq{}
+	mi := &file_bot_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateBotTemplateReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateBotTemplateReq) ProtoMessage() {}
+
+func (x *UpdateBotTemplateReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateBotTemplateReq.ProtoReflect.Descriptor instead.
+func (*UpdateBotTemplateReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *UpdateBotTemplateReq) GetUid() int64 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
+func (x *UpdateBotTemplateReq) GetTemplateId() int64 {
+	if x != nil {
+		return x.TemplateId
+	}
+	return 0
+}
+
+func (x *UpdateBotTemplateReq) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpdateBotTemplateReq) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *UpdateBotTemplateReq) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *UpdateBotTemplateReq) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *UpdateBotTemplateReq) GetSystemPrompt() string {
+	if x != nil {
+		return x.SystemPrompt
+	}
+	return ""
+}
+
+func (x *UpdateBotTemplateReq) GetWelcomeMessage() string {
+	if x != nil {
+		return x.WelcomeMessage
+	}
+	return ""
+}
+
+func (x *UpdateBotTemplateReq) GetConversationStyle() string {
+	if x != nil {
+		return x.ConversationStyle
+	}
+	return ""
+}
+
+func (x *UpdateBotTemplateReq) GetToolDefinitions() string {
+	if x != nil {
+		return x.ToolDefinitions
+	}
+	return ""
+}
+
+func (x *UpdateBotTemplateReq) GetKbStructure() string {
+	if x != nil {
+		return x.KbStructure
+	}
+	return ""
+}
+
+func (x *UpdateBotTemplateReq) GetConfigSchema() string {
+	if x != nil {
+		return x.ConfigSchema
+	}
+	return ""
+}
+
+func (x *UpdateBotTemplateReq) GetSupportedModels() string {
+	if x != nil {
+		return x.SupportedModels
+	}
+	return ""
+}
+
+func (x *UpdateBotTemplateReq) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+type UpdateBotTemplateResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateBotTemplateResp) Reset() {
+	*x = UpdateBotTemplateResp{}
+	mi := &file_bot_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateBotTemplateResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateBotTemplateResp) ProtoMessage() {}
+
+func (x *UpdateBotTemplateResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateBotTemplateResp.ProtoReflect.Descriptor instead.
+func (*UpdateBotTemplateResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{38}
+}
+
+type DeleteBotTemplateReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	TemplateId    int64                  `protobuf:"varint,2,opt,name=template_id,json=templateId,proto3" json:"template_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBotTemplateReq) Reset() {
+	*x = DeleteBotTemplateReq{}
+	mi := &file_bot_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBotTemplateReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBotTemplateReq) ProtoMessage() {}
+
+func (x *DeleteBotTemplateReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBotTemplateReq.ProtoReflect.Descriptor instead.
+func (*DeleteBotTemplateReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *DeleteBotTemplateReq) GetUid() int64 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
+func (x *DeleteBotTemplateReq) GetTemplateId() int64 {
+	if x != nil {
+		return x.TemplateId
+	}
+	return 0
+}
+
+type DeleteBotTemplateResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBotTemplateResp) Reset() {
+	*x = DeleteBotTemplateResp{}
+	mi := &file_bot_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBotTemplateResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBotTemplateResp) ProtoMessage() {}
+
+func (x *DeleteBotTemplateResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBotTemplateResp.ProtoReflect.Descriptor instead.
+func (*DeleteBotTemplateResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{40}
+}
+
+type GetBotTemplateReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TemplateId    int64                  `protobuf:"varint,1,opt,name=template_id,json=templateId,proto3" json:"template_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBotTemplateReq) Reset() {
+	*x = GetBotTemplateReq{}
+	mi := &file_bot_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBotTemplateReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBotTemplateReq) ProtoMessage() {}
+
+func (x *GetBotTemplateReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBotTemplateReq.ProtoReflect.Descriptor instead.
+func (*GetBotTemplateReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *GetBotTemplateReq) GetTemplateId() int64 {
+	if x != nil {
+		return x.TemplateId
+	}
+	return 0
+}
+
+type GetBotTemplateResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Template      *BotTemplateInfo       `protobuf:"bytes,1,opt,name=template,proto3" json:"template,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBotTemplateResp) Reset() {
+	*x = GetBotTemplateResp{}
+	mi := &file_bot_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBotTemplateResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBotTemplateResp) ProtoMessage() {}
+
+func (x *GetBotTemplateResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBotTemplateResp.ProtoReflect.Descriptor instead.
+func (*GetBotTemplateResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *GetBotTemplateResp) GetTemplate() *BotTemplateInfo {
+	if x != nil {
+		return x.Template
+	}
+	return nil
+}
+
+type ListMyTemplatesReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OwnerUid      int64                  `protobuf:"varint,1,opt,name=owner_uid,json=ownerUid,proto3" json:"owner_uid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMyTemplatesReq) Reset() {
+	*x = ListMyTemplatesReq{}
+	mi := &file_bot_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMyTemplatesReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMyTemplatesReq) ProtoMessage() {}
+
+func (x *ListMyTemplatesReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMyTemplatesReq.ProtoReflect.Descriptor instead.
+func (*ListMyTemplatesReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *ListMyTemplatesReq) GetOwnerUid() int64 {
+	if x != nil {
+		return x.OwnerUid
+	}
+	return 0
+}
+
+type ListMyTemplatesResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*BotTemplateInfo     `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMyTemplatesResp) Reset() {
+	*x = ListMyTemplatesResp{}
+	mi := &file_bot_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMyTemplatesResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMyTemplatesResp) ProtoMessage() {}
+
+func (x *ListMyTemplatesResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMyTemplatesResp.ProtoReflect.Descriptor instead.
+func (*ListMyTemplatesResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *ListMyTemplatesResp) GetList() []*BotTemplateInfo {
+	if x != nil {
+		return x.List
+	}
+	return nil
+}
+
+type PublishBotTemplateReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	TemplateId    int64                  `protobuf:"varint,2,opt,name=template_id,json=templateId,proto3" json:"template_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PublishBotTemplateReq) Reset() {
+	*x = PublishBotTemplateReq{}
+	mi := &file_bot_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublishBotTemplateReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublishBotTemplateReq) ProtoMessage() {}
+
+func (x *PublishBotTemplateReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublishBotTemplateReq.ProtoReflect.Descriptor instead.
+func (*PublishBotTemplateReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *PublishBotTemplateReq) GetUid() int64 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
+func (x *PublishBotTemplateReq) GetTemplateId() int64 {
+	if x != nil {
+		return x.TemplateId
+	}
+	return 0
+}
+
+type PublishBotTemplateResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PublishBotTemplateResp) Reset() {
+	*x = PublishBotTemplateResp{}
+	mi := &file_bot_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublishBotTemplateResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublishBotTemplateResp) ProtoMessage() {}
+
+func (x *PublishBotTemplateResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublishBotTemplateResp.ProtoReflect.Descriptor instead.
+func (*PublishBotTemplateResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{46}
+}
+
+// ========== Bot 实例（Instance） ==========
+type BotInstanceInfo struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	InstanceId     int64                  `protobuf:"varint,1,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	BotId          int64                  `protobuf:"varint,2,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"` // 关联的 Bot 身份
+	TemplateId     int64                  `protobuf:"varint,3,opt,name=template_id,json=templateId,proto3" json:"template_id,omitempty"`
+	OwnerUid       int64                  `protobuf:"varint,4,opt,name=owner_uid,json=ownerUid,proto3" json:"owner_uid,omitempty"`
+	Name           string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
+	Avatar         string                 `protobuf:"bytes,6,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	IsSelfHosted   bool                   `protobuf:"varint,7,opt,name=is_self_hosted,json=isSelfHosted,proto3" json:"is_self_hosted,omitempty"`
+	HostedBy       int64                  `protobuf:"varint,8,opt,name=hosted_by,json=hostedBy,proto3" json:"hosted_by,omitempty"`
+	ModelProvider  string                 `protobuf:"bytes,9,opt,name=model_provider,json=modelProvider,proto3" json:"model_provider,omitempty"`
+	ModelName      string                 `protobuf:"bytes,10,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
+	KbConfig       string                 `protobuf:"bytes,11,opt,name=kb_config,json=kbConfig,proto3" json:"kb_config,omitempty"`                   // JSON: {source, kb_ids, external_kb}
+	InstanceConfig string                 `protobuf:"bytes,12,opt,name=instance_config,json=instanceConfig,proto3" json:"instance_config,omitempty"` // JSON
+	Status         string                 `protobuf:"bytes,13,opt,name=status,proto3" json:"status,omitempty"`
+	CreatedAt      int64                  `protobuf:"varint,14,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Template       *BotTemplateInfo       `protobuf:"bytes,15,opt,name=template,proto3" json:"template,omitempty"` // 关联的模板信息
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *BotInstanceInfo) Reset() {
+	*x = BotInstanceInfo{}
+	mi := &file_bot_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BotInstanceInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BotInstanceInfo) ProtoMessage() {}
+
+func (x *BotInstanceInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BotInstanceInfo.ProtoReflect.Descriptor instead.
+func (*BotInstanceInfo) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *BotInstanceInfo) GetInstanceId() int64 {
+	if x != nil {
+		return x.InstanceId
+	}
+	return 0
+}
+
+func (x *BotInstanceInfo) GetBotId() int64 {
+	if x != nil {
+		return x.BotId
+	}
+	return 0
+}
+
+func (x *BotInstanceInfo) GetTemplateId() int64 {
+	if x != nil {
+		return x.TemplateId
+	}
+	return 0
+}
+
+func (x *BotInstanceInfo) GetOwnerUid() int64 {
+	if x != nil {
+		return x.OwnerUid
+	}
+	return 0
+}
+
+func (x *BotInstanceInfo) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *BotInstanceInfo) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *BotInstanceInfo) GetIsSelfHosted() bool {
+	if x != nil {
+		return x.IsSelfHosted
+	}
+	return false
+}
+
+func (x *BotInstanceInfo) GetHostedBy() int64 {
+	if x != nil {
+		return x.HostedBy
+	}
+	return 0
+}
+
+func (x *BotInstanceInfo) GetModelProvider() string {
+	if x != nil {
+		return x.ModelProvider
+	}
+	return ""
+}
+
+func (x *BotInstanceInfo) GetModelName() string {
+	if x != nil {
+		return x.ModelName
+	}
+	return ""
+}
+
+func (x *BotInstanceInfo) GetKbConfig() string {
+	if x != nil {
+		return x.KbConfig
+	}
+	return ""
+}
+
+func (x *BotInstanceInfo) GetInstanceConfig() string {
+	if x != nil {
+		return x.InstanceConfig
+	}
+	return ""
+}
+
+func (x *BotInstanceInfo) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *BotInstanceInfo) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *BotInstanceInfo) GetTemplate() *BotTemplateInfo {
+	if x != nil {
+		return x.Template
+	}
+	return nil
+}
+
+type CreateBotInstanceReq struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Uid            int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"` // 消费者 UID
+	TemplateId     int64                  `protobuf:"varint,2,opt,name=template_id,json=templateId,proto3" json:"template_id,omitempty"`
+	Name           string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Avatar         string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	IsSelfHosted   bool                   `protobuf:"varint,5,opt,name=is_self_hosted,json=isSelfHosted,proto3" json:"is_self_hosted,omitempty"`
+	HostedBy       int64                  `protobuf:"varint,6,opt,name=hosted_by,json=hostedBy,proto3" json:"hosted_by,omitempty"`
+	ModelProvider  string                 `protobuf:"bytes,7,opt,name=model_provider,json=modelProvider,proto3" json:"model_provider,omitempty"`
+	ModelName      string                 `protobuf:"bytes,8,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
+	ApiKey         string                 `protobuf:"bytes,9,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"` // 明文传入，服务端加密存储
+	ApiBaseUrl     string                 `protobuf:"bytes,10,opt,name=api_base_url,json=apiBaseUrl,proto3" json:"api_base_url,omitempty"`
+	KbConfig       string                 `protobuf:"bytes,11,opt,name=kb_config,json=kbConfig,proto3" json:"kb_config,omitempty"`                   // JSON
+	InstanceConfig string                 `protobuf:"bytes,12,opt,name=instance_config,json=instanceConfig,proto3" json:"instance_config,omitempty"` // JSON
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CreateBotInstanceReq) Reset() {
+	*x = CreateBotInstanceReq{}
+	mi := &file_bot_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBotInstanceReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBotInstanceReq) ProtoMessage() {}
+
+func (x *CreateBotInstanceReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBotInstanceReq.ProtoReflect.Descriptor instead.
+func (*CreateBotInstanceReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *CreateBotInstanceReq) GetUid() int64 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
+func (x *CreateBotInstanceReq) GetTemplateId() int64 {
+	if x != nil {
+		return x.TemplateId
+	}
+	return 0
+}
+
+func (x *CreateBotInstanceReq) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateBotInstanceReq) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *CreateBotInstanceReq) GetIsSelfHosted() bool {
+	if x != nil {
+		return x.IsSelfHosted
+	}
+	return false
+}
+
+func (x *CreateBotInstanceReq) GetHostedBy() int64 {
+	if x != nil {
+		return x.HostedBy
+	}
+	return 0
+}
+
+func (x *CreateBotInstanceReq) GetModelProvider() string {
+	if x != nil {
+		return x.ModelProvider
+	}
+	return ""
+}
+
+func (x *CreateBotInstanceReq) GetModelName() string {
+	if x != nil {
+		return x.ModelName
+	}
+	return ""
+}
+
+func (x *CreateBotInstanceReq) GetApiKey() string {
+	if x != nil {
+		return x.ApiKey
+	}
+	return ""
+}
+
+func (x *CreateBotInstanceReq) GetApiBaseUrl() string {
+	if x != nil {
+		return x.ApiBaseUrl
+	}
+	return ""
+}
+
+func (x *CreateBotInstanceReq) GetKbConfig() string {
+	if x != nil {
+		return x.KbConfig
+	}
+	return ""
+}
+
+func (x *CreateBotInstanceReq) GetInstanceConfig() string {
+	if x != nil {
+		return x.InstanceConfig
+	}
+	return ""
+}
+
+type CreateBotInstanceResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	InstanceId    int64                  `protobuf:"varint,1,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	BotId         int64                  `protobuf:"varint,2,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"`
+	ClientId      string                 `protobuf:"bytes,3,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	ClientSecret  string                 `protobuf:"bytes,4,opt,name=client_secret,json=clientSecret,proto3" json:"client_secret,omitempty"`
+	BotToken      string                 `protobuf:"bytes,5,opt,name=bot_token,json=botToken,proto3" json:"bot_token,omitempty"` // ws-gateway 连接 token
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateBotInstanceResp) Reset() {
+	*x = CreateBotInstanceResp{}
+	mi := &file_bot_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBotInstanceResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBotInstanceResp) ProtoMessage() {}
+
+func (x *CreateBotInstanceResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBotInstanceResp.ProtoReflect.Descriptor instead.
+func (*CreateBotInstanceResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *CreateBotInstanceResp) GetInstanceId() int64 {
+	if x != nil {
+		return x.InstanceId
+	}
+	return 0
+}
+
+func (x *CreateBotInstanceResp) GetBotId() int64 {
+	if x != nil {
+		return x.BotId
+	}
+	return 0
+}
+
+func (x *CreateBotInstanceResp) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *CreateBotInstanceResp) GetClientSecret() string {
+	if x != nil {
+		return x.ClientSecret
+	}
+	return ""
+}
+
+func (x *CreateBotInstanceResp) GetBotToken() string {
+	if x != nil {
+		return x.BotToken
+	}
+	return ""
+}
+
+type UpdateBotInstanceReq struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Uid            int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	InstanceId     int64                  `protobuf:"varint,2,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	Name           string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Avatar         string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	ModelProvider  string                 `protobuf:"bytes,5,opt,name=model_provider,json=modelProvider,proto3" json:"model_provider,omitempty"`
+	ModelName      string                 `protobuf:"bytes,6,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
+	ApiKey         string                 `protobuf:"bytes,7,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"`
+	ApiBaseUrl     string                 `protobuf:"bytes,8,opt,name=api_base_url,json=apiBaseUrl,proto3" json:"api_base_url,omitempty"`
+	KbConfig       string                 `protobuf:"bytes,9,opt,name=kb_config,json=kbConfig,proto3" json:"kb_config,omitempty"`
+	InstanceConfig string                 `protobuf:"bytes,10,opt,name=instance_config,json=instanceConfig,proto3" json:"instance_config,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *UpdateBotInstanceReq) Reset() {
+	*x = UpdateBotInstanceReq{}
+	mi := &file_bot_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateBotInstanceReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateBotInstanceReq) ProtoMessage() {}
+
+func (x *UpdateBotInstanceReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateBotInstanceReq.ProtoReflect.Descriptor instead.
+func (*UpdateBotInstanceReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{50}
+}
+
+func (x *UpdateBotInstanceReq) GetUid() int64 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
+func (x *UpdateBotInstanceReq) GetInstanceId() int64 {
+	if x != nil {
+		return x.InstanceId
+	}
+	return 0
+}
+
+func (x *UpdateBotInstanceReq) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpdateBotInstanceReq) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *UpdateBotInstanceReq) GetModelProvider() string {
+	if x != nil {
+		return x.ModelProvider
+	}
+	return ""
+}
+
+func (x *UpdateBotInstanceReq) GetModelName() string {
+	if x != nil {
+		return x.ModelName
+	}
+	return ""
+}
+
+func (x *UpdateBotInstanceReq) GetApiKey() string {
+	if x != nil {
+		return x.ApiKey
+	}
+	return ""
+}
+
+func (x *UpdateBotInstanceReq) GetApiBaseUrl() string {
+	if x != nil {
+		return x.ApiBaseUrl
+	}
+	return ""
+}
+
+func (x *UpdateBotInstanceReq) GetKbConfig() string {
+	if x != nil {
+		return x.KbConfig
+	}
+	return ""
+}
+
+func (x *UpdateBotInstanceReq) GetInstanceConfig() string {
+	if x != nil {
+		return x.InstanceConfig
+	}
+	return ""
+}
+
+type UpdateBotInstanceResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateBotInstanceResp) Reset() {
+	*x = UpdateBotInstanceResp{}
+	mi := &file_bot_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateBotInstanceResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateBotInstanceResp) ProtoMessage() {}
+
+func (x *UpdateBotInstanceResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateBotInstanceResp.ProtoReflect.Descriptor instead.
+func (*UpdateBotInstanceResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{51}
+}
+
+type DeleteBotInstanceReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	InstanceId    int64                  `protobuf:"varint,2,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBotInstanceReq) Reset() {
+	*x = DeleteBotInstanceReq{}
+	mi := &file_bot_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBotInstanceReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBotInstanceReq) ProtoMessage() {}
+
+func (x *DeleteBotInstanceReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBotInstanceReq.ProtoReflect.Descriptor instead.
+func (*DeleteBotInstanceReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{52}
+}
+
+func (x *DeleteBotInstanceReq) GetUid() int64 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
+func (x *DeleteBotInstanceReq) GetInstanceId() int64 {
+	if x != nil {
+		return x.InstanceId
+	}
+	return 0
+}
+
+type DeleteBotInstanceResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBotInstanceResp) Reset() {
+	*x = DeleteBotInstanceResp{}
+	mi := &file_bot_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBotInstanceResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBotInstanceResp) ProtoMessage() {}
+
+func (x *DeleteBotInstanceResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBotInstanceResp.ProtoReflect.Descriptor instead.
+func (*DeleteBotInstanceResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{53}
+}
+
+type GetBotInstanceReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	InstanceId    int64                  `protobuf:"varint,1,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	BotId         int64                  `protobuf:"varint,2,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"` // 也可通过 bot_id 查询
+	Uid           int64                  `protobuf:"varint,3,opt,name=uid,proto3" json:"uid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBotInstanceReq) Reset() {
+	*x = GetBotInstanceReq{}
+	mi := &file_bot_proto_msgTypes[54]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBotInstanceReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBotInstanceReq) ProtoMessage() {}
+
+func (x *GetBotInstanceReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[54]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBotInstanceReq.ProtoReflect.Descriptor instead.
+func (*GetBotInstanceReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{54}
+}
+
+func (x *GetBotInstanceReq) GetInstanceId() int64 {
+	if x != nil {
+		return x.InstanceId
+	}
+	return 0
+}
+
+func (x *GetBotInstanceReq) GetBotId() int64 {
+	if x != nil {
+		return x.BotId
+	}
+	return 0
+}
+
+func (x *GetBotInstanceReq) GetUid() int64 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
+type GetBotInstanceResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Instance      *BotInstanceInfo       `protobuf:"bytes,1,opt,name=instance,proto3" json:"instance,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBotInstanceResp) Reset() {
+	*x = GetBotInstanceResp{}
+	mi := &file_bot_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBotInstanceResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBotInstanceResp) ProtoMessage() {}
+
+func (x *GetBotInstanceResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBotInstanceResp.ProtoReflect.Descriptor instead.
+func (*GetBotInstanceResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{55}
+}
+
+func (x *GetBotInstanceResp) GetInstance() *BotInstanceInfo {
+	if x != nil {
+		return x.Instance
+	}
+	return nil
+}
+
+type ListMyInstancesReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OwnerUid      int64                  `protobuf:"varint,1,opt,name=owner_uid,json=ownerUid,proto3" json:"owner_uid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMyInstancesReq) Reset() {
+	*x = ListMyInstancesReq{}
+	mi := &file_bot_proto_msgTypes[56]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMyInstancesReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMyInstancesReq) ProtoMessage() {}
+
+func (x *ListMyInstancesReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[56]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMyInstancesReq.ProtoReflect.Descriptor instead.
+func (*ListMyInstancesReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{56}
+}
+
+func (x *ListMyInstancesReq) GetOwnerUid() int64 {
+	if x != nil {
+		return x.OwnerUid
+	}
+	return 0
+}
+
+type ListMyInstancesResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*BotInstanceInfo     `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMyInstancesResp) Reset() {
+	*x = ListMyInstancesResp{}
+	mi := &file_bot_proto_msgTypes[57]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMyInstancesResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMyInstancesResp) ProtoMessage() {}
+
+func (x *ListMyInstancesResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[57]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMyInstancesResp.ProtoReflect.Descriptor instead.
+func (*ListMyInstancesResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{57}
+}
+
+func (x *ListMyInstancesResp) GetList() []*BotInstanceInfo {
+	if x != nil {
+		return x.List
+	}
+	return nil
+}
+
+// ListHostedInstances: 供 ai-bot 编排器获取所有需要托管的实例（is_self_hosted=false）
+type ListHostedInstancesReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListHostedInstancesReq) Reset() {
+	*x = ListHostedInstancesReq{}
+	mi := &file_bot_proto_msgTypes[58]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListHostedInstancesReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListHostedInstancesReq) ProtoMessage() {}
+
+func (x *ListHostedInstancesReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[58]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListHostedInstancesReq.ProtoReflect.Descriptor instead.
+func (*ListHostedInstancesReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{58}
+}
+
+type ListHostedInstancesResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*BotInstanceInfo     `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListHostedInstancesResp) Reset() {
+	*x = ListHostedInstancesResp{}
+	mi := &file_bot_proto_msgTypes[59]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListHostedInstancesResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListHostedInstancesResp) ProtoMessage() {}
+
+func (x *ListHostedInstancesResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[59]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListHostedInstancesResp.ProtoReflect.Descriptor instead.
+func (*ListHostedInstancesResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{59}
+}
+
+func (x *ListHostedInstancesResp) GetList() []*BotInstanceInfo {
+	if x != nil {
+		return x.List
+	}
+	return nil
+}
+
+// ========== Bot 社区（混合展示模板 + 托管实例） ==========
+type CommunityBotItem struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Type  string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"` // "hosted" (托管实例) / "template" (自托管模板)
+	// 托管实例字段
+	InstanceId     int64  `protobuf:"varint,2,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	BotId          int64  `protobuf:"varint,3,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"`
+	Name           string `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	Avatar         string `protobuf:"bytes,5,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	Description    string `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
+	HostedBy       int64  `protobuf:"varint,7,opt,name=hosted_by,json=hostedBy,proto3" json:"hosted_by,omitempty"`
+	InstalledCount int64  `protobuf:"varint,8,opt,name=installed_count,json=installedCount,proto3" json:"installed_count,omitempty"` // 安装次数
+	Status         string `protobuf:"bytes,9,opt,name=status,proto3" json:"status,omitempty"`
+	// 模板字段
+	TemplateId    int64    `protobuf:"varint,10,opt,name=template_id,json=templateId,proto3" json:"template_id,omitempty"`
+	Category      string   `protobuf:"bytes,11,opt,name=category,proto3" json:"category,omitempty"` // OFFICIAL / COMMUNITY
+	Tags          []string `protobuf:"bytes,12,rep,name=tags,proto3" json:"tags,omitempty"`
+	IsOfficial    bool     `protobuf:"varint,13,opt,name=is_official,json=isOfficial,proto3" json:"is_official,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CommunityBotItem) Reset() {
+	*x = CommunityBotItem{}
+	mi := &file_bot_proto_msgTypes[60]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CommunityBotItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CommunityBotItem) ProtoMessage() {}
+
+func (x *CommunityBotItem) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[60]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CommunityBotItem.ProtoReflect.Descriptor instead.
+func (*CommunityBotItem) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{60}
+}
+
+func (x *CommunityBotItem) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *CommunityBotItem) GetInstanceId() int64 {
+	if x != nil {
+		return x.InstanceId
+	}
+	return 0
+}
+
+func (x *CommunityBotItem) GetBotId() int64 {
+	if x != nil {
+		return x.BotId
+	}
+	return 0
+}
+
+func (x *CommunityBotItem) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CommunityBotItem) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *CommunityBotItem) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CommunityBotItem) GetHostedBy() int64 {
+	if x != nil {
+		return x.HostedBy
+	}
+	return 0
+}
+
+func (x *CommunityBotItem) GetInstalledCount() int64 {
+	if x != nil {
+		return x.InstalledCount
+	}
+	return 0
+}
+
+func (x *CommunityBotItem) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *CommunityBotItem) GetTemplateId() int64 {
+	if x != nil {
+		return x.TemplateId
+	}
+	return 0
+}
+
+func (x *CommunityBotItem) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *CommunityBotItem) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *CommunityBotItem) GetIsOfficial() bool {
+	if x != nil {
+		return x.IsOfficial
+	}
+	return false
+}
+
+type ListCommunityBotsReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Keyword       string                 `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"`
+	Section       string                 `protobuf:"bytes,2,opt,name=section,proto3" json:"section,omitempty"`   // "all" / "hosted" / "templates"
+	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"` // 模板分类过滤
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCommunityBotsReq) Reset() {
+	*x = ListCommunityBotsReq{}
+	mi := &file_bot_proto_msgTypes[61]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCommunityBotsReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCommunityBotsReq) ProtoMessage() {}
+
+func (x *ListCommunityBotsReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[61]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCommunityBotsReq.ProtoReflect.Descriptor instead.
+func (*ListCommunityBotsReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{61}
+}
+
+func (x *ListCommunityBotsReq) GetKeyword() string {
+	if x != nil {
+		return x.Keyword
+	}
+	return ""
+}
+
+func (x *ListCommunityBotsReq) GetSection() string {
+	if x != nil {
+		return x.Section
+	}
+	return ""
+}
+
+func (x *ListCommunityBotsReq) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+type ListCommunityBotsResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	HostedBots    []*CommunityBotItem    `protobuf:"bytes,1,rep,name=hosted_bots,json=hostedBots,proto3" json:"hosted_bots,omitempty"` // 托管实例列表
+	Templates     []*CommunityBotItem    `protobuf:"bytes,2,rep,name=templates,proto3" json:"templates,omitempty"`                     // 模板列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCommunityBotsResp) Reset() {
+	*x = ListCommunityBotsResp{}
+	mi := &file_bot_proto_msgTypes[62]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCommunityBotsResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCommunityBotsResp) ProtoMessage() {}
+
+func (x *ListCommunityBotsResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[62]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCommunityBotsResp.ProtoReflect.Descriptor instead.
+func (*ListCommunityBotsResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{62}
+}
+
+func (x *ListCommunityBotsResp) GetHostedBots() []*CommunityBotItem {
+	if x != nil {
+		return x.HostedBots
+	}
+	return nil
+}
+
+func (x *ListCommunityBotsResp) GetTemplates() []*CommunityBotItem {
+	if x != nil {
+		return x.Templates
+	}
+	return nil
+}
+
+// ========== @Mention 与 Bot 通信 ==========
+type ParseMentionsReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Content       string                 `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"` // 消息正文（可能含 @[bot:xxx:yyy]）
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ParseMentionsReq) Reset() {
+	*x = ParseMentionsReq{}
+	mi := &file_bot_proto_msgTypes[63]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ParseMentionsReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ParseMentionsReq) ProtoMessage() {}
+
+func (x *ParseMentionsReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[63]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ParseMentionsReq.ProtoReflect.Descriptor instead.
+func (*ParseMentionsReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{63}
+}
+
+func (x *ParseMentionsReq) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+type MentionItem struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`                                  // "bot" / "user"
+	TargetId      int64                  `protobuf:"varint,2,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`         // bot_id 或 uid
+	DisplayName   string                 `protobuf:"bytes,3,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"` // 展示名
+	StartPos      int32                  `protobuf:"varint,4,opt,name=start_pos,json=startPos,proto3" json:"start_pos,omitempty"`         // 在原文中的起始位置
+	EndPos        int32                  `protobuf:"varint,5,opt,name=end_pos,json=endPos,proto3" json:"end_pos,omitempty"`               // 在原文中的结束位置
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MentionItem) Reset() {
+	*x = MentionItem{}
+	mi := &file_bot_proto_msgTypes[64]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MentionItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MentionItem) ProtoMessage() {}
+
+func (x *MentionItem) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[64]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MentionItem.ProtoReflect.Descriptor instead.
+func (*MentionItem) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{64}
+}
+
+func (x *MentionItem) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *MentionItem) GetTargetId() int64 {
+	if x != nil {
+		return x.TargetId
+	}
+	return 0
+}
+
+func (x *MentionItem) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
+}
+
+func (x *MentionItem) GetStartPos() int32 {
+	if x != nil {
+		return x.StartPos
+	}
+	return 0
+}
+
+func (x *MentionItem) GetEndPos() int32 {
+	if x != nil {
+		return x.EndPos
+	}
+	return 0
+}
+
+type ParseMentionsResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Mentions      []*MentionItem         `protobuf:"bytes,1,rep,name=mentions,proto3" json:"mentions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ParseMentionsResp) Reset() {
+	*x = ParseMentionsResp{}
+	mi := &file_bot_proto_msgTypes[65]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ParseMentionsResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ParseMentionsResp) ProtoMessage() {}
+
+func (x *ParseMentionsResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[65]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ParseMentionsResp.ProtoReflect.Descriptor instead.
+func (*ParseMentionsResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{65}
+}
+
+func (x *ParseMentionsResp) GetMentions() []*MentionItem {
+	if x != nil {
+		return x.Mentions
+	}
+	return nil
+}
+
+// 验证 Bot 连接 token
+type VerifyBotTokenReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BotToken      string                 `protobuf:"bytes,1,opt,name=bot_token,json=botToken,proto3" json:"bot_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VerifyBotTokenReq) Reset() {
+	*x = VerifyBotTokenReq{}
+	mi := &file_bot_proto_msgTypes[66]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerifyBotTokenReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerifyBotTokenReq) ProtoMessage() {}
+
+func (x *VerifyBotTokenReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[66]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerifyBotTokenReq.ProtoReflect.Descriptor instead.
+func (*VerifyBotTokenReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{66}
+}
+
+func (x *VerifyBotTokenReq) GetBotToken() string {
+	if x != nil {
+		return x.BotToken
+	}
+	return ""
+}
+
+type VerifyBotTokenResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Valid         bool                   `protobuf:"varint,1,opt,name=valid,proto3" json:"valid,omitempty"`
+	BotId         int64                  `protobuf:"varint,2,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"`
+	InstanceId    int64                  `protobuf:"varint,3,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	IsOfficial    bool                   `protobuf:"varint,4,opt,name=is_official,json=isOfficial,proto3" json:"is_official,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VerifyBotTokenResp) Reset() {
+	*x = VerifyBotTokenResp{}
+	mi := &file_bot_proto_msgTypes[67]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerifyBotTokenResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerifyBotTokenResp) ProtoMessage() {}
+
+func (x *VerifyBotTokenResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[67]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerifyBotTokenResp.ProtoReflect.Descriptor instead.
+func (*VerifyBotTokenResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{67}
+}
+
+func (x *VerifyBotTokenResp) GetValid() bool {
+	if x != nil {
+		return x.Valid
+	}
+	return false
+}
+
+func (x *VerifyBotTokenResp) GetBotId() int64 {
+	if x != nil {
+		return x.BotId
+	}
+	return 0
+}
+
+func (x *VerifyBotTokenResp) GetInstanceId() int64 {
+	if x != nil {
+		return x.InstanceId
+	}
+	return 0
+}
+
+func (x *VerifyBotTokenResp) GetIsOfficial() bool {
+	if x != nil {
+		return x.IsOfficial
+	}
+	return false
+}
+
+// 获取 Bot 实例的运行配置（给 ai-bot 服务用）
+type GetBotRuntimeConfigReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BotId         int64                  `protobuf:"varint,1,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"`
+	ConvId        int64                  `protobuf:"varint,2,opt,name=conv_id,json=convId,proto3" json:"conv_id,omitempty"` // 用于加载会话级别的 KB 授权
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBotRuntimeConfigReq) Reset() {
+	*x = GetBotRuntimeConfigReq{}
+	mi := &file_bot_proto_msgTypes[68]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBotRuntimeConfigReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBotRuntimeConfigReq) ProtoMessage() {}
+
+func (x *GetBotRuntimeConfigReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[68]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBotRuntimeConfigReq.ProtoReflect.Descriptor instead.
+func (*GetBotRuntimeConfigReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{68}
+}
+
+func (x *GetBotRuntimeConfigReq) GetBotId() int64 {
+	if x != nil {
+		return x.BotId
+	}
+	return 0
+}
+
+func (x *GetBotRuntimeConfigReq) GetConvId() int64 {
+	if x != nil {
+		return x.ConvId
+	}
+	return 0
+}
+
+type GetBotRuntimeConfigResp struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	InstanceId        int64                  `protobuf:"varint,1,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	BotId             int64                  `protobuf:"varint,2,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"`
+	ModelProvider     string                 `protobuf:"bytes,3,opt,name=model_provider,json=modelProvider,proto3" json:"model_provider,omitempty"`
+	ModelName         string                 `protobuf:"bytes,4,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
+	ApiKey            string                 `protobuf:"bytes,5,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"` // 解密后的 API Key
+	ApiBaseUrl        string                 `protobuf:"bytes,6,opt,name=api_base_url,json=apiBaseUrl,proto3" json:"api_base_url,omitempty"`
+	SystemPrompt      string                 `protobuf:"bytes,7,opt,name=system_prompt,json=systemPrompt,proto3" json:"system_prompt,omitempty"`                // 来自模板
+	ConversationStyle string                 `protobuf:"bytes,8,opt,name=conversation_style,json=conversationStyle,proto3" json:"conversation_style,omitempty"` // 来自模板 (JSON)
+	ToolDefinitions   string                 `protobuf:"bytes,9,opt,name=tool_definitions,json=toolDefinitions,proto3" json:"tool_definitions,omitempty"`       // 来自模板 (JSON)
+	KbConfig          string                 `protobuf:"bytes,10,opt,name=kb_config,json=kbConfig,proto3" json:"kb_config,omitempty"`                           // 来自实例 (JSON)
+	KbIds             string                 `protobuf:"bytes,11,opt,name=kb_ids,json=kbIds,proto3" json:"kb_ids,omitempty"`                                    // 已授权的 KB ID 列表 (逗号分隔)
+	IsOfficial        bool                   `protobuf:"varint,12,opt,name=is_official,json=isOfficial,proto3" json:"is_official,omitempty"`                    // 是否官方 Bot（决定安全级别）
+	ClientId          string                 `protobuf:"bytes,13,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`                           // OAuth2 凭证（ai-bot 连接 ws-gateway 用）
+	ClientSecret      string                 `protobuf:"bytes,14,opt,name=client_secret,json=clientSecret,proto3" json:"client_secret,omitempty"`               // OAuth2 凭证
+	Name              string                 `protobuf:"bytes,15,opt,name=name,proto3" json:"name,omitempty"`                                                   // Bot 名称
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *GetBotRuntimeConfigResp) Reset() {
+	*x = GetBotRuntimeConfigResp{}
+	mi := &file_bot_proto_msgTypes[69]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBotRuntimeConfigResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBotRuntimeConfigResp) ProtoMessage() {}
+
+func (x *GetBotRuntimeConfigResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[69]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBotRuntimeConfigResp.ProtoReflect.Descriptor instead.
+func (*GetBotRuntimeConfigResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{69}
+}
+
+func (x *GetBotRuntimeConfigResp) GetInstanceId() int64 {
+	if x != nil {
+		return x.InstanceId
+	}
+	return 0
+}
+
+func (x *GetBotRuntimeConfigResp) GetBotId() int64 {
+	if x != nil {
+		return x.BotId
+	}
+	return 0
+}
+
+func (x *GetBotRuntimeConfigResp) GetModelProvider() string {
+	if x != nil {
+		return x.ModelProvider
+	}
+	return ""
+}
+
+func (x *GetBotRuntimeConfigResp) GetModelName() string {
+	if x != nil {
+		return x.ModelName
+	}
+	return ""
+}
+
+func (x *GetBotRuntimeConfigResp) GetApiKey() string {
+	if x != nil {
+		return x.ApiKey
+	}
+	return ""
+}
+
+func (x *GetBotRuntimeConfigResp) GetApiBaseUrl() string {
+	if x != nil {
+		return x.ApiBaseUrl
+	}
+	return ""
+}
+
+func (x *GetBotRuntimeConfigResp) GetSystemPrompt() string {
+	if x != nil {
+		return x.SystemPrompt
+	}
+	return ""
+}
+
+func (x *GetBotRuntimeConfigResp) GetConversationStyle() string {
+	if x != nil {
+		return x.ConversationStyle
+	}
+	return ""
+}
+
+func (x *GetBotRuntimeConfigResp) GetToolDefinitions() string {
+	if x != nil {
+		return x.ToolDefinitions
+	}
+	return ""
+}
+
+func (x *GetBotRuntimeConfigResp) GetKbConfig() string {
+	if x != nil {
+		return x.KbConfig
+	}
+	return ""
+}
+
+func (x *GetBotRuntimeConfigResp) GetKbIds() string {
+	if x != nil {
+		return x.KbIds
+	}
+	return ""
+}
+
+func (x *GetBotRuntimeConfigResp) GetIsOfficial() bool {
+	if x != nil {
+		return x.IsOfficial
+	}
+	return false
+}
+
+func (x *GetBotRuntimeConfigResp) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *GetBotRuntimeConfigResp) GetClientSecret() string {
+	if x != nil {
+		return x.ClientSecret
+	}
+	return ""
+}
+
+func (x *GetBotRuntimeConfigResp) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
 }
 
 // ========== Bot APIs (bot 调用 Katheryne) ==========
@@ -2091,7 +4580,7 @@ type BotGetConvReq struct {
 
 func (x *BotGetConvReq) Reset() {
 	*x = BotGetConvReq{}
-	mi := &file_bot_proto_msgTypes[36]
+	mi := &file_bot_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2103,7 +4592,7 @@ func (x *BotGetConvReq) String() string {
 func (*BotGetConvReq) ProtoMessage() {}
 
 func (x *BotGetConvReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[36]
+	mi := &file_bot_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2116,7 +4605,7 @@ func (x *BotGetConvReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotGetConvReq.ProtoReflect.Descriptor instead.
 func (*BotGetConvReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{36}
+	return file_bot_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *BotGetConvReq) GetConvId() int64 {
@@ -2140,7 +4629,7 @@ type BotGetConvResp struct {
 
 func (x *BotGetConvResp) Reset() {
 	*x = BotGetConvResp{}
-	mi := &file_bot_proto_msgTypes[37]
+	mi := &file_bot_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2152,7 +4641,7 @@ func (x *BotGetConvResp) String() string {
 func (*BotGetConvResp) ProtoMessage() {}
 
 func (x *BotGetConvResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[37]
+	mi := &file_bot_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2165,7 +4654,7 @@ func (x *BotGetConvResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotGetConvResp.ProtoReflect.Descriptor instead.
 func (*BotGetConvResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{37}
+	return file_bot_proto_rawDescGZIP(), []int{71}
 }
 
 func (x *BotGetConvResp) GetConvId() int64 {
@@ -2219,7 +4708,7 @@ type BotGetConvMembersReq struct {
 
 func (x *BotGetConvMembersReq) Reset() {
 	*x = BotGetConvMembersReq{}
-	mi := &file_bot_proto_msgTypes[38]
+	mi := &file_bot_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2231,7 +4720,7 @@ func (x *BotGetConvMembersReq) String() string {
 func (*BotGetConvMembersReq) ProtoMessage() {}
 
 func (x *BotGetConvMembersReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[38]
+	mi := &file_bot_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2244,7 +4733,7 @@ func (x *BotGetConvMembersReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotGetConvMembersReq.ProtoReflect.Descriptor instead.
 func (*BotGetConvMembersReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{38}
+	return file_bot_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *BotGetConvMembersReq) GetConvId() int64 {
@@ -2267,7 +4756,7 @@ type BotConvMemberItem struct {
 
 func (x *BotConvMemberItem) Reset() {
 	*x = BotConvMemberItem{}
-	mi := &file_bot_proto_msgTypes[39]
+	mi := &file_bot_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2279,7 +4768,7 @@ func (x *BotConvMemberItem) String() string {
 func (*BotConvMemberItem) ProtoMessage() {}
 
 func (x *BotConvMemberItem) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[39]
+	mi := &file_bot_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2292,7 +4781,7 @@ func (x *BotConvMemberItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotConvMemberItem.ProtoReflect.Descriptor instead.
 func (*BotConvMemberItem) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{39}
+	return file_bot_proto_rawDescGZIP(), []int{73}
 }
 
 func (x *BotConvMemberItem) GetUid() int64 {
@@ -2339,7 +4828,7 @@ type BotGetConvMembersResp struct {
 
 func (x *BotGetConvMembersResp) Reset() {
 	*x = BotGetConvMembersResp{}
-	mi := &file_bot_proto_msgTypes[40]
+	mi := &file_bot_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2351,7 +4840,7 @@ func (x *BotGetConvMembersResp) String() string {
 func (*BotGetConvMembersResp) ProtoMessage() {}
 
 func (x *BotGetConvMembersResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[40]
+	mi := &file_bot_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2364,7 +4853,7 @@ func (x *BotGetConvMembersResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotGetConvMembersResp.ProtoReflect.Descriptor instead.
 func (*BotGetConvMembersResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{40}
+	return file_bot_proto_rawDescGZIP(), []int{74}
 }
 
 func (x *BotGetConvMembersResp) GetMembers() []*BotConvMemberItem {
@@ -2384,7 +4873,7 @@ type BotGetMsgReq struct {
 
 func (x *BotGetMsgReq) Reset() {
 	*x = BotGetMsgReq{}
-	mi := &file_bot_proto_msgTypes[41]
+	mi := &file_bot_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2396,7 +4885,7 @@ func (x *BotGetMsgReq) String() string {
 func (*BotGetMsgReq) ProtoMessage() {}
 
 func (x *BotGetMsgReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[41]
+	mi := &file_bot_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2409,7 +4898,7 @@ func (x *BotGetMsgReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotGetMsgReq.ProtoReflect.Descriptor instead.
 func (*BotGetMsgReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{41}
+	return file_bot_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *BotGetMsgReq) GetConvId() int64 {
@@ -2446,7 +4935,7 @@ type BotGetMsgResp struct {
 
 func (x *BotGetMsgResp) Reset() {
 	*x = BotGetMsgResp{}
-	mi := &file_bot_proto_msgTypes[42]
+	mi := &file_bot_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2458,7 +4947,7 @@ func (x *BotGetMsgResp) String() string {
 func (*BotGetMsgResp) ProtoMessage() {}
 
 func (x *BotGetMsgResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[42]
+	mi := &file_bot_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2471,7 +4960,7 @@ func (x *BotGetMsgResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotGetMsgResp.ProtoReflect.Descriptor instead.
 func (*BotGetMsgResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{42}
+	return file_bot_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *BotGetMsgResp) GetMsgId() int64 {
@@ -2573,7 +5062,7 @@ type BotSendMsgReq struct {
 
 func (x *BotSendMsgReq) Reset() {
 	*x = BotSendMsgReq{}
-	mi := &file_bot_proto_msgTypes[43]
+	mi := &file_bot_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2585,7 +5074,7 @@ func (x *BotSendMsgReq) String() string {
 func (*BotSendMsgReq) ProtoMessage() {}
 
 func (x *BotSendMsgReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[43]
+	mi := &file_bot_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2598,7 +5087,7 @@ func (x *BotSendMsgReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotSendMsgReq.ProtoReflect.Descriptor instead.
 func (*BotSendMsgReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{43}
+	return file_bot_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *BotSendMsgReq) GetBotId() int64 {
@@ -2660,7 +5149,7 @@ type BotSendMsgResp struct {
 
 func (x *BotSendMsgResp) Reset() {
 	*x = BotSendMsgResp{}
-	mi := &file_bot_proto_msgTypes[44]
+	mi := &file_bot_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2672,7 +5161,7 @@ func (x *BotSendMsgResp) String() string {
 func (*BotSendMsgResp) ProtoMessage() {}
 
 func (x *BotSendMsgResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[44]
+	mi := &file_bot_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2685,7 +5174,7 @@ func (x *BotSendMsgResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotSendMsgResp.ProtoReflect.Descriptor instead.
 func (*BotSendMsgResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{44}
+	return file_bot_proto_rawDescGZIP(), []int{78}
 }
 
 func (x *BotSendMsgResp) GetMsgId() int64 {
@@ -2713,7 +5202,7 @@ type BotRecallMsgReq struct {
 
 func (x *BotRecallMsgReq) Reset() {
 	*x = BotRecallMsgReq{}
-	mi := &file_bot_proto_msgTypes[45]
+	mi := &file_bot_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2725,7 +5214,7 @@ func (x *BotRecallMsgReq) String() string {
 func (*BotRecallMsgReq) ProtoMessage() {}
 
 func (x *BotRecallMsgReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[45]
+	mi := &file_bot_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2738,7 +5227,7 @@ func (x *BotRecallMsgReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotRecallMsgReq.ProtoReflect.Descriptor instead.
 func (*BotRecallMsgReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{45}
+	return file_bot_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *BotRecallMsgReq) GetBotId() int64 {
@@ -2770,7 +5259,7 @@ type BotRecallMsgResp struct {
 
 func (x *BotRecallMsgResp) Reset() {
 	*x = BotRecallMsgResp{}
-	mi := &file_bot_proto_msgTypes[46]
+	mi := &file_bot_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2782,7 +5271,7 @@ func (x *BotRecallMsgResp) String() string {
 func (*BotRecallMsgResp) ProtoMessage() {}
 
 func (x *BotRecallMsgResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[46]
+	mi := &file_bot_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2795,7 +5284,7 @@ func (x *BotRecallMsgResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotRecallMsgResp.ProtoReflect.Descriptor instead.
 func (*BotRecallMsgResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{46}
+	return file_bot_proto_rawDescGZIP(), []int{80}
 }
 
 type BotReplyMsgReq struct {
@@ -2813,7 +5302,7 @@ type BotReplyMsgReq struct {
 
 func (x *BotReplyMsgReq) Reset() {
 	*x = BotReplyMsgReq{}
-	mi := &file_bot_proto_msgTypes[47]
+	mi := &file_bot_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2825,7 +5314,7 @@ func (x *BotReplyMsgReq) String() string {
 func (*BotReplyMsgReq) ProtoMessage() {}
 
 func (x *BotReplyMsgReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[47]
+	mi := &file_bot_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2838,7 +5327,7 @@ func (x *BotReplyMsgReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotReplyMsgReq.ProtoReflect.Descriptor instead.
 func (*BotReplyMsgReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{47}
+	return file_bot_proto_rawDescGZIP(), []int{81}
 }
 
 func (x *BotReplyMsgReq) GetBotId() int64 {
@@ -2900,7 +5389,7 @@ type BotReplyMsgResp struct {
 
 func (x *BotReplyMsgResp) Reset() {
 	*x = BotReplyMsgResp{}
-	mi := &file_bot_proto_msgTypes[48]
+	mi := &file_bot_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2912,7 +5401,7 @@ func (x *BotReplyMsgResp) String() string {
 func (*BotReplyMsgResp) ProtoMessage() {}
 
 func (x *BotReplyMsgResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[48]
+	mi := &file_bot_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2925,7 +5414,7 @@ func (x *BotReplyMsgResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotReplyMsgResp.ProtoReflect.Descriptor instead.
 func (*BotReplyMsgResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{48}
+	return file_bot_proto_rawDescGZIP(), []int{82}
 }
 
 func (x *BotReplyMsgResp) GetMsgId() int64 {
@@ -2955,7 +5444,7 @@ type BotUploadFileReq struct {
 
 func (x *BotUploadFileReq) Reset() {
 	*x = BotUploadFileReq{}
-	mi := &file_bot_proto_msgTypes[49]
+	mi := &file_bot_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2967,7 +5456,7 @@ func (x *BotUploadFileReq) String() string {
 func (*BotUploadFileReq) ProtoMessage() {}
 
 func (x *BotUploadFileReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[49]
+	mi := &file_bot_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2980,7 +5469,7 @@ func (x *BotUploadFileReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotUploadFileReq.ProtoReflect.Descriptor instead.
 func (*BotUploadFileReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{49}
+	return file_bot_proto_rawDescGZIP(), []int{83}
 }
 
 func (x *BotUploadFileReq) GetBotId() int64 {
@@ -3031,7 +5520,7 @@ type BotUploadFileResp struct {
 
 func (x *BotUploadFileResp) Reset() {
 	*x = BotUploadFileResp{}
-	mi := &file_bot_proto_msgTypes[50]
+	mi := &file_bot_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3043,7 +5532,7 @@ func (x *BotUploadFileResp) String() string {
 func (*BotUploadFileResp) ProtoMessage() {}
 
 func (x *BotUploadFileResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[50]
+	mi := &file_bot_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3056,7 +5545,7 @@ func (x *BotUploadFileResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotUploadFileResp.ProtoReflect.Descriptor instead.
 func (*BotUploadFileResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{50}
+	return file_bot_proto_rawDescGZIP(), []int{84}
 }
 
 func (x *BotUploadFileResp) GetFileId() string {
@@ -3103,7 +5592,7 @@ type BotGetUserReq struct {
 
 func (x *BotGetUserReq) Reset() {
 	*x = BotGetUserReq{}
-	mi := &file_bot_proto_msgTypes[51]
+	mi := &file_bot_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3115,7 +5604,7 @@ func (x *BotGetUserReq) String() string {
 func (*BotGetUserReq) ProtoMessage() {}
 
 func (x *BotGetUserReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[51]
+	mi := &file_bot_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3128,7 +5617,7 @@ func (x *BotGetUserReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotGetUserReq.ProtoReflect.Descriptor instead.
 func (*BotGetUserReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{51}
+	return file_bot_proto_rawDescGZIP(), []int{85}
 }
 
 func (x *BotGetUserReq) GetUid() int64 {
@@ -3149,7 +5638,7 @@ type BotGetUserResp struct {
 
 func (x *BotGetUserResp) Reset() {
 	*x = BotGetUserResp{}
-	mi := &file_bot_proto_msgTypes[52]
+	mi := &file_bot_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3161,7 +5650,7 @@ func (x *BotGetUserResp) String() string {
 func (*BotGetUserResp) ProtoMessage() {}
 
 func (x *BotGetUserResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[52]
+	mi := &file_bot_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3174,7 +5663,7 @@ func (x *BotGetUserResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotGetUserResp.ProtoReflect.Descriptor instead.
 func (*BotGetUserResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{52}
+	return file_bot_proto_rawDescGZIP(), []int{86}
 }
 
 func (x *BotGetUserResp) GetUid() int64 {
@@ -3212,7 +5701,7 @@ type AuthorizeReq struct {
 
 func (x *AuthorizeReq) Reset() {
 	*x = AuthorizeReq{}
-	mi := &file_bot_proto_msgTypes[53]
+	mi := &file_bot_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3224,7 +5713,7 @@ func (x *AuthorizeReq) String() string {
 func (*AuthorizeReq) ProtoMessage() {}
 
 func (x *AuthorizeReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[53]
+	mi := &file_bot_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3237,7 +5726,7 @@ func (x *AuthorizeReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthorizeReq.ProtoReflect.Descriptor instead.
 func (*AuthorizeReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{53}
+	return file_bot_proto_rawDescGZIP(), []int{87}
 }
 
 func (x *AuthorizeReq) GetClientId() string {
@@ -3286,7 +5775,7 @@ type AuthorizeResp struct {
 
 func (x *AuthorizeResp) Reset() {
 	*x = AuthorizeResp{}
-	mi := &file_bot_proto_msgTypes[54]
+	mi := &file_bot_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3298,7 +5787,7 @@ func (x *AuthorizeResp) String() string {
 func (*AuthorizeResp) ProtoMessage() {}
 
 func (x *AuthorizeResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[54]
+	mi := &file_bot_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3311,7 +5800,7 @@ func (x *AuthorizeResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthorizeResp.ProtoReflect.Descriptor instead.
 func (*AuthorizeResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{54}
+	return file_bot_proto_rawDescGZIP(), []int{88}
 }
 
 func (x *AuthorizeResp) GetBot() *BotInfo {
@@ -3349,7 +5838,7 @@ type ApproveAuthorizeReq struct {
 
 func (x *ApproveAuthorizeReq) Reset() {
 	*x = ApproveAuthorizeReq{}
-	mi := &file_bot_proto_msgTypes[55]
+	mi := &file_bot_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3361,7 +5850,7 @@ func (x *ApproveAuthorizeReq) String() string {
 func (*ApproveAuthorizeReq) ProtoMessage() {}
 
 func (x *ApproveAuthorizeReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[55]
+	mi := &file_bot_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3374,7 +5863,7 @@ func (x *ApproveAuthorizeReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApproveAuthorizeReq.ProtoReflect.Descriptor instead.
 func (*ApproveAuthorizeReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{55}
+	return file_bot_proto_rawDescGZIP(), []int{89}
 }
 
 func (x *ApproveAuthorizeReq) GetUid() int64 {
@@ -3428,7 +5917,7 @@ type ApproveAuthorizeResp struct {
 
 func (x *ApproveAuthorizeResp) Reset() {
 	*x = ApproveAuthorizeResp{}
-	mi := &file_bot_proto_msgTypes[56]
+	mi := &file_bot_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3440,7 +5929,7 @@ func (x *ApproveAuthorizeResp) String() string {
 func (*ApproveAuthorizeResp) ProtoMessage() {}
 
 func (x *ApproveAuthorizeResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[56]
+	mi := &file_bot_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3453,7 +5942,7 @@ func (x *ApproveAuthorizeResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApproveAuthorizeResp.ProtoReflect.Descriptor instead.
 func (*ApproveAuthorizeResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{56}
+	return file_bot_proto_rawDescGZIP(), []int{90}
 }
 
 func (x *ApproveAuthorizeResp) GetRedirectUrl() string {
@@ -3478,7 +5967,7 @@ type BotTokenReq struct {
 
 func (x *BotTokenReq) Reset() {
 	*x = BotTokenReq{}
-	mi := &file_bot_proto_msgTypes[57]
+	mi := &file_bot_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3490,7 +5979,7 @@ func (x *BotTokenReq) String() string {
 func (*BotTokenReq) ProtoMessage() {}
 
 func (x *BotTokenReq) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[57]
+	mi := &file_bot_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3503,7 +5992,7 @@ func (x *BotTokenReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotTokenReq.ProtoReflect.Descriptor instead.
 func (*BotTokenReq) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{57}
+	return file_bot_proto_rawDescGZIP(), []int{91}
 }
 
 func (x *BotTokenReq) GetGrantType() string {
@@ -3569,7 +6058,7 @@ type BotTokenResp struct {
 
 func (x *BotTokenResp) Reset() {
 	*x = BotTokenResp{}
-	mi := &file_bot_proto_msgTypes[58]
+	mi := &file_bot_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3581,7 +6070,7 @@ func (x *BotTokenResp) String() string {
 func (*BotTokenResp) ProtoMessage() {}
 
 func (x *BotTokenResp) ProtoReflect() protoreflect.Message {
-	mi := &file_bot_proto_msgTypes[58]
+	mi := &file_bot_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3594,7 +6083,7 @@ func (x *BotTokenResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BotTokenResp.ProtoReflect.Descriptor instead.
 func (*BotTokenResp) Descriptor() ([]byte, []int) {
-	return file_bot_proto_rawDescGZIP(), []int{58}
+	return file_bot_proto_rawDescGZIP(), []int{92}
 }
 
 func (x *BotTokenResp) GetAccessToken() string {
@@ -3687,10 +6176,6 @@ const file_bot_proto_rawDesc = "" +
 	"\rListMyBotsReq\x12\x1b\n" +
 	"\towner_uid\x18\x01 \x01(\x03R\bownerUid\"2\n" +
 	"\x0eListMyBotsResp\x12 \n" +
-	"\x04list\x18\x01 \x03(\v2\f.bot.BotInfoR\x04list\"0\n" +
-	"\x14ListCommunityBotsReq\x12\x18\n" +
-	"\akeyword\x18\x01 \x01(\tR\akeyword\"9\n" +
-	"\x15ListCommunityBotsResp\x12 \n" +
 	"\x04list\x18\x01 \x03(\v2\f.bot.BotInfoR\x04list\"4\n" +
 	"\tGetBotReq\x12\x15\n" +
 	"\x06bot_id\x18\x01 \x01(\x03R\x05botId\x12\x10\n" +
@@ -3775,18 +6260,256 @@ const file_bot_proto_rawDesc = "" +
 	"\x0eGetConvBotsReq\x12\x17\n" +
 	"\aconv_id\x18\x01 \x01(\x03R\x06convId\"<\n" +
 	"\x0fGetConvBotsResp\x12)\n" +
-	"\x04list\x18\x01 \x03(\v2\x15.bot.InstalledBotItemR\x04list\"s\n" +
+	"\x04list\x18\x01 \x03(\v2\x15.bot.InstalledBotItemR\x04list\"\x90\x02\n" +
 	"\rInstallBotReq\x12\x10\n" +
 	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x15\n" +
 	"\x06bot_id\x18\x02 \x01(\x03R\x05botId\x12\x17\n" +
 	"\aconv_id\x18\x03 \x01(\x03R\x06convId\x12 \n" +
-	"\vpermissions\x18\x04 \x03(\tR\vpermissions\"\x10\n" +
-	"\x0eInstallBotResp\"S\n" +
+	"\vpermissions\x18\x04 \x03(\tR\vpermissions\x12\x1f\n" +
+	"\vtemplate_id\x18\x05 \x01(\x03R\n" +
+	"templateId\x12%\n" +
+	"\x0emodel_provider\x18\x06 \x01(\tR\rmodelProvider\x12\x1d\n" +
+	"\n" +
+	"model_name\x18\a \x01(\tR\tmodelName\x12\x17\n" +
+	"\aapi_key\x18\b \x01(\tR\x06apiKey\x12\x1b\n" +
+	"\tkb_config\x18\t \x01(\tR\bkbConfig\"1\n" +
+	"\x0eInstallBotResp\x12\x1f\n" +
+	"\vinstance_id\x18\x01 \x01(\x03R\n" +
+	"instanceId\"S\n" +
 	"\x0fUninstallBotReq\x12\x10\n" +
 	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x15\n" +
 	"\x06bot_id\x18\x02 \x01(\x03R\x05botId\x12\x17\n" +
 	"\aconv_id\x18\x03 \x01(\x03R\x06convId\"\x12\n" +
-	"\x10UninstallBotResp\"(\n" +
+	"\x10UninstallBotResp\"\xf9\x04\n" +
+	"\x0fBotTemplateInfo\x12\x1f\n" +
+	"\vtemplate_id\x18\x01 \x01(\x03R\n" +
+	"templateId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
+	"\x06avatar\x18\x03 \x01(\tR\x06avatar\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x1b\n" +
+	"\towner_uid\x18\x05 \x01(\x03R\bownerUid\x12\x1a\n" +
+	"\bcategory\x18\x06 \x01(\tR\bcategory\x12\x18\n" +
+	"\aversion\x18\a \x01(\tR\aversion\x12#\n" +
+	"\rsystem_prompt\x18\b \x01(\tR\fsystemPrompt\x12'\n" +
+	"\x0fwelcome_message\x18\t \x01(\tR\x0ewelcomeMessage\x12-\n" +
+	"\x12conversation_style\x18\n" +
+	" \x01(\tR\x11conversationStyle\x12)\n" +
+	"\x10tool_definitions\x18\v \x01(\tR\x0ftoolDefinitions\x12!\n" +
+	"\fkb_structure\x18\f \x01(\tR\vkbStructure\x12#\n" +
+	"\rconfig_schema\x18\r \x01(\tR\fconfigSchema\x12)\n" +
+	"\x10supported_models\x18\x0e \x01(\tR\x0fsupportedModels\x12\x1f\n" +
+	"\vis_official\x18\x0f \x01(\bR\n" +
+	"isOfficial\x12\x12\n" +
+	"\x04tags\x18\x10 \x03(\tR\x04tags\x12\x16\n" +
+	"\x06status\x18\x11 \x01(\tR\x06status\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x12 \x01(\x03R\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\x13 \x01(\x03R\tupdatedAt\"\xcc\x03\n" +
+	"\x14CreateBotTemplateReq\x12\x1b\n" +
+	"\towner_uid\x18\x01 \x01(\x03R\bownerUid\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
+	"\x06avatar\x18\x03 \x01(\tR\x06avatar\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x1a\n" +
+	"\bcategory\x18\x05 \x01(\tR\bcategory\x12#\n" +
+	"\rsystem_prompt\x18\x06 \x01(\tR\fsystemPrompt\x12'\n" +
+	"\x0fwelcome_message\x18\a \x01(\tR\x0ewelcomeMessage\x12-\n" +
+	"\x12conversation_style\x18\b \x01(\tR\x11conversationStyle\x12)\n" +
+	"\x10tool_definitions\x18\t \x01(\tR\x0ftoolDefinitions\x12!\n" +
+	"\fkb_structure\x18\n" +
+	" \x01(\tR\vkbStructure\x12#\n" +
+	"\rconfig_schema\x18\v \x01(\tR\fconfigSchema\x12)\n" +
+	"\x10supported_models\x18\f \x01(\tR\x0fsupportedModels\x12\x12\n" +
+	"\x04tags\x18\r \x03(\tR\x04tags\"8\n" +
+	"\x15CreateBotTemplateResp\x12\x1f\n" +
+	"\vtemplate_id\x18\x01 \x01(\x03R\n" +
+	"templateId\"\xe2\x03\n" +
+	"\x14UpdateBotTemplateReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x1f\n" +
+	"\vtemplate_id\x18\x02 \x01(\x03R\n" +
+	"templateId\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x16\n" +
+	"\x06avatar\x18\x04 \x01(\tR\x06avatar\x12 \n" +
+	"\vdescription\x18\x05 \x01(\tR\vdescription\x12\x1a\n" +
+	"\bcategory\x18\x06 \x01(\tR\bcategory\x12#\n" +
+	"\rsystem_prompt\x18\a \x01(\tR\fsystemPrompt\x12'\n" +
+	"\x0fwelcome_message\x18\b \x01(\tR\x0ewelcomeMessage\x12-\n" +
+	"\x12conversation_style\x18\t \x01(\tR\x11conversationStyle\x12)\n" +
+	"\x10tool_definitions\x18\n" +
+	" \x01(\tR\x0ftoolDefinitions\x12!\n" +
+	"\fkb_structure\x18\v \x01(\tR\vkbStructure\x12#\n" +
+	"\rconfig_schema\x18\f \x01(\tR\fconfigSchema\x12)\n" +
+	"\x10supported_models\x18\r \x01(\tR\x0fsupportedModels\x12\x12\n" +
+	"\x04tags\x18\x0e \x03(\tR\x04tags\"\x17\n" +
+	"\x15UpdateBotTemplateResp\"I\n" +
+	"\x14DeleteBotTemplateReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x1f\n" +
+	"\vtemplate_id\x18\x02 \x01(\x03R\n" +
+	"templateId\"\x17\n" +
+	"\x15DeleteBotTemplateResp\"4\n" +
+	"\x11GetBotTemplateReq\x12\x1f\n" +
+	"\vtemplate_id\x18\x01 \x01(\x03R\n" +
+	"templateId\"F\n" +
+	"\x12GetBotTemplateResp\x120\n" +
+	"\btemplate\x18\x01 \x01(\v2\x14.bot.BotTemplateInfoR\btemplate\"1\n" +
+	"\x12ListMyTemplatesReq\x12\x1b\n" +
+	"\towner_uid\x18\x01 \x01(\x03R\bownerUid\"?\n" +
+	"\x13ListMyTemplatesResp\x12(\n" +
+	"\x04list\x18\x01 \x03(\v2\x14.bot.BotTemplateInfoR\x04list\"J\n" +
+	"\x15PublishBotTemplateReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x1f\n" +
+	"\vtemplate_id\x18\x02 \x01(\x03R\n" +
+	"templateId\"\x18\n" +
+	"\x16PublishBotTemplateResp\"\xeb\x03\n" +
+	"\x0fBotInstanceInfo\x12\x1f\n" +
+	"\vinstance_id\x18\x01 \x01(\x03R\n" +
+	"instanceId\x12\x15\n" +
+	"\x06bot_id\x18\x02 \x01(\x03R\x05botId\x12\x1f\n" +
+	"\vtemplate_id\x18\x03 \x01(\x03R\n" +
+	"templateId\x12\x1b\n" +
+	"\towner_uid\x18\x04 \x01(\x03R\bownerUid\x12\x12\n" +
+	"\x04name\x18\x05 \x01(\tR\x04name\x12\x16\n" +
+	"\x06avatar\x18\x06 \x01(\tR\x06avatar\x12$\n" +
+	"\x0eis_self_hosted\x18\a \x01(\bR\fisSelfHosted\x12\x1b\n" +
+	"\thosted_by\x18\b \x01(\x03R\bhostedBy\x12%\n" +
+	"\x0emodel_provider\x18\t \x01(\tR\rmodelProvider\x12\x1d\n" +
+	"\n" +
+	"model_name\x18\n" +
+	" \x01(\tR\tmodelName\x12\x1b\n" +
+	"\tkb_config\x18\v \x01(\tR\bkbConfig\x12'\n" +
+	"\x0finstance_config\x18\f \x01(\tR\x0einstanceConfig\x12\x16\n" +
+	"\x06status\x18\r \x01(\tR\x06status\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x0e \x01(\x03R\tcreatedAt\x120\n" +
+	"\btemplate\x18\x0f \x01(\v2\x14.bot.BotTemplateInfoR\btemplate\"\xff\x02\n" +
+	"\x14CreateBotInstanceReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x1f\n" +
+	"\vtemplate_id\x18\x02 \x01(\x03R\n" +
+	"templateId\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x16\n" +
+	"\x06avatar\x18\x04 \x01(\tR\x06avatar\x12$\n" +
+	"\x0eis_self_hosted\x18\x05 \x01(\bR\fisSelfHosted\x12\x1b\n" +
+	"\thosted_by\x18\x06 \x01(\x03R\bhostedBy\x12%\n" +
+	"\x0emodel_provider\x18\a \x01(\tR\rmodelProvider\x12\x1d\n" +
+	"\n" +
+	"model_name\x18\b \x01(\tR\tmodelName\x12\x17\n" +
+	"\aapi_key\x18\t \x01(\tR\x06apiKey\x12 \n" +
+	"\fapi_base_url\x18\n" +
+	" \x01(\tR\n" +
+	"apiBaseUrl\x12\x1b\n" +
+	"\tkb_config\x18\v \x01(\tR\bkbConfig\x12'\n" +
+	"\x0finstance_config\x18\f \x01(\tR\x0einstanceConfig\"\xae\x01\n" +
+	"\x15CreateBotInstanceResp\x12\x1f\n" +
+	"\vinstance_id\x18\x01 \x01(\x03R\n" +
+	"instanceId\x12\x15\n" +
+	"\x06bot_id\x18\x02 \x01(\x03R\x05botId\x12\x1b\n" +
+	"\tclient_id\x18\x03 \x01(\tR\bclientId\x12#\n" +
+	"\rclient_secret\x18\x04 \x01(\tR\fclientSecret\x12\x1b\n" +
+	"\tbot_token\x18\x05 \x01(\tR\bbotToken\"\xbc\x02\n" +
+	"\x14UpdateBotInstanceReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x1f\n" +
+	"\vinstance_id\x18\x02 \x01(\x03R\n" +
+	"instanceId\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x16\n" +
+	"\x06avatar\x18\x04 \x01(\tR\x06avatar\x12%\n" +
+	"\x0emodel_provider\x18\x05 \x01(\tR\rmodelProvider\x12\x1d\n" +
+	"\n" +
+	"model_name\x18\x06 \x01(\tR\tmodelName\x12\x17\n" +
+	"\aapi_key\x18\a \x01(\tR\x06apiKey\x12 \n" +
+	"\fapi_base_url\x18\b \x01(\tR\n" +
+	"apiBaseUrl\x12\x1b\n" +
+	"\tkb_config\x18\t \x01(\tR\bkbConfig\x12'\n" +
+	"\x0finstance_config\x18\n" +
+	" \x01(\tR\x0einstanceConfig\"\x17\n" +
+	"\x15UpdateBotInstanceResp\"I\n" +
+	"\x14DeleteBotInstanceReq\x12\x10\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x1f\n" +
+	"\vinstance_id\x18\x02 \x01(\x03R\n" +
+	"instanceId\"\x17\n" +
+	"\x15DeleteBotInstanceResp\"]\n" +
+	"\x11GetBotInstanceReq\x12\x1f\n" +
+	"\vinstance_id\x18\x01 \x01(\x03R\n" +
+	"instanceId\x12\x15\n" +
+	"\x06bot_id\x18\x02 \x01(\x03R\x05botId\x12\x10\n" +
+	"\x03uid\x18\x03 \x01(\x03R\x03uid\"F\n" +
+	"\x12GetBotInstanceResp\x120\n" +
+	"\binstance\x18\x01 \x01(\v2\x14.bot.BotInstanceInfoR\binstance\"1\n" +
+	"\x12ListMyInstancesReq\x12\x1b\n" +
+	"\towner_uid\x18\x01 \x01(\x03R\bownerUid\"?\n" +
+	"\x13ListMyInstancesResp\x12(\n" +
+	"\x04list\x18\x01 \x03(\v2\x14.bot.BotInstanceInfoR\x04list\"\x18\n" +
+	"\x16ListHostedInstancesReq\"C\n" +
+	"\x17ListHostedInstancesResp\x12(\n" +
+	"\x04list\x18\x01 \x03(\v2\x14.bot.BotInstanceInfoR\x04list\"\xfc\x02\n" +
+	"\x10CommunityBotItem\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1f\n" +
+	"\vinstance_id\x18\x02 \x01(\x03R\n" +
+	"instanceId\x12\x15\n" +
+	"\x06bot_id\x18\x03 \x01(\x03R\x05botId\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x12\x16\n" +
+	"\x06avatar\x18\x05 \x01(\tR\x06avatar\x12 \n" +
+	"\vdescription\x18\x06 \x01(\tR\vdescription\x12\x1b\n" +
+	"\thosted_by\x18\a \x01(\x03R\bhostedBy\x12'\n" +
+	"\x0finstalled_count\x18\b \x01(\x03R\x0einstalledCount\x12\x16\n" +
+	"\x06status\x18\t \x01(\tR\x06status\x12\x1f\n" +
+	"\vtemplate_id\x18\n" +
+	" \x01(\x03R\n" +
+	"templateId\x12\x1a\n" +
+	"\bcategory\x18\v \x01(\tR\bcategory\x12\x12\n" +
+	"\x04tags\x18\f \x03(\tR\x04tags\x12\x1f\n" +
+	"\vis_official\x18\r \x01(\bR\n" +
+	"isOfficial\"f\n" +
+	"\x14ListCommunityBotsReq\x12\x18\n" +
+	"\akeyword\x18\x01 \x01(\tR\akeyword\x12\x18\n" +
+	"\asection\x18\x02 \x01(\tR\asection\x12\x1a\n" +
+	"\bcategory\x18\x03 \x01(\tR\bcategory\"\x84\x01\n" +
+	"\x15ListCommunityBotsResp\x126\n" +
+	"\vhosted_bots\x18\x01 \x03(\v2\x15.bot.CommunityBotItemR\n" +
+	"hostedBots\x123\n" +
+	"\ttemplates\x18\x02 \x03(\v2\x15.bot.CommunityBotItemR\ttemplates\",\n" +
+	"\x10ParseMentionsReq\x12\x18\n" +
+	"\acontent\x18\x01 \x01(\tR\acontent\"\x97\x01\n" +
+	"\vMentionItem\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1b\n" +
+	"\ttarget_id\x18\x02 \x01(\x03R\btargetId\x12!\n" +
+	"\fdisplay_name\x18\x03 \x01(\tR\vdisplayName\x12\x1b\n" +
+	"\tstart_pos\x18\x04 \x01(\x05R\bstartPos\x12\x17\n" +
+	"\aend_pos\x18\x05 \x01(\x05R\x06endPos\"A\n" +
+	"\x11ParseMentionsResp\x12,\n" +
+	"\bmentions\x18\x01 \x03(\v2\x10.bot.MentionItemR\bmentions\"0\n" +
+	"\x11VerifyBotTokenReq\x12\x1b\n" +
+	"\tbot_token\x18\x01 \x01(\tR\bbotToken\"\x83\x01\n" +
+	"\x12VerifyBotTokenResp\x12\x14\n" +
+	"\x05valid\x18\x01 \x01(\bR\x05valid\x12\x15\n" +
+	"\x06bot_id\x18\x02 \x01(\x03R\x05botId\x12\x1f\n" +
+	"\vinstance_id\x18\x03 \x01(\x03R\n" +
+	"instanceId\x12\x1f\n" +
+	"\vis_official\x18\x04 \x01(\bR\n" +
+	"isOfficial\"H\n" +
+	"\x16GetBotRuntimeConfigReq\x12\x15\n" +
+	"\x06bot_id\x18\x01 \x01(\x03R\x05botId\x12\x17\n" +
+	"\aconv_id\x18\x02 \x01(\x03R\x06convId\"\xfc\x03\n" +
+	"\x17GetBotRuntimeConfigResp\x12\x1f\n" +
+	"\vinstance_id\x18\x01 \x01(\x03R\n" +
+	"instanceId\x12\x15\n" +
+	"\x06bot_id\x18\x02 \x01(\x03R\x05botId\x12%\n" +
+	"\x0emodel_provider\x18\x03 \x01(\tR\rmodelProvider\x12\x1d\n" +
+	"\n" +
+	"model_name\x18\x04 \x01(\tR\tmodelName\x12\x17\n" +
+	"\aapi_key\x18\x05 \x01(\tR\x06apiKey\x12 \n" +
+	"\fapi_base_url\x18\x06 \x01(\tR\n" +
+	"apiBaseUrl\x12#\n" +
+	"\rsystem_prompt\x18\a \x01(\tR\fsystemPrompt\x12-\n" +
+	"\x12conversation_style\x18\b \x01(\tR\x11conversationStyle\x12)\n" +
+	"\x10tool_definitions\x18\t \x01(\tR\x0ftoolDefinitions\x12\x1b\n" +
+	"\tkb_config\x18\n" +
+	" \x01(\tR\bkbConfig\x12\x15\n" +
+	"\x06kb_ids\x18\v \x01(\tR\x05kbIds\x12\x1f\n" +
+	"\vis_official\x18\f \x01(\bR\n" +
+	"isOfficial\x12\x1b\n" +
+	"\tclient_id\x18\r \x01(\tR\bclientId\x12#\n" +
+	"\rclient_secret\x18\x0e \x01(\tR\fclientSecret\x12\x12\n" +
+	"\x04name\x18\x0f \x01(\tR\x04name\"(\n" +
 	"\rBotGetConvReq\x12\x17\n" +
 	"\aconv_id\x18\x01 \x01(\x03R\x06convId\"\xa3\x01\n" +
 	"\x0eBotGetConvResp\x12\x17\n" +
@@ -3912,7 +6635,7 @@ const file_bot_proto_rawDesc = "" +
 	"\n" +
 	"expires_in\x18\x04 \x01(\x03R\texpiresIn\x12#\n" +
 	"\rrefresh_token\x18\x05 \x01(\tR\frefreshToken\x12\x15\n" +
-	"\x06bot_id\x18\x06 \x01(\x03R\x05botId2\xb3\r\n" +
+	"\x06bot_id\x18\x06 \x01(\x03R\x05botId2\x83\x16\n" +
 	"\x03bot\x122\n" +
 	"\tCreateBot\x12\x11.bot.CreateBotReq\x1a\x12.bot.CreateBotResp\x125\n" +
 	"\n" +
@@ -3927,11 +6650,26 @@ const file_bot_proto_rawDesc = "" +
 	"\x14RegenerateCredential\x12\x1c.bot.RegenerateCredentialReq\x1a\x1d.bot.RegenerateCredentialResp\x12P\n" +
 	"\x13RotateWebhookSecret\x12\x1b.bot.RotateWebhookSecretReq\x1a\x1c.bot.RotateWebhookSecretResp\x12M\n" +
 	"\x12GetEventDeliveries\x12\x1a.bot.GetEventDeliveriesReq\x1a\x1b.bot.GetEventDeliveriesResp\x12M\n" +
-	"\x12RetryEventDelivery\x12\x1a.bot.RetryEventDeliveryReq\x1a\x1b.bot.RetryEventDeliveryResp\x128\n" +
+	"\x12RetryEventDelivery\x12\x1a.bot.RetryEventDeliveryReq\x1a\x1b.bot.RetryEventDeliveryResp\x12J\n" +
+	"\x11CreateBotTemplate\x12\x19.bot.CreateBotTemplateReq\x1a\x1a.bot.CreateBotTemplateResp\x12J\n" +
+	"\x11UpdateBotTemplate\x12\x19.bot.UpdateBotTemplateReq\x1a\x1a.bot.UpdateBotTemplateResp\x12J\n" +
+	"\x11DeleteBotTemplate\x12\x19.bot.DeleteBotTemplateReq\x1a\x1a.bot.DeleteBotTemplateResp\x12A\n" +
+	"\x0eGetBotTemplate\x12\x16.bot.GetBotTemplateReq\x1a\x17.bot.GetBotTemplateResp\x12D\n" +
+	"\x0fListMyTemplates\x12\x17.bot.ListMyTemplatesReq\x1a\x18.bot.ListMyTemplatesResp\x12M\n" +
+	"\x12PublishBotTemplate\x12\x1a.bot.PublishBotTemplateReq\x1a\x1b.bot.PublishBotTemplateResp\x12J\n" +
+	"\x11CreateBotInstance\x12\x19.bot.CreateBotInstanceReq\x1a\x1a.bot.CreateBotInstanceResp\x12J\n" +
+	"\x11UpdateBotInstance\x12\x19.bot.UpdateBotInstanceReq\x1a\x1a.bot.UpdateBotInstanceResp\x12J\n" +
+	"\x11DeleteBotInstance\x12\x19.bot.DeleteBotInstanceReq\x1a\x1a.bot.DeleteBotInstanceResp\x12A\n" +
+	"\x0eGetBotInstance\x12\x16.bot.GetBotInstanceReq\x1a\x17.bot.GetBotInstanceResp\x12D\n" +
+	"\x0fListMyInstances\x12\x17.bot.ListMyInstancesReq\x1a\x18.bot.ListMyInstancesResp\x12P\n" +
+	"\x13ListHostedInstances\x12\x1b.bot.ListHostedInstancesReq\x1a\x1c.bot.ListHostedInstancesResp\x128\n" +
 	"\vGetConvBots\x12\x13.bot.GetConvBotsReq\x1a\x14.bot.GetConvBotsResp\x125\n" +
 	"\n" +
 	"InstallBot\x12\x12.bot.InstallBotReq\x1a\x13.bot.InstallBotResp\x12;\n" +
-	"\fUninstallBot\x12\x14.bot.UninstallBotReq\x1a\x15.bot.UninstallBotResp\x125\n" +
+	"\fUninstallBot\x12\x14.bot.UninstallBotReq\x1a\x15.bot.UninstallBotResp\x12>\n" +
+	"\rParseMentions\x12\x15.bot.ParseMentionsReq\x1a\x16.bot.ParseMentionsResp\x12A\n" +
+	"\x0eVerifyBotToken\x12\x16.bot.VerifyBotTokenReq\x1a\x17.bot.VerifyBotTokenResp\x12P\n" +
+	"\x13GetBotRuntimeConfig\x12\x1b.bot.GetBotRuntimeConfigReq\x1a\x1c.bot.GetBotRuntimeConfigResp\x125\n" +
 	"\n" +
 	"BotGetConv\x12\x12.bot.BotGetConvReq\x1a\x13.bot.BotGetConvResp\x12J\n" +
 	"\x11BotGetConvMembers\x12\x19.bot.BotGetConvMembersReq\x1a\x1a.bot.BotGetConvMembersResp\x122\n" +
@@ -3959,7 +6697,7 @@ func file_bot_proto_rawDescGZIP() []byte {
 	return file_bot_proto_rawDescData
 }
 
-var file_bot_proto_msgTypes = make([]protoimpl.MessageInfo, 59)
+var file_bot_proto_msgTypes = make([]protoimpl.MessageInfo, 93)
 var file_bot_proto_goTypes = []any{
 	(*BotInfo)(nil),                  // 0: bot.BotInfo
 	(*BotInstallationItem)(nil),      // 1: bot.BotInstallationItem
@@ -3968,127 +6706,199 @@ var file_bot_proto_goTypes = []any{
 	(*CreateBotResp)(nil),            // 4: bot.CreateBotResp
 	(*ListMyBotsReq)(nil),            // 5: bot.ListMyBotsReq
 	(*ListMyBotsResp)(nil),           // 6: bot.ListMyBotsResp
-	(*ListCommunityBotsReq)(nil),     // 7: bot.ListCommunityBotsReq
-	(*ListCommunityBotsResp)(nil),    // 8: bot.ListCommunityBotsResp
-	(*GetBotReq)(nil),                // 9: bot.GetBotReq
-	(*GetBotResp)(nil),               // 10: bot.GetBotResp
-	(*UpdateBotReq)(nil),             // 11: bot.UpdateBotReq
-	(*UpdateBotResp)(nil),            // 12: bot.UpdateBotResp
-	(*DeleteBotReq)(nil),             // 13: bot.DeleteBotReq
-	(*DeleteBotResp)(nil),            // 14: bot.DeleteBotResp
-	(*GetBotInstallationsReq)(nil),   // 15: bot.GetBotInstallationsReq
-	(*GetBotInstallationsResp)(nil),  // 16: bot.GetBotInstallationsResp
-	(*GetBotRateLimitReq)(nil),       // 17: bot.GetBotRateLimitReq
-	(*GetBotRateLimitResp)(nil),      // 18: bot.GetBotRateLimitResp
-	(*UpdateBotRateLimitReq)(nil),    // 19: bot.UpdateBotRateLimitReq
-	(*UpdateBotRateLimitResp)(nil),   // 20: bot.UpdateBotRateLimitResp
-	(*RegenerateCredentialReq)(nil),  // 21: bot.RegenerateCredentialReq
-	(*RegenerateCredentialResp)(nil), // 22: bot.RegenerateCredentialResp
-	(*RotateWebhookSecretReq)(nil),   // 23: bot.RotateWebhookSecretReq
-	(*RotateWebhookSecretResp)(nil),  // 24: bot.RotateWebhookSecretResp
-	(*GetEventDeliveriesReq)(nil),    // 25: bot.GetEventDeliveriesReq
-	(*EventDeliveryItem)(nil),        // 26: bot.EventDeliveryItem
-	(*GetEventDeliveriesResp)(nil),   // 27: bot.GetEventDeliveriesResp
-	(*RetryEventDeliveryReq)(nil),    // 28: bot.RetryEventDeliveryReq
-	(*RetryEventDeliveryResp)(nil),   // 29: bot.RetryEventDeliveryResp
-	(*GetConvBotsReq)(nil),           // 30: bot.GetConvBotsReq
-	(*GetConvBotsResp)(nil),          // 31: bot.GetConvBotsResp
-	(*InstallBotReq)(nil),            // 32: bot.InstallBotReq
-	(*InstallBotResp)(nil),           // 33: bot.InstallBotResp
-	(*UninstallBotReq)(nil),          // 34: bot.UninstallBotReq
-	(*UninstallBotResp)(nil),         // 35: bot.UninstallBotResp
-	(*BotGetConvReq)(nil),            // 36: bot.BotGetConvReq
-	(*BotGetConvResp)(nil),           // 37: bot.BotGetConvResp
-	(*BotGetConvMembersReq)(nil),     // 38: bot.BotGetConvMembersReq
-	(*BotConvMemberItem)(nil),        // 39: bot.BotConvMemberItem
-	(*BotGetConvMembersResp)(nil),    // 40: bot.BotGetConvMembersResp
-	(*BotGetMsgReq)(nil),             // 41: bot.BotGetMsgReq
-	(*BotGetMsgResp)(nil),            // 42: bot.BotGetMsgResp
-	(*BotSendMsgReq)(nil),            // 43: bot.BotSendMsgReq
-	(*BotSendMsgResp)(nil),           // 44: bot.BotSendMsgResp
-	(*BotRecallMsgReq)(nil),          // 45: bot.BotRecallMsgReq
-	(*BotRecallMsgResp)(nil),         // 46: bot.BotRecallMsgResp
-	(*BotReplyMsgReq)(nil),           // 47: bot.BotReplyMsgReq
-	(*BotReplyMsgResp)(nil),          // 48: bot.BotReplyMsgResp
-	(*BotUploadFileReq)(nil),         // 49: bot.BotUploadFileReq
-	(*BotUploadFileResp)(nil),        // 50: bot.BotUploadFileResp
-	(*BotGetUserReq)(nil),            // 51: bot.BotGetUserReq
-	(*BotGetUserResp)(nil),           // 52: bot.BotGetUserResp
-	(*AuthorizeReq)(nil),             // 53: bot.AuthorizeReq
-	(*AuthorizeResp)(nil),            // 54: bot.AuthorizeResp
-	(*ApproveAuthorizeReq)(nil),      // 55: bot.ApproveAuthorizeReq
-	(*ApproveAuthorizeResp)(nil),     // 56: bot.ApproveAuthorizeResp
-	(*BotTokenReq)(nil),              // 57: bot.BotTokenReq
-	(*BotTokenResp)(nil),             // 58: bot.BotTokenResp
+	(*GetBotReq)(nil),                // 7: bot.GetBotReq
+	(*GetBotResp)(nil),               // 8: bot.GetBotResp
+	(*UpdateBotReq)(nil),             // 9: bot.UpdateBotReq
+	(*UpdateBotResp)(nil),            // 10: bot.UpdateBotResp
+	(*DeleteBotReq)(nil),             // 11: bot.DeleteBotReq
+	(*DeleteBotResp)(nil),            // 12: bot.DeleteBotResp
+	(*GetBotInstallationsReq)(nil),   // 13: bot.GetBotInstallationsReq
+	(*GetBotInstallationsResp)(nil),  // 14: bot.GetBotInstallationsResp
+	(*GetBotRateLimitReq)(nil),       // 15: bot.GetBotRateLimitReq
+	(*GetBotRateLimitResp)(nil),      // 16: bot.GetBotRateLimitResp
+	(*UpdateBotRateLimitReq)(nil),    // 17: bot.UpdateBotRateLimitReq
+	(*UpdateBotRateLimitResp)(nil),   // 18: bot.UpdateBotRateLimitResp
+	(*RegenerateCredentialReq)(nil),  // 19: bot.RegenerateCredentialReq
+	(*RegenerateCredentialResp)(nil), // 20: bot.RegenerateCredentialResp
+	(*RotateWebhookSecretReq)(nil),   // 21: bot.RotateWebhookSecretReq
+	(*RotateWebhookSecretResp)(nil),  // 22: bot.RotateWebhookSecretResp
+	(*GetEventDeliveriesReq)(nil),    // 23: bot.GetEventDeliveriesReq
+	(*EventDeliveryItem)(nil),        // 24: bot.EventDeliveryItem
+	(*GetEventDeliveriesResp)(nil),   // 25: bot.GetEventDeliveriesResp
+	(*RetryEventDeliveryReq)(nil),    // 26: bot.RetryEventDeliveryReq
+	(*RetryEventDeliveryResp)(nil),   // 27: bot.RetryEventDeliveryResp
+	(*GetConvBotsReq)(nil),           // 28: bot.GetConvBotsReq
+	(*GetConvBotsResp)(nil),          // 29: bot.GetConvBotsResp
+	(*InstallBotReq)(nil),            // 30: bot.InstallBotReq
+	(*InstallBotResp)(nil),           // 31: bot.InstallBotResp
+	(*UninstallBotReq)(nil),          // 32: bot.UninstallBotReq
+	(*UninstallBotResp)(nil),         // 33: bot.UninstallBotResp
+	(*BotTemplateInfo)(nil),          // 34: bot.BotTemplateInfo
+	(*CreateBotTemplateReq)(nil),     // 35: bot.CreateBotTemplateReq
+	(*CreateBotTemplateResp)(nil),    // 36: bot.CreateBotTemplateResp
+	(*UpdateBotTemplateReq)(nil),     // 37: bot.UpdateBotTemplateReq
+	(*UpdateBotTemplateResp)(nil),    // 38: bot.UpdateBotTemplateResp
+	(*DeleteBotTemplateReq)(nil),     // 39: bot.DeleteBotTemplateReq
+	(*DeleteBotTemplateResp)(nil),    // 40: bot.DeleteBotTemplateResp
+	(*GetBotTemplateReq)(nil),        // 41: bot.GetBotTemplateReq
+	(*GetBotTemplateResp)(nil),       // 42: bot.GetBotTemplateResp
+	(*ListMyTemplatesReq)(nil),       // 43: bot.ListMyTemplatesReq
+	(*ListMyTemplatesResp)(nil),      // 44: bot.ListMyTemplatesResp
+	(*PublishBotTemplateReq)(nil),    // 45: bot.PublishBotTemplateReq
+	(*PublishBotTemplateResp)(nil),   // 46: bot.PublishBotTemplateResp
+	(*BotInstanceInfo)(nil),          // 47: bot.BotInstanceInfo
+	(*CreateBotInstanceReq)(nil),     // 48: bot.CreateBotInstanceReq
+	(*CreateBotInstanceResp)(nil),    // 49: bot.CreateBotInstanceResp
+	(*UpdateBotInstanceReq)(nil),     // 50: bot.UpdateBotInstanceReq
+	(*UpdateBotInstanceResp)(nil),    // 51: bot.UpdateBotInstanceResp
+	(*DeleteBotInstanceReq)(nil),     // 52: bot.DeleteBotInstanceReq
+	(*DeleteBotInstanceResp)(nil),    // 53: bot.DeleteBotInstanceResp
+	(*GetBotInstanceReq)(nil),        // 54: bot.GetBotInstanceReq
+	(*GetBotInstanceResp)(nil),       // 55: bot.GetBotInstanceResp
+	(*ListMyInstancesReq)(nil),       // 56: bot.ListMyInstancesReq
+	(*ListMyInstancesResp)(nil),      // 57: bot.ListMyInstancesResp
+	(*ListHostedInstancesReq)(nil),   // 58: bot.ListHostedInstancesReq
+	(*ListHostedInstancesResp)(nil),  // 59: bot.ListHostedInstancesResp
+	(*CommunityBotItem)(nil),         // 60: bot.CommunityBotItem
+	(*ListCommunityBotsReq)(nil),     // 61: bot.ListCommunityBotsReq
+	(*ListCommunityBotsResp)(nil),    // 62: bot.ListCommunityBotsResp
+	(*ParseMentionsReq)(nil),         // 63: bot.ParseMentionsReq
+	(*MentionItem)(nil),              // 64: bot.MentionItem
+	(*ParseMentionsResp)(nil),        // 65: bot.ParseMentionsResp
+	(*VerifyBotTokenReq)(nil),        // 66: bot.VerifyBotTokenReq
+	(*VerifyBotTokenResp)(nil),       // 67: bot.VerifyBotTokenResp
+	(*GetBotRuntimeConfigReq)(nil),   // 68: bot.GetBotRuntimeConfigReq
+	(*GetBotRuntimeConfigResp)(nil),  // 69: bot.GetBotRuntimeConfigResp
+	(*BotGetConvReq)(nil),            // 70: bot.BotGetConvReq
+	(*BotGetConvResp)(nil),           // 71: bot.BotGetConvResp
+	(*BotGetConvMembersReq)(nil),     // 72: bot.BotGetConvMembersReq
+	(*BotConvMemberItem)(nil),        // 73: bot.BotConvMemberItem
+	(*BotGetConvMembersResp)(nil),    // 74: bot.BotGetConvMembersResp
+	(*BotGetMsgReq)(nil),             // 75: bot.BotGetMsgReq
+	(*BotGetMsgResp)(nil),            // 76: bot.BotGetMsgResp
+	(*BotSendMsgReq)(nil),            // 77: bot.BotSendMsgReq
+	(*BotSendMsgResp)(nil),           // 78: bot.BotSendMsgResp
+	(*BotRecallMsgReq)(nil),          // 79: bot.BotRecallMsgReq
+	(*BotRecallMsgResp)(nil),         // 80: bot.BotRecallMsgResp
+	(*BotReplyMsgReq)(nil),           // 81: bot.BotReplyMsgReq
+	(*BotReplyMsgResp)(nil),          // 82: bot.BotReplyMsgResp
+	(*BotUploadFileReq)(nil),         // 83: bot.BotUploadFileReq
+	(*BotUploadFileResp)(nil),        // 84: bot.BotUploadFileResp
+	(*BotGetUserReq)(nil),            // 85: bot.BotGetUserReq
+	(*BotGetUserResp)(nil),           // 86: bot.BotGetUserResp
+	(*AuthorizeReq)(nil),             // 87: bot.AuthorizeReq
+	(*AuthorizeResp)(nil),            // 88: bot.AuthorizeResp
+	(*ApproveAuthorizeReq)(nil),      // 89: bot.ApproveAuthorizeReq
+	(*ApproveAuthorizeResp)(nil),     // 90: bot.ApproveAuthorizeResp
+	(*BotTokenReq)(nil),              // 91: bot.BotTokenReq
+	(*BotTokenResp)(nil),             // 92: bot.BotTokenResp
 }
 var file_bot_proto_depIdxs = []int32{
 	0,  // 0: bot.ListMyBotsResp.list:type_name -> bot.BotInfo
-	0,  // 1: bot.ListCommunityBotsResp.list:type_name -> bot.BotInfo
-	0,  // 2: bot.GetBotResp.bot:type_name -> bot.BotInfo
-	1,  // 3: bot.GetBotInstallationsResp.list:type_name -> bot.BotInstallationItem
-	26, // 4: bot.GetEventDeliveriesResp.list:type_name -> bot.EventDeliveryItem
-	2,  // 5: bot.GetConvBotsResp.list:type_name -> bot.InstalledBotItem
-	39, // 6: bot.BotGetConvMembersResp.members:type_name -> bot.BotConvMemberItem
-	0,  // 7: bot.AuthorizeResp.bot:type_name -> bot.BotInfo
-	3,  // 8: bot.bot.CreateBot:input_type -> bot.CreateBotReq
-	5,  // 9: bot.bot.ListMyBots:input_type -> bot.ListMyBotsReq
-	7,  // 10: bot.bot.ListCommunityBots:input_type -> bot.ListCommunityBotsReq
-	9,  // 11: bot.bot.GetBot:input_type -> bot.GetBotReq
-	11, // 12: bot.bot.UpdateBot:input_type -> bot.UpdateBotReq
-	13, // 13: bot.bot.DeleteBot:input_type -> bot.DeleteBotReq
-	15, // 14: bot.bot.GetBotInstallations:input_type -> bot.GetBotInstallationsReq
-	17, // 15: bot.bot.GetBotRateLimit:input_type -> bot.GetBotRateLimitReq
-	19, // 16: bot.bot.UpdateBotRateLimit:input_type -> bot.UpdateBotRateLimitReq
-	21, // 17: bot.bot.RegenerateCredential:input_type -> bot.RegenerateCredentialReq
-	23, // 18: bot.bot.RotateWebhookSecret:input_type -> bot.RotateWebhookSecretReq
-	25, // 19: bot.bot.GetEventDeliveries:input_type -> bot.GetEventDeliveriesReq
-	28, // 20: bot.bot.RetryEventDelivery:input_type -> bot.RetryEventDeliveryReq
-	30, // 21: bot.bot.GetConvBots:input_type -> bot.GetConvBotsReq
-	32, // 22: bot.bot.InstallBot:input_type -> bot.InstallBotReq
-	34, // 23: bot.bot.UninstallBot:input_type -> bot.UninstallBotReq
-	36, // 24: bot.bot.BotGetConv:input_type -> bot.BotGetConvReq
-	38, // 25: bot.bot.BotGetConvMembers:input_type -> bot.BotGetConvMembersReq
-	41, // 26: bot.bot.BotGetMsg:input_type -> bot.BotGetMsgReq
-	43, // 27: bot.bot.BotSendMsg:input_type -> bot.BotSendMsgReq
-	45, // 28: bot.bot.BotRecallMsg:input_type -> bot.BotRecallMsgReq
-	47, // 29: bot.bot.BotReplyMsg:input_type -> bot.BotReplyMsgReq
-	49, // 30: bot.bot.BotUploadFile:input_type -> bot.BotUploadFileReq
-	51, // 31: bot.bot.BotGetUser:input_type -> bot.BotGetUserReq
-	53, // 32: bot.bot.Authorize:input_type -> bot.AuthorizeReq
-	55, // 33: bot.bot.ApproveAuthorize:input_type -> bot.ApproveAuthorizeReq
-	57, // 34: bot.bot.BotToken:input_type -> bot.BotTokenReq
-	4,  // 35: bot.bot.CreateBot:output_type -> bot.CreateBotResp
-	6,  // 36: bot.bot.ListMyBots:output_type -> bot.ListMyBotsResp
-	8,  // 37: bot.bot.ListCommunityBots:output_type -> bot.ListCommunityBotsResp
-	10, // 38: bot.bot.GetBot:output_type -> bot.GetBotResp
-	12, // 39: bot.bot.UpdateBot:output_type -> bot.UpdateBotResp
-	14, // 40: bot.bot.DeleteBot:output_type -> bot.DeleteBotResp
-	16, // 41: bot.bot.GetBotInstallations:output_type -> bot.GetBotInstallationsResp
-	18, // 42: bot.bot.GetBotRateLimit:output_type -> bot.GetBotRateLimitResp
-	20, // 43: bot.bot.UpdateBotRateLimit:output_type -> bot.UpdateBotRateLimitResp
-	22, // 44: bot.bot.RegenerateCredential:output_type -> bot.RegenerateCredentialResp
-	24, // 45: bot.bot.RotateWebhookSecret:output_type -> bot.RotateWebhookSecretResp
-	27, // 46: bot.bot.GetEventDeliveries:output_type -> bot.GetEventDeliveriesResp
-	29, // 47: bot.bot.RetryEventDelivery:output_type -> bot.RetryEventDeliveryResp
-	31, // 48: bot.bot.GetConvBots:output_type -> bot.GetConvBotsResp
-	33, // 49: bot.bot.InstallBot:output_type -> bot.InstallBotResp
-	35, // 50: bot.bot.UninstallBot:output_type -> bot.UninstallBotResp
-	37, // 51: bot.bot.BotGetConv:output_type -> bot.BotGetConvResp
-	40, // 52: bot.bot.BotGetConvMembers:output_type -> bot.BotGetConvMembersResp
-	42, // 53: bot.bot.BotGetMsg:output_type -> bot.BotGetMsgResp
-	44, // 54: bot.bot.BotSendMsg:output_type -> bot.BotSendMsgResp
-	46, // 55: bot.bot.BotRecallMsg:output_type -> bot.BotRecallMsgResp
-	48, // 56: bot.bot.BotReplyMsg:output_type -> bot.BotReplyMsgResp
-	50, // 57: bot.bot.BotUploadFile:output_type -> bot.BotUploadFileResp
-	52, // 58: bot.bot.BotGetUser:output_type -> bot.BotGetUserResp
-	54, // 59: bot.bot.Authorize:output_type -> bot.AuthorizeResp
-	56, // 60: bot.bot.ApproveAuthorize:output_type -> bot.ApproveAuthorizeResp
-	58, // 61: bot.bot.BotToken:output_type -> bot.BotTokenResp
-	35, // [35:62] is the sub-list for method output_type
-	8,  // [8:35] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	0,  // 1: bot.GetBotResp.bot:type_name -> bot.BotInfo
+	1,  // 2: bot.GetBotInstallationsResp.list:type_name -> bot.BotInstallationItem
+	24, // 3: bot.GetEventDeliveriesResp.list:type_name -> bot.EventDeliveryItem
+	2,  // 4: bot.GetConvBotsResp.list:type_name -> bot.InstalledBotItem
+	34, // 5: bot.GetBotTemplateResp.template:type_name -> bot.BotTemplateInfo
+	34, // 6: bot.ListMyTemplatesResp.list:type_name -> bot.BotTemplateInfo
+	34, // 7: bot.BotInstanceInfo.template:type_name -> bot.BotTemplateInfo
+	47, // 8: bot.GetBotInstanceResp.instance:type_name -> bot.BotInstanceInfo
+	47, // 9: bot.ListMyInstancesResp.list:type_name -> bot.BotInstanceInfo
+	47, // 10: bot.ListHostedInstancesResp.list:type_name -> bot.BotInstanceInfo
+	60, // 11: bot.ListCommunityBotsResp.hosted_bots:type_name -> bot.CommunityBotItem
+	60, // 12: bot.ListCommunityBotsResp.templates:type_name -> bot.CommunityBotItem
+	64, // 13: bot.ParseMentionsResp.mentions:type_name -> bot.MentionItem
+	73, // 14: bot.BotGetConvMembersResp.members:type_name -> bot.BotConvMemberItem
+	0,  // 15: bot.AuthorizeResp.bot:type_name -> bot.BotInfo
+	3,  // 16: bot.bot.CreateBot:input_type -> bot.CreateBotReq
+	5,  // 17: bot.bot.ListMyBots:input_type -> bot.ListMyBotsReq
+	61, // 18: bot.bot.ListCommunityBots:input_type -> bot.ListCommunityBotsReq
+	7,  // 19: bot.bot.GetBot:input_type -> bot.GetBotReq
+	9,  // 20: bot.bot.UpdateBot:input_type -> bot.UpdateBotReq
+	11, // 21: bot.bot.DeleteBot:input_type -> bot.DeleteBotReq
+	13, // 22: bot.bot.GetBotInstallations:input_type -> bot.GetBotInstallationsReq
+	15, // 23: bot.bot.GetBotRateLimit:input_type -> bot.GetBotRateLimitReq
+	17, // 24: bot.bot.UpdateBotRateLimit:input_type -> bot.UpdateBotRateLimitReq
+	19, // 25: bot.bot.RegenerateCredential:input_type -> bot.RegenerateCredentialReq
+	21, // 26: bot.bot.RotateWebhookSecret:input_type -> bot.RotateWebhookSecretReq
+	23, // 27: bot.bot.GetEventDeliveries:input_type -> bot.GetEventDeliveriesReq
+	26, // 28: bot.bot.RetryEventDelivery:input_type -> bot.RetryEventDeliveryReq
+	35, // 29: bot.bot.CreateBotTemplate:input_type -> bot.CreateBotTemplateReq
+	37, // 30: bot.bot.UpdateBotTemplate:input_type -> bot.UpdateBotTemplateReq
+	39, // 31: bot.bot.DeleteBotTemplate:input_type -> bot.DeleteBotTemplateReq
+	41, // 32: bot.bot.GetBotTemplate:input_type -> bot.GetBotTemplateReq
+	43, // 33: bot.bot.ListMyTemplates:input_type -> bot.ListMyTemplatesReq
+	45, // 34: bot.bot.PublishBotTemplate:input_type -> bot.PublishBotTemplateReq
+	48, // 35: bot.bot.CreateBotInstance:input_type -> bot.CreateBotInstanceReq
+	50, // 36: bot.bot.UpdateBotInstance:input_type -> bot.UpdateBotInstanceReq
+	52, // 37: bot.bot.DeleteBotInstance:input_type -> bot.DeleteBotInstanceReq
+	54, // 38: bot.bot.GetBotInstance:input_type -> bot.GetBotInstanceReq
+	56, // 39: bot.bot.ListMyInstances:input_type -> bot.ListMyInstancesReq
+	58, // 40: bot.bot.ListHostedInstances:input_type -> bot.ListHostedInstancesReq
+	28, // 41: bot.bot.GetConvBots:input_type -> bot.GetConvBotsReq
+	30, // 42: bot.bot.InstallBot:input_type -> bot.InstallBotReq
+	32, // 43: bot.bot.UninstallBot:input_type -> bot.UninstallBotReq
+	63, // 44: bot.bot.ParseMentions:input_type -> bot.ParseMentionsReq
+	66, // 45: bot.bot.VerifyBotToken:input_type -> bot.VerifyBotTokenReq
+	68, // 46: bot.bot.GetBotRuntimeConfig:input_type -> bot.GetBotRuntimeConfigReq
+	70, // 47: bot.bot.BotGetConv:input_type -> bot.BotGetConvReq
+	72, // 48: bot.bot.BotGetConvMembers:input_type -> bot.BotGetConvMembersReq
+	75, // 49: bot.bot.BotGetMsg:input_type -> bot.BotGetMsgReq
+	77, // 50: bot.bot.BotSendMsg:input_type -> bot.BotSendMsgReq
+	79, // 51: bot.bot.BotRecallMsg:input_type -> bot.BotRecallMsgReq
+	81, // 52: bot.bot.BotReplyMsg:input_type -> bot.BotReplyMsgReq
+	83, // 53: bot.bot.BotUploadFile:input_type -> bot.BotUploadFileReq
+	85, // 54: bot.bot.BotGetUser:input_type -> bot.BotGetUserReq
+	87, // 55: bot.bot.Authorize:input_type -> bot.AuthorizeReq
+	89, // 56: bot.bot.ApproveAuthorize:input_type -> bot.ApproveAuthorizeReq
+	91, // 57: bot.bot.BotToken:input_type -> bot.BotTokenReq
+	4,  // 58: bot.bot.CreateBot:output_type -> bot.CreateBotResp
+	6,  // 59: bot.bot.ListMyBots:output_type -> bot.ListMyBotsResp
+	62, // 60: bot.bot.ListCommunityBots:output_type -> bot.ListCommunityBotsResp
+	8,  // 61: bot.bot.GetBot:output_type -> bot.GetBotResp
+	10, // 62: bot.bot.UpdateBot:output_type -> bot.UpdateBotResp
+	12, // 63: bot.bot.DeleteBot:output_type -> bot.DeleteBotResp
+	14, // 64: bot.bot.GetBotInstallations:output_type -> bot.GetBotInstallationsResp
+	16, // 65: bot.bot.GetBotRateLimit:output_type -> bot.GetBotRateLimitResp
+	18, // 66: bot.bot.UpdateBotRateLimit:output_type -> bot.UpdateBotRateLimitResp
+	20, // 67: bot.bot.RegenerateCredential:output_type -> bot.RegenerateCredentialResp
+	22, // 68: bot.bot.RotateWebhookSecret:output_type -> bot.RotateWebhookSecretResp
+	25, // 69: bot.bot.GetEventDeliveries:output_type -> bot.GetEventDeliveriesResp
+	27, // 70: bot.bot.RetryEventDelivery:output_type -> bot.RetryEventDeliveryResp
+	36, // 71: bot.bot.CreateBotTemplate:output_type -> bot.CreateBotTemplateResp
+	38, // 72: bot.bot.UpdateBotTemplate:output_type -> bot.UpdateBotTemplateResp
+	40, // 73: bot.bot.DeleteBotTemplate:output_type -> bot.DeleteBotTemplateResp
+	42, // 74: bot.bot.GetBotTemplate:output_type -> bot.GetBotTemplateResp
+	44, // 75: bot.bot.ListMyTemplates:output_type -> bot.ListMyTemplatesResp
+	46, // 76: bot.bot.PublishBotTemplate:output_type -> bot.PublishBotTemplateResp
+	49, // 77: bot.bot.CreateBotInstance:output_type -> bot.CreateBotInstanceResp
+	51, // 78: bot.bot.UpdateBotInstance:output_type -> bot.UpdateBotInstanceResp
+	53, // 79: bot.bot.DeleteBotInstance:output_type -> bot.DeleteBotInstanceResp
+	55, // 80: bot.bot.GetBotInstance:output_type -> bot.GetBotInstanceResp
+	57, // 81: bot.bot.ListMyInstances:output_type -> bot.ListMyInstancesResp
+	59, // 82: bot.bot.ListHostedInstances:output_type -> bot.ListHostedInstancesResp
+	29, // 83: bot.bot.GetConvBots:output_type -> bot.GetConvBotsResp
+	31, // 84: bot.bot.InstallBot:output_type -> bot.InstallBotResp
+	33, // 85: bot.bot.UninstallBot:output_type -> bot.UninstallBotResp
+	65, // 86: bot.bot.ParseMentions:output_type -> bot.ParseMentionsResp
+	67, // 87: bot.bot.VerifyBotToken:output_type -> bot.VerifyBotTokenResp
+	69, // 88: bot.bot.GetBotRuntimeConfig:output_type -> bot.GetBotRuntimeConfigResp
+	71, // 89: bot.bot.BotGetConv:output_type -> bot.BotGetConvResp
+	74, // 90: bot.bot.BotGetConvMembers:output_type -> bot.BotGetConvMembersResp
+	76, // 91: bot.bot.BotGetMsg:output_type -> bot.BotGetMsgResp
+	78, // 92: bot.bot.BotSendMsg:output_type -> bot.BotSendMsgResp
+	80, // 93: bot.bot.BotRecallMsg:output_type -> bot.BotRecallMsgResp
+	82, // 94: bot.bot.BotReplyMsg:output_type -> bot.BotReplyMsgResp
+	84, // 95: bot.bot.BotUploadFile:output_type -> bot.BotUploadFileResp
+	86, // 96: bot.bot.BotGetUser:output_type -> bot.BotGetUserResp
+	88, // 97: bot.bot.Authorize:output_type -> bot.AuthorizeResp
+	90, // 98: bot.bot.ApproveAuthorize:output_type -> bot.ApproveAuthorizeResp
+	92, // 99: bot.bot.BotToken:output_type -> bot.BotTokenResp
+	58, // [58:100] is the sub-list for method output_type
+	16, // [16:58] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_bot_proto_init() }
@@ -4102,7 +6912,7 @@ func file_bot_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_bot_proto_rawDesc), len(file_bot_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   59,
+			NumMessages:   93,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

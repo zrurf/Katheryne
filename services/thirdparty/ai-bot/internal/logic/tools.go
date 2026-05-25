@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"rag/ragclient"
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -76,9 +78,9 @@ func (t *WebSearchTool) search(query string, maxResults int) (string, error) {
 	}
 
 	var result struct {
-		AbstractText string `json:"AbstractText"`
-		AbstractURL  string `json:"AbstractURL"`
-		Heading      string `json:"Heading"`
+		AbstractText  string `json:"AbstractText"`
+		AbstractURL   string `json:"AbstractURL"`
+		Heading       string `json:"Heading"`
 		RelatedTopics []struct {
 			Text     string `json:"Text"`
 			FirstURL string `json:"FirstURL"`
@@ -120,6 +122,91 @@ func (t *WebSearchTool) search(query string, maxResults int) (string, error) {
 	return sb.String(), nil
 }
 
+// KnowledgeSearchTool searches the user's knowledge bases via RAG service
+type KnowledgeSearchTool struct {
+	ragClient ragclient.Rag
+	kbIDs     []string // Authorized KB IDs for scoped search (optional)
+}
+
+func NewKnowledgeSearchTool(ragClient ragclient.Rag, kbIDs []string) *KnowledgeSearchTool {
+	return &KnowledgeSearchTool{ragClient: ragClient, kbIDs: kbIDs}
+}
+
+func (t *KnowledgeSearchTool) Name() string {
+	return "knowledge_search"
+}
+
+func (t *KnowledgeSearchTool) Description() string {
+	return "搜索用户知识库中的文档内容。参数: query (搜索问题), kb_id (可选, 指定知识库ID, 不指定则搜索所有授权的知识库), top_k (可选, 返回结果数, 默认3)"
+}
+
+func (t *KnowledgeSearchTool) Execute(args map[string]interface{}) (string, error) {
+	query, ok := args["query"].(string)
+	if !ok || query == "" {
+		return "", fmt.Errorf("缺少搜索问题")
+	}
+
+	if t.ragClient == nil {
+		return "知识库服务不可用，请检查 RAG 服务配置。", nil
+	}
+
+	topK := int32(3)
+	if tk, ok := args["top_k"].(float64); ok {
+		topK = int32(tk)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	kbID := ""
+	if id, ok := args["kb_id"].(string); ok {
+		kbID = id
+	}
+
+	if kbID == "" {
+		// Search across authorized knowledge bases
+		resp, err := t.ragClient.CrossKBSearch(ctx, &ragclient.CrossKBSearchReq{
+			Query: query,
+			TopK:  topK,
+			KbIds: t.kbIDs,
+		})
+		if err != nil {
+			logx.Errorf("cross KB search failed: %v", err)
+			return "", fmt.Errorf("知识库搜索失败: %w", err)
+		}
+		return t.formatSearchResults(resp.Items, query), nil
+	}
+
+	resp, err := t.ragClient.SearchKnowledge(ctx, &ragclient.SearchKnowledgeReq{
+		KbId:  kbID,
+		Query: query,
+		TopK:  topK * 2, // Request more for better fusion
+	})
+	if err != nil {
+		logx.Errorf("knowledge search failed: %v", err)
+		return "", fmt.Errorf("知识库搜索失败: %w", err)
+	}
+	return t.formatSearchResults(resp.Items, query), nil
+}
+
+func (t *KnowledgeSearchTool) formatSearchResults(results []*ragclient.RecallItem, query string) string {
+	if len(results) == 0 {
+		return fmt.Sprintf("未在知识库中找到与 \"%s\" 相关的内容。", query)
+	}
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("找到 %d 条相关知识:\n\n", len(results)))
+	for i, r := range results {
+		sb.WriteString(fmt.Sprintf("### [%d] %s (相关度: %.0f%%)\n", i+1, r.DocName, r.FusionScore*100))
+		sb.WriteString(fmt.Sprintf("%s\n", r.Content))
+		if len(r.Entities) > 0 {
+			sb.WriteString(fmt.Sprintf("\n相关实体: %s\n", strings.Join(r.Entities, ", ")))
+		}
+		sb.WriteString("\n")
+	}
+	return sb.String()
+}
+
 // ToolRegistry manages available tools
 type ToolRegistry struct {
 	tools map[string]Tool
@@ -155,9 +242,12 @@ type ToolExecutor struct {
 	registry *ToolRegistry
 }
 
-func NewToolExecutor() *ToolExecutor {
+func NewToolExecutor(ragClient ragclient.Rag, kbIDs []string) *ToolExecutor {
 	reg := NewToolRegistry()
 	reg.Register(NewWebSearchTool())
+	if ragClient != nil {
+		reg.Register(NewKnowledgeSearchTool(ragClient, kbIDs))
+	}
 	return &ToolExecutor{registry: reg}
 }
 

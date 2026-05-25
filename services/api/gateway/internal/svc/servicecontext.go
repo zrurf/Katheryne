@@ -8,6 +8,7 @@ import (
 	"gateway/internal/middleware"
 	"message/messageclient"
 	"oss/ossclient"
+	"rag/ragclient"
 	"social/socialclient"
 	"user/userclient"
 
@@ -26,6 +27,7 @@ type ServiceContext struct {
 	ConversationRpc conversationclient.Conversation
 	MessageRpc      messageclient.Message
 	OssRpc          ossclient.OSS
+	RagRpc          ragclient.Rag
 	SocialRpc       socialclient.Social
 	UserRpc         userclient.User
 }
@@ -44,6 +46,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		ConversationRpc: conversationclient.NewConversation(zrpc.MustNewClient(c.ConversationRpc)),
 		MessageRpc:      messageclient.NewMessage(zrpc.MustNewClient(c.MessageRpc)),
 		OssRpc:          ossclient.NewOSS(zrpc.MustNewClient(c.OssRpc)),
+		RagRpc:          ragclient.NewRag(zrpc.MustNewClient(c.RagRpc)),
 		SocialRpc:       socialclient.NewSocial(zrpc.MustNewClient(c.SocialRpc)),
 		UserRpc:         userclient.NewUser(zrpc.MustNewClient(c.UserRpc)),
 	}

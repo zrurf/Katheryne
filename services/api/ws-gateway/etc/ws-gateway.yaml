@@ -38,6 +38,11 @@ ConversationRpc:
     Hosts:
       - "etcd:2379"
     Key: conversation.rpc
+BotRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: bot.rpc
 
 RedisAddr: "garnet:6379"
 MQAddr: "nats:4222"

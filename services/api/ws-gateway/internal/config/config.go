@@ -13,6 +13,7 @@ type Config struct {
 	SocialRpc       zrpc.RpcClientConf
 	MessageRpc      zrpc.RpcClientConf
 	ConversationRpc zrpc.RpcClientConf
+	BotRpc          zrpc.RpcClientConf
 
 	RedisAddr string
 	MQAddr    string

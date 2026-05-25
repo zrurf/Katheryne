@@ -99,6 +99,17 @@ type ChatMessage struct {
 	Content string `json:"content"`
 }
 
+// MentionEvent represents a bot mention event
+type MentionEvent struct {
+	ConvID      string `json:"conv_id"`
+	SenderUID   string `json:"sender_uid"`
+	SenderName  string `json:"sender_name"`
+	MentionName string `json:"mention_name"`
+	BotID       int64  `json:"bot_id"`
+	Content     string `json:"content"`
+	MsgID       string `json:"msg_id"`
+}
+
 type LLMConfig struct {
 	Provider    string  `json:"provider"`
 	APIKey      string  `json:"api_key"`

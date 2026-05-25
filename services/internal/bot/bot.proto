@@ -58,14 +58,6 @@ message ListMyBotsResp {
   repeated BotInfo list = 1;
 }
 
-// Community bots: official bots + keyword search
-message ListCommunityBotsReq {
-  string keyword = 1;
-}
-message ListCommunityBotsResp {
-  repeated BotInfo list = 1;
-}
-
 message GetBotReq {
   int64 bot_id = 1;
   int64 uid = 2;
@@ -178,8 +170,16 @@ message InstallBotReq {
   int64 bot_id = 2;
   int64 conv_id = 3;
   repeated string permissions = 4;
+  // 自托管实例化参数（仅当安装模板时使用）
+  int64 template_id = 5;                // 非 0 表示从模板实例化
+  string model_provider = 6;
+  string model_name = 7;
+  string api_key = 8;
+  string kb_config = 9;                 // JSON
 }
-message InstallBotResp {}
+message InstallBotResp {
+  int64 instance_id = 1;                // 自托管时返回新实例 ID，托管时为 0
+}
 
 message UninstallBotReq {
   int64 uid = 1;
@@ -187,6 +187,253 @@ message UninstallBotReq {
   int64 conv_id = 3;
 }
 message UninstallBotResp {}
+
+// ========== Bot 模板（Template） ==========
+message BotTemplateInfo {
+  int64 template_id = 1;
+  string name = 2;
+  string avatar = 3;
+  string description = 4;
+  int64 owner_uid = 5;
+  string category = 6;                    // OFFICIAL / COMMUNITY / CUSTOM
+  string version = 7;
+  string system_prompt = 8;
+  string welcome_message = 9;
+  string conversation_style = 10;         // JSON: {multi_message, split_delimiter, use_emoji, ...}
+  string tool_definitions = 11;           // JSON array
+  string kb_structure = 12;              // JSON: {require_kb, kb_description}
+  string config_schema = 13;             // JSON schema for instance config
+  string supported_models = 14;          // JSON array
+  bool is_official = 15;
+  repeated string tags = 16;
+  string status = 17;
+  int64 created_at = 18;
+  int64 updated_at = 19;
+}
+
+message CreateBotTemplateReq {
+  int64 owner_uid = 1;
+  string name = 2;
+  string avatar = 3;
+  string description = 4;
+  string category = 5;
+  string system_prompt = 6;
+  string welcome_message = 7;
+  string conversation_style = 8;
+  string tool_definitions = 9;
+  string kb_structure = 10;
+  string config_schema = 11;
+  string supported_models = 12;
+  repeated string tags = 13;
+}
+message CreateBotTemplateResp {
+  int64 template_id = 1;
+}
+
+message UpdateBotTemplateReq {
+  int64 uid = 1;
+  int64 template_id = 2;
+  string name = 3;
+  string avatar = 4;
+  string description = 5;
+  string category = 6;
+  string system_prompt = 7;
+  string welcome_message = 8;
+  string conversation_style = 9;
+  string tool_definitions = 10;
+  string kb_structure = 11;
+  string config_schema = 12;
+  string supported_models = 13;
+  repeated string tags = 14;
+}
+message UpdateBotTemplateResp {}
+
+message DeleteBotTemplateReq {
+  int64 uid = 1;
+  int64 template_id = 2;
+}
+message DeleteBotTemplateResp {}
+
+message GetBotTemplateReq {
+  int64 template_id = 1;
+}
+message GetBotTemplateResp {
+  BotTemplateInfo template = 1;
+}
+
+message ListMyTemplatesReq {
+  int64 owner_uid = 1;
+}
+message ListMyTemplatesResp {
+  repeated BotTemplateInfo list = 1;
+}
+
+message PublishBotTemplateReq {
+  int64 uid = 1;
+  int64 template_id = 2;
+}
+message PublishBotTemplateResp {}
+
+// ========== Bot 实例（Instance） ==========
+message BotInstanceInfo {
+  int64 instance_id = 1;
+  int64 bot_id = 2;                       // 关联的 Bot 身份
+  int64 template_id = 3;
+  int64 owner_uid = 4;
+  string name = 5;
+  string avatar = 6;
+  bool is_self_hosted = 7;
+  int64 hosted_by = 8;
+  string model_provider = 9;
+  string model_name = 10;
+  string kb_config = 11;                  // JSON: {source, kb_ids, external_kb}
+  string instance_config = 12;            // JSON
+  string status = 13;
+  int64 created_at = 14;
+  BotTemplateInfo template = 15;          // 关联的模板信息
+}
+
+message CreateBotInstanceReq {
+  int64 uid = 1;                          // 消费者 UID
+  int64 template_id = 2;
+  string name = 3;
+  string avatar = 4;
+  bool is_self_hosted = 5;
+  int64 hosted_by = 6;
+  string model_provider = 7;
+  string model_name = 8;
+  string api_key = 9;                     // 明文传入，服务端加密存储
+  string api_base_url = 10;
+  string kb_config = 11;                  // JSON
+  string instance_config = 12;            // JSON
+}
+message CreateBotInstanceResp {
+  int64 instance_id = 1;
+  int64 bot_id = 2;
+  string client_id = 3;
+  string client_secret = 4;
+  string bot_token = 5;                   // ws-gateway 连接 token
+}
+
+message UpdateBotInstanceReq {
+  int64 uid = 1;
+  int64 instance_id = 2;
+  string name = 3;
+  string avatar = 4;
+  string model_provider = 5;
+  string model_name = 6;
+  string api_key = 7;
+  string api_base_url = 8;
+  string kb_config = 9;
+  string instance_config = 10;
+}
+message UpdateBotInstanceResp {}
+
+message DeleteBotInstanceReq {
+  int64 uid = 1;
+  int64 instance_id = 2;
+}
+message DeleteBotInstanceResp {}
+
+message GetBotInstanceReq {
+  int64 instance_id = 1;
+  int64 bot_id = 2;                       // 也可通过 bot_id 查询
+  int64 uid = 3;
+}
+message GetBotInstanceResp {
+  BotInstanceInfo instance = 1;
+}
+
+message ListMyInstancesReq {
+  int64 owner_uid = 1;
+}
+message ListMyInstancesResp {
+  repeated BotInstanceInfo list = 1;
+}
+
+// ListHostedInstances: 供 ai-bot 编排器获取所有需要托管的实例（is_self_hosted=false）
+message ListHostedInstancesReq {}
+message ListHostedInstancesResp {
+  repeated BotInstanceInfo list = 1;
+}
+
+// ========== Bot 社区（混合展示模板 + 托管实例） ==========
+message CommunityBotItem {
+  string type = 1;                        // "hosted" (托管实例) / "template" (自托管模板)
+  // 托管实例字段
+  int64 instance_id = 2;
+  int64 bot_id = 3;
+  string name = 4;
+  string avatar = 5;
+  string description = 6;
+  int64 hosted_by = 7;
+  int64 installed_count = 8;              // 安装次数
+  string status = 9;
+  // 模板字段
+  int64 template_id = 10;
+  string category = 11;                   // OFFICIAL / COMMUNITY
+  repeated string tags = 12;
+  bool is_official = 13;
+}
+
+message ListCommunityBotsReq {
+  string keyword = 1;
+  string section = 2;                     // "all" / "hosted" / "templates"
+  string category = 3;                    // 模板分类过滤
+}
+message ListCommunityBotsResp {
+  repeated CommunityBotItem hosted_bots = 1;     // 托管实例列表
+  repeated CommunityBotItem templates = 2;       // 模板列表
+}
+
+// ========== @Mention 与 Bot 通信 ==========
+message ParseMentionsReq {
+  string content = 1;                     // 消息正文（可能含 @[bot:xxx:yyy]）
+}
+message MentionItem {
+  string type = 1;                        // "bot" / "user"
+  int64 target_id = 2;                    // bot_id 或 uid
+  string display_name = 3;                // 展示名
+  int32 start_pos = 4;                    // 在原文中的起始位置
+  int32 end_pos = 5;                      // 在原文中的结束位置
+}
+message ParseMentionsResp {
+  repeated MentionItem mentions = 1;
+}
+
+// 验证 Bot 连接 token
+message VerifyBotTokenReq {
+  string bot_token = 1;
+}
+message VerifyBotTokenResp {
+  bool valid = 1;
+  int64 bot_id = 2;
+  int64 instance_id = 3;
+  bool is_official = 4;
+}
+
+// 获取 Bot 实例的运行配置（给 ai-bot 服务用）
+message GetBotRuntimeConfigReq {
+  int64 bot_id = 1;
+  int64 conv_id = 2;                      // 用于加载会话级别的 KB 授权
+}
+message GetBotRuntimeConfigResp {
+  int64 instance_id = 1;
+  int64 bot_id = 2;
+  string model_provider = 3;
+  string model_name = 4;
+  string api_key = 5;                     // 解密后的 API Key
+  string api_base_url = 6;
+  string system_prompt = 7;              // 来自模板
+  string conversation_style = 8;         // 来自模板 (JSON)
+  string tool_definitions = 9;           // 来自模板 (JSON)
+  string kb_config = 10;                 // 来自实例 (JSON)
+  string kb_ids = 11;                    // 已授权的 KB ID 列表 (逗号分隔)
+  bool is_official = 12;                 // 是否官方 Bot（决定安全级别）
+  string client_id = 13;                 // OAuth2 凭证（ai-bot 连接 ws-gateway 用）
+  string client_secret = 14;             // OAuth2 凭证
+  string name = 15;                      // Bot 名称
+}
 
 // ========== Bot APIs (bot 调用 Katheryne) ==========
 message BotGetConvReq {
@@ -354,10 +601,31 @@ service bot {
   rpc GetEventDeliveries(GetEventDeliveriesReq) returns (GetEventDeliveriesResp);
   rpc RetryEventDelivery(RetryEventDeliveryReq) returns (RetryEventDeliveryResp);
 
+  // Template APIs (developer 创建和管理模板)
+  rpc CreateBotTemplate(CreateBotTemplateReq) returns (CreateBotTemplateResp);
+  rpc UpdateBotTemplate(UpdateBotTemplateReq) returns (UpdateBotTemplateResp);
+  rpc DeleteBotTemplate(DeleteBotTemplateReq) returns (DeleteBotTemplateResp);
+  rpc GetBotTemplate(GetBotTemplateReq) returns (GetBotTemplateResp);
+  rpc ListMyTemplates(ListMyTemplatesReq) returns (ListMyTemplatesResp);
+  rpc PublishBotTemplate(PublishBotTemplateReq) returns (PublishBotTemplateResp);
+
+  // Instance APIs (消费者创建和管理实例)
+  rpc CreateBotInstance(CreateBotInstanceReq) returns (CreateBotInstanceResp);
+  rpc UpdateBotInstance(UpdateBotInstanceReq) returns (UpdateBotInstanceResp);
+  rpc DeleteBotInstance(DeleteBotInstanceReq) returns (DeleteBotInstanceResp);
+  rpc GetBotInstance(GetBotInstanceReq) returns (GetBotInstanceResp);
+  rpc ListMyInstances(ListMyInstancesReq) returns (ListMyInstancesResp);
+  rpc ListHostedInstances(ListHostedInstancesReq) returns (ListHostedInstancesResp);
+
   // Installation APIs
   rpc GetConvBots(GetConvBotsReq) returns (GetConvBotsResp);
   rpc InstallBot(InstallBotReq) returns (InstallBotResp);
   rpc UninstallBot(UninstallBotReq) returns (UninstallBotResp);
+
+  // Bot 消息 & 通信
+  rpc ParseMentions(ParseMentionsReq) returns (ParseMentionsResp);
+  rpc VerifyBotToken(VerifyBotTokenReq) returns (VerifyBotTokenResp);
+  rpc GetBotRuntimeConfig(GetBotRuntimeConfigReq) returns (GetBotRuntimeConfigResp);
 
   // Bot APIs (bot 调用 Katheryne)
   rpc BotGetConv(BotGetConvReq) returns (BotGetConvResp);

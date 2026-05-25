@@ -3,6 +3,7 @@ package ws
 import (
 	"context"
 	"encoding/json"
+	"regexp"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -10,6 +11,7 @@ import (
 	"ws-gateway/internal/metrics"
 
 	"auth/authclient"
+	"bot/botclient"
 	"conversation/conversationclient"
 	"message/messageclient"
 	"social/socialclient"
@@ -18,6 +20,9 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/core/logx"
 )
+
+// mentionRegex matches @[bot:12345:Name] or @[user:12345:Name] patterns
+var mentionRegex = regexp.MustCompile(`@\[(bot|user):(\d+):([^\]]+)\]`)
 
 type HubConfig struct {
 	Redis             *redis.Client
@@ -30,6 +35,7 @@ type HubConfig struct {
 	SocialRpc         socialclient.Social
 	MessageRpc        messageclient.Message
 	ConversationRpc   conversationclient.Conversation
+	BotRpc            botclient.Bot
 }
 
 type Hub struct {
@@ -234,6 +240,8 @@ func (h *Hub) handleBroadcast(msg *BroadcastMsg) {
 			}
 		}
 		h.mu.RUnlock()
+		// Parse mentions for direct messages too
+		h.routeBotMentions(msg, senderName, senderAvatar)
 		return
 	}
 
@@ -263,6 +271,120 @@ func (h *Hub) handleBroadcast(msg *BroadcastMsg) {
 			}
 		}
 	}
+
+	// Route @mentions to specific bots installed in the conversation
+	h.routeBotMentions(msg, senderName, senderAvatar)
+}
+
+// routeBotMentions parses @[bot:xxx:yyy] mentions from message content,
+// verifies bot installation in the conversation, and sends mention events
+// to connected bots.
+func (h *Hub) routeBotMentions(msg *BroadcastMsg, senderName, senderAvatar string) {
+	if msg.ContentType == "SYSTEM" || msg.Sender == 0 {
+		return
+	}
+
+	matches := mentionRegex.FindAllStringSubmatch(msg.Content, -1)
+	if len(matches) == 0 {
+		return
+	}
+
+	// Get installed bots in this conversation for validation
+	var installedBots map[int64]bool
+	if msg.ConvId > 0 && h.config.BotRpc != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		resp, err := h.config.BotRpc.GetConvBots(ctx, &botclient.GetConvBotsReq{
+			ConvId: msg.ConvId,
+		})
+		cancel()
+		if err == nil {
+			installedBots = make(map[int64]bool, len(resp.List))
+			for _, b := range resp.List {
+				installedBots[b.BotId] = true
+			}
+		} else {
+			logx.Errorf("get conv bots error: convId=%d, err=%v", msg.ConvId, err)
+		}
+	}
+
+	// Track which bots already received a mention to avoid duplicates
+	mentionedBots := make(map[int64]bool)
+
+	for _, m := range matches {
+		if len(m) < 8 {
+			continue
+		}
+		if m[1] != "bot" {
+			continue // Only route bot mentions, user mentions stay as-is
+		}
+
+		botID, err := strconv.ParseInt(m[2], 10, 64)
+		if err != nil {
+			continue
+		}
+		displayName := m[3]
+
+		// Deduplicate mentions
+		if mentionedBots[botID] {
+			continue
+		}
+		mentionedBots[botID] = true
+
+		// Validate bot installation in the conversation
+		if installedBots != nil && !installedBots[botID] {
+			logx.Infof("bot %d mentioned but not installed in conv %d, skipping mention event", botID, msg.ConvId)
+			continue
+		}
+
+		// Send mention event to the connected bot
+		h.sendMentionEvent(botID, msg, senderName, senderAvatar, displayName)
+	}
+}
+
+// sendMentionEvent delivers a mention event to a specific connected bot.
+func (h *Hub) sendMentionEvent(botID int64, msg *BroadcastMsg, senderName, senderAvatar, displayName string) {
+	h.mu.RLock()
+	botClients, ok := h.botClients[botID]
+	h.mu.RUnlock()
+
+	if !ok || len(botClients) == 0 {
+		return
+	}
+
+	mention := &BotMentionEvent{
+		EventId:      "mention_" + strconv.FormatInt(msg.MsgId, 10),
+		EventType:    "mention",
+		ConvId:       strconv.FormatInt(msg.ConvId, 10),
+		MsgId:        strconv.FormatInt(msg.MsgId, 10),
+		Sender:       strconv.FormatInt(msg.Sender, 10),
+		SenderName:   senderName,
+		SenderAvatar: senderAvatar,
+		Content:      msg.Content,
+		ContentType:  msg.ContentType,
+		MentionName:  displayName,
+		QuoteMsgId:   strconv.FormatInt(msg.QuoteMsgId, 10),
+		CreatedAt:    msg.CreatedAt,
+	}
+
+	wsMsg := MustNewWSMessage("mention", mention)
+	data, err := json.Marshal(wsMsg)
+	if err != nil {
+		logx.Errorf("marshal mention event error: %v", err)
+		return
+	}
+
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+
+	for b := range botClients {
+		select {
+		case b.send <- data:
+		default:
+			logx.Errorf("bot %d mention event send buffer full", botID)
+		}
+	}
+
+	logx.Infof("mention event sent to bot %d in conv %d (msg %d)", botID, msg.ConvId, msg.MsgId)
 }
 
 func (h *Hub) getConvMembers(convId int64) []int64 {

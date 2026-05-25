@@ -5,6 +5,8 @@ import (
 	"ai-bot/internal/types"
 	"strings"
 
+	"rag/ragclient"
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -12,6 +14,7 @@ type LLMEngine struct {
 	provider     llm.Provider
 	config       HandlerConfig
 	toolExecutor *ToolExecutor
+	ragClient    ragclient.Rag
 }
 
 func NewLLMEngine(cfg HandlerConfig) *LLMEngine {
@@ -27,7 +30,8 @@ func NewLLMEngine(cfg HandlerConfig) *LLMEngine {
 	return &LLMEngine{
 		provider:     provider,
 		config:       cfg,
-		toolExecutor: NewToolExecutor(),
+		toolExecutor: NewToolExecutor(cfg.RagClient, cfg.KBIDs),
+		ragClient:    cfg.RagClient,
 	}
 }
 
@@ -165,7 +169,7 @@ func (e *LLMEngine) Translate(text, sourceLang, targetLang string) (*types.Trans
 }
 
 func (e *LLMEngine) Moderate(text string) (bool, string, error) {
-	systemPrompt := `你是一个内容审核助手。请审核以下消息内容是否包含不当内容（色情、暴力、仇恨言论、骚扰、垃圾广告等）。
+	systemPrompt := `你是一个内容审核助手。请审核以下消息内容是否包含不当内容（例如色情、暴力、仇恨言论、骚扰、垃圾广告等）。
 
 请以JSON格式返回：{"safe": true/false, "reason": "原因说明"}
 

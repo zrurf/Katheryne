@@ -28,7 +28,8 @@ func (l *GetConvBotsLogic) GetConvBots(req *types.GetConvBotsReq) (resp *types.G
 
 	convInfo, err := l.svcCtx.InstallationDao.GetConversation(l.ctx, req.ConvID)
 	if err != nil {
-		return &types.GetConvBotsResp{List: []types.InstalledBotItem{}}, nil
+		l.Errorf("GetConversation error: %v", err)
+		return nil, err
 	}
 
 	if convInfo.ConvType == "GROUP" && convInfo.GroupID > 0 {
@@ -39,7 +40,8 @@ func (l *GetConvBotsLogic) GetConvBots(req *types.GetConvBotsReq) (resp *types.G
 
 	list, err := l.svcCtx.InstallationDao.ListConvBots(l.ctx, req.ConvID)
 	if err != nil {
-		return &types.GetConvBotsResp{List: []types.InstalledBotItem{}}, nil
+		l.Errorf("ListConvBots DB error: %v", err)
+		return nil, err
 	}
 
 	return &types.GetConvBotsResp{List: list}, nil

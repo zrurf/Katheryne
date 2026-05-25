@@ -1,0 +1,424 @@
+syntax = "proto3";
+
+package rag;
+
+option go_package = "./rag/rag";
+
+// ========== 知识库（桶）管理 ==========
+
+message KnowledgeBase {
+  string kb_id = 1;            // 桶 ID（全局唯一）
+  string name = 2;             // 知识库名称
+  string description = 3;      // 描述
+  int64 owner_uid = 4;         // 所有者
+  string source_type = 5;      // PLATFORM / FEISHU / NOTION / WEB
+  string source_config = 6;    // JSON: 外部数据源配置
+  string status = 7;           // ACTIVE / DELETED
+  int64 doc_count = 8;         // 文档数量
+  int64 chunk_count = 9;       // 分块数量
+  int64 total_size = 10;       // 总大小（字节）
+  int64 created_at = 11;
+  int64 updated_at = 12;
+}
+
+message CreateKBReq {
+  int64 owner_uid = 1;
+  string name = 2;
+  string description = 3;
+  string source_type = 4;      // PLATFORM（默认）/ FEISHU / NOTION / WEB
+  string source_config = 5;    // JSON
+}
+message CreateKBResp {
+  string kb_id = 1;
+}
+
+message ListKBsReq {
+  int64 owner_uid = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+message ListKBsResp {
+  repeated KnowledgeBase list = 1;
+  int64 total = 2;
+}
+
+message GetKBReq {
+  string kb_id = 1;
+  int64 uid = 2;                // 请求者，用于权限校验
+}
+message GetKBResp {
+  KnowledgeBase kb = 1;
+}
+
+message UpdateKBReq {
+  int64 uid = 1;
+  string kb_id = 2;
+  string name = 3;
+  string description = 4;
+}
+message UpdateKBResp {}
+
+message DeleteKBReq {
+  int64 uid = 1;
+  string kb_id = 2;
+}
+message DeleteKBResp {}
+
+// ========== 文档管理 ==========
+
+message Document {
+  string doc_id = 1;            // 文档 ID（全局唯一）
+  string kb_id = 2;             // 所属知识库
+  string file_name = 3;         // 原始文件名
+  string content_type = 4;      // MIME 类型
+  int64 file_size = 5;          // 文件大小
+  string oss_index = 6;         // OSS 对象索引
+  string status = 7;            // PROCESSING / READY / FAILED
+  int64 chunk_count = 8;        // 分块数
+  int64 created_at = 9;
+  int64 updated_at = 10;
+  string error_msg = 11;        // 处理失败时的错误信息
+}
+
+// 流式上传文档（上传文件并解析索引）
+message UploadDocReq {
+  oneof data {
+    DocMeta meta = 1;           // 第一条消息：文档元数据
+    bytes chunk = 2;            // 后续消息：文件内容分片
+  }
+}
+message DocMeta {
+  string kb_id = 1;             // 目标知识库
+  string file_name = 2;         // 文件名
+  string content_type = 3;      // MIME 类型
+  string oss_index = 4;         // OSS 对象索引（先上传到 OSS）
+  int64 file_size = 5;          // 文件大小
+}
+message UploadDocResp {
+  string doc_id = 1;
+  string status = 2;            // PROCESSING
+}
+
+message GetDocStatusReq {
+  string doc_id = 1;
+  string kb_id = 2;
+}
+message GetDocStatusResp {
+  Document doc = 1;
+}
+
+message ListDocsReq {
+  string kb_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+message ListDocsResp {
+  repeated Document list = 1;
+  int64 total = 2;
+}
+
+message DeleteDocReq {
+  string kb_id = 1;
+  string doc_id = 2;
+}
+message DeleteDocResp {}
+
+// 获取文档分块（含向量和上下文）
+message GetDocChunksReq {
+  string kb_id = 1;
+  string doc_id = 2;
+  int32 page = 3;
+  int32 size = 4;
+}
+message ChunkInfo {
+  string chunk_id = 1;
+  string content = 2;
+  int32 chunk_index = 3;
+  int64 token_count = 4;
+  repeated string entities = 5;  // 关联的实体
+}
+message GetDocChunksResp {
+  repeated ChunkInfo list = 1;
+  int64 total = 2;
+}
+
+// ========== 知识库授权（两级授权） ==========
+
+// Bot 维度授权：给 Bot 授予访问用户知识库的权限
+message GrantBotKBAccessReq {
+  int64 uid = 1;                // 用户
+  int64 bot_id = 2;             // Bot
+  int64 conv_id = 3;            // 会话
+}
+message GrantBotKBAccessResp {}
+
+message RevokeBotKBAccessReq {
+  int64 uid = 1;
+  int64 bot_id = 2;
+  int64 conv_id = 3;
+}
+message RevokeBotKBAccessResp {}
+
+// 知识库维度授权：细化到具体知识库
+message AuthorizeKBReq {
+  string kb_id = 1;             // 知识库
+  int64 bot_id = 2;             // Bot
+  int64 conv_id = 3;            // 会话
+  string permission = 4;        // READ / READ_WRITE
+}
+message AuthorizeKBResp {}
+
+message RevokeKBAuthReq {
+  string kb_id = 1;
+  int64 bot_id = 2;
+  int64 conv_id = 3;
+}
+message RevokeKBAuthResp {}
+
+message KBAuthorization {
+  string kb_id = 1;
+  string kb_name = 2;
+  int64 bot_id = 3;
+  int64 conv_id = 4;
+  string permission = 5;
+  int64 granted_at = 6;
+}
+
+message ListKBAuthsReq {
+  int64 uid = 1;
+  string kb_id = 2;             // 可选，按知识库筛选
+  int64 bot_id = 3;             // 可选，按 Bot 筛选
+}
+message ListKBAuthsResp {
+  repeated KBAuthorization list = 1;
+}
+
+// 查询 Bot 在某会话中可访问的知识库列表
+message ListBotKBsReq {
+  int64 bot_id = 1;
+  int64 conv_id = 2;
+  int64 uid = 3;                // 会话所属用户
+}
+message ListBotKBsResp {
+  repeated KnowledgeBase list = 1;
+}
+
+// ========== RAG 检索 ==========
+
+// 多路召回结果项
+message RecallItem {
+  string chunk_id = 1;
+  string doc_id = 2;
+  string doc_name = 3;          // 文档名（用于引用）
+  string content = 4;           // 分块内容
+  float vector_score = 5;       // 向量相似度
+  float graph_score = 6;        // 图遍历相关性
+  float keyword_score = 7;      // 关键词匹配分数
+  float fusion_score = 8;       // 融合排序分数
+  repeated string entities = 9; // 关联实体
+  repeated string relations = 10; // 关联关系
+  int32 chunk_index = 11;       // 原始分块序号
+}
+
+// 检索请求
+message SearchKnowledgeReq {
+  string kb_id = 1;             // 目标知识库
+  string query = 2;             // 查询文本
+  int32 top_k = 3;              // 返回数量（默认 10）
+  float vector_weight = 4;      // 向量权重（0-1，默认 0.5）
+  float graph_weight = 5;       // 图权重（0-1，默认 0.3）
+  float keyword_weight = 6;     // 关键词权重（0-1，默认 0.2）
+  string rerank_strategy = 7;   // 重排序策略：fusion / mmr / cross_encoder
+  repeated string filter_entities = 8; // 实体过滤
+}
+
+message SearchKnowledgeResp {
+  repeated RecallItem items = 1;
+  int64 total = 2;
+  int64 latency_ms = 3;         // 检索耗时
+  MetaCognitionScore metacog = 4; // 元认知评分
+}
+
+// 跨知识库检索
+message CrossKBSearchReq {
+  repeated string kb_ids = 1;   // 多个知识库
+  string query = 2;
+  int32 top_k = 3;
+  float vector_weight = 4;
+  float graph_weight = 5;
+  float keyword_weight = 6;
+}
+message CrossKBSearchResp {
+  repeated RecallItem items = 1;
+  map<string, int64> kb_counts = 2; // 各知识库命中数
+  int64 latency_ms = 3;
+  MetaCognitionScore metacog = 4;
+}
+
+// ========== 元认知（Meta-Cognition） ==========
+
+// 检索质量元认知评分
+message MetaCognitionScore {
+  float overall_confidence = 1;       // 整体置信度 0-1
+  float coverage_score = 2;           // 覆盖率评分
+  float relevance_score = 3;          // 相关性评分
+  float consistency_score = 4;        // 一致性评分（多结果间是否矛盾）
+  float freshness_score = 5;          // 新鲜度评分
+  repeated string warnings = 6;       // 警告信息（如"可能存在知识冲突"）
+  repeated Citation citations = 7;    // 引用标注
+}
+message Citation {
+  string doc_name = 1;
+  string chunk_id = 2;
+  int32 chunk_index = 3;
+  float contribution = 4;             // 贡献度
+  string excerpt = 5;                 // 摘录
+}
+
+// 评估单次检索
+message AssessRetrievalReq {
+  string query = 1;
+  repeated RecallItem results = 2;    // 待评估的检索结果
+}
+message AssessRetrievalResp {
+  MetaCognitionScore score = 1;
+}
+
+// 知识库健康分析
+message AnalyzeKBHealthReq {
+  string kb_id = 1;
+}
+message KBHealthReport {
+  string kb_id = 1;
+  int64 total_docs = 2;
+  int64 total_chunks = 3;
+  int64 total_entities = 4;
+  int64 total_relations = 5;
+  float avg_chunk_size = 6;
+  float coverage_rate = 7;              // 实体覆盖率
+  float conflict_rate = 8;              // 冲突率
+  repeated ConflictItem conflicts = 9;  // 冲突详情
+  repeated CoverageGap gaps = 10;       // 覆盖盲区
+  int64 last_updated_at = 11;
+  string health_status = 12;            // HEALTHY / NEEDS_REVIEW / STALE
+}
+message ConflictItem {
+  string entity = 1;
+  repeated string conflicting_chunks = 2; // 冲突分块 ID
+  string description = 3;
+}
+message CoverageGap {
+  string topic = 1;
+  string suggestion = 2;
+}
+message AnalyzeKBHealthResp {
+  KBHealthReport report = 1;
+}
+
+// ========== 图谱管理（HugeGraph） ==========
+
+message GraphEntity {
+  string entity_id = 1;
+  string name = 2;
+  string type = 3;              // 实体类型：PERSON / ORG / CONCEPT / DATE / etc.
+  repeated string properties = 4;
+}
+
+message GraphRelation {
+  string relation_id = 1;
+  string source_entity = 2;
+  string target_entity = 3;
+  string relation_type = 4;     // BELONGS_TO / RELATED_TO / CONTAINS / etc.
+  string chunk_id = 5;          // 来源分块
+}
+
+// ========== 外部知识库同步 ==========
+
+message ExternalSyncInfo {
+  string sync_id = 1;
+  string kb_id = 2;
+  string source_type = 3;       // FEISHU / NOTION / WEB
+  string source_config = 4;     // JSON
+  string sync_status = 5;       // PENDING / SYNCING / SYNCED / FAILED
+  string sync_error = 6;
+  int64 last_synced_at = 7;
+  int64 created_at = 8;
+}
+
+message TriggerExternalSyncReq {
+  string kb_id = 1;
+  int64 uid = 2;                // 请求者 UID
+}
+message TriggerExternalSyncResp {
+  string sync_id = 1;
+  string status = 2;            // 触发结果
+}
+
+message GetSyncStatusReq {
+  string sync_id = 1;
+  string kb_id = 2;
+}
+message GetSyncStatusResp {
+  ExternalSyncInfo sync = 1;
+}
+
+message ListExternalSyncsReq {
+  string kb_id = 1;
+  int64 uid = 2;
+}
+message ListExternalSyncsResp {
+  repeated ExternalSyncInfo list = 1;
+}
+
+// 查询知识图谱子图
+message GetSubGraphReq {
+  string kb_id = 1;
+  string entity_id = 2;         // 中心实体
+  int32 depth = 3;              // 遍历深度（默认 2）
+  int32 limit = 4;              // 最大节点数
+}
+message GetSubGraphResp {
+  repeated GraphEntity entities = 1;
+  repeated GraphRelation relations = 2;
+}
+
+// ========== Service ==========
+service rag {
+  // 知识库管理
+  rpc CreateKnowledgeBase(CreateKBReq) returns (CreateKBResp);
+  rpc ListKnowledgeBases(ListKBsReq) returns (ListKBsResp);
+  rpc GetKnowledgeBase(GetKBReq) returns (GetKBResp);
+  rpc UpdateKnowledgeBase(UpdateKBReq) returns (UpdateKBResp);
+  rpc DeleteKnowledgeBase(DeleteKBReq) returns (DeleteKBResp);
+
+  // 文档管理
+  rpc UploadDocument(stream UploadDocReq) returns (UploadDocResp);
+  rpc GetDocumentStatus(GetDocStatusReq) returns (GetDocStatusResp);
+  rpc ListDocuments(ListDocsReq) returns (ListDocsResp);
+  rpc DeleteDocument(DeleteDocReq) returns (DeleteDocResp);
+  rpc GetDocumentChunks(GetDocChunksReq) returns (GetDocChunksResp);
+
+  // 知识库授权
+  rpc GrantBotKBAccess(GrantBotKBAccessReq) returns (GrantBotKBAccessResp);
+  rpc RevokeBotKBAccess(RevokeBotKBAccessReq) returns (RevokeBotKBAccessResp);
+  rpc AuthorizeKB(AuthorizeKBReq) returns (AuthorizeKBResp);
+  rpc RevokeKBAuth(RevokeKBAuthReq) returns (RevokeKBAuthResp);
+  rpc ListKBAuthorizations(ListKBAuthsReq) returns (ListKBAuthsResp);
+  rpc ListBotKnowledgeBases(ListBotKBsReq) returns (ListBotKBsResp);
+
+  // RAG 检索
+  rpc SearchKnowledge(SearchKnowledgeReq) returns (SearchKnowledgeResp);
+  rpc CrossKBSearch(CrossKBSearchReq) returns (CrossKBSearchResp);
+
+  // 元认知
+  rpc AssessRetrieval(AssessRetrievalReq) returns (AssessRetrievalResp);
+  rpc AnalyzeKBHealth(AnalyzeKBHealthReq) returns (AnalyzeKBHealthResp);
+
+  // 图谱
+  rpc GetSubGraph(GetSubGraphReq) returns (GetSubGraphResp);
+
+  // 外部知识库同步
+  rpc TriggerExternalSync(TriggerExternalSyncReq) returns (TriggerExternalSyncResp);
+  rpc GetSyncStatus(GetSyncStatusReq) returns (GetSyncStatusResp);
+  rpc ListExternalSyncs(ListExternalSyncsReq) returns (ListExternalSyncsResp);
+}

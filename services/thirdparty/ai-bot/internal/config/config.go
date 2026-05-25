@@ -1,6 +1,9 @@
 package config
 
-import "github.com/zeromicro/go-zero/rest"
+import (
+	"github.com/zeromicro/go-zero/rest"
+	"github.com/zeromicro/go-zero/zrpc"
+)
 
 type Config struct {
 	rest.RestConf
@@ -10,6 +13,8 @@ type Config struct {
 	BotClientID      string
 	BotClientSecret  string
 	LLM              LLMConfig
+	RagRpc           zrpc.RpcClientConf
+	BotRpc           zrpc.RpcClientConf
 }
 
 type LLMConfig struct {

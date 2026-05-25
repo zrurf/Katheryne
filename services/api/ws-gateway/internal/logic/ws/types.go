@@ -195,6 +195,21 @@ type BotMessageEvent struct {
 	CreatedAt   int64  `json:"created_at"`
 }
 
+type BotMentionEvent struct {
+	EventId      string `json:"event_id"`
+	EventType    string `json:"event_type"`
+	ConvId       string `json:"conv_id"`
+	MsgId        string `json:"msg_id"`
+	Sender       string `json:"sender"`
+	SenderName   string `json:"sender_name"`
+	SenderAvatar string `json:"sender_avatar"`
+	Content      string `json:"content"`
+	ContentType  string `json:"content_type"`
+	MentionName  string `json:"mention_name"`
+	QuoteMsgId   string `json:"quote_msg_id,omitempty"`
+	CreatedAt    int64  `json:"created_at"`
+}
+
 type BotSendMessageData struct {
 	ConvId      string `json:"conv_id"`
 	Content     string `json:"content"`

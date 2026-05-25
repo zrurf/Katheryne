@@ -11,6 +11,14 @@ type AddBlacklistResp struct {
 	Result bool `json:"result"`
 }
 
+type AnalyzeKBHealthRequest struct {
+	KbID string `path:"kb_id"`
+}
+
+type AnalyzeKBHealthResponse struct {
+	Report KBHealthInfo `json:"report"`
+}
+
 type AnnouncementItem struct {
 	ID        string `json:"id"`
 	UID       string `json:"uid"`
@@ -32,12 +40,39 @@ type ApproveAuthorizeResp struct {
 	RedirectUrl string `json:"redirect_url"`
 }
 
+type AssessRetrievalRequest struct {
+	Query   string           `json:"query"`
+	Results []RecallItemInfo `json:"results"`
+}
+
+type AssessRetrievalResponse struct {
+	Score MetaCogInfo `json:"score"`
+}
+
+type AuthorizeKBRequest struct {
+	KbID       string `json:"kb_id"`
+	BotID      int64  `json:"bot_id"`
+	ConvID     int64  `json:"conv_id"`
+	Permission string `json:"permission,default=READ"`
+}
+
 type AuthorizeRequest struct {
 	ResponseType string `form:"response_type"`
 	ClientId     string `form:"client_id"`
 	RedirectUri  string `form:"redirect_uri"`
 	Scope        string `form:"scope"`
 	State        string `form:"state"`
+}
+
+type BatchInstallBotReq struct {
+	BotId       string   `json:"bot_id"`
+	ConvIds     []string `json:"conv_ids"`
+	Permissions []string `json:"permissions,optional"`
+}
+
+type BatchInstallBotResp struct {
+	SuccessCount int32    `json:"success_count"`
+	FailedConvs  []string `json:"failed_convs"`
 }
 
 type BotAuthorizeReq struct {
@@ -218,6 +253,22 @@ type BotUploadFileResp struct {
 	MimeType string `json:"mime_type"`
 }
 
+type ChunkItem struct {
+	ChunkID    string   `json:"chunk_id"`
+	Content    string   `json:"content"`
+	ChunkIndex int32    `json:"chunk_index"`
+	TokenCount int64    `json:"token_count"`
+	Entities   []string `json:"entities"`
+}
+
+type CitationItem struct {
+	DocName      string  `json:"doc_name"`
+	ChunkID      string  `json:"chunk_id"`
+	ChunkIndex   int32   `json:"chunk_index"`
+	Contribution float64 `json:"contribution"`
+	Excerpt      string  `json:"excerpt"`
+}
+
 type ClearUnreadReq struct {
 	ConvID string `json:"conv_id"`
 }
@@ -228,6 +279,12 @@ type ClearUnreadResp struct {
 type CompleteUploadRequest struct {
 	UploadID string     `json:"upload_id"`
 	Parts    []PartInfo `json:"parts"`
+}
+
+type ConflictInfo struct {
+	Entity            string   `json:"entity"`
+	ConflictingChunks []string `json:"conflicting_chunks"`
+	Description       string   `json:"description"`
 }
 
 type ConversationItem struct {
@@ -245,6 +302,11 @@ type ConversationItem struct {
 	Pinned         bool   `json:"pinned"`
 	Uid            string `json:"uid,omitempty"`
 	PeerUid        string `json:"peer_uid,omitempty"`
+}
+
+type CoverageGapInfo struct {
+	Topic      string `json:"topic"`
+	Suggestion string `json:"suggestion"`
 }
 
 type CreateAnnouncementReq struct {
@@ -283,6 +345,33 @@ type CreateGroupResp struct {
 	ConvID  string `json:"conv_id"`
 }
 
+type CreateKBRequest struct {
+	Name         string `json:"name"`
+	Description  string `json:"description,optional"`
+	SourceType   string `json:"source_type,optional"`
+	SourceConfig string `json:"source_config,optional"`
+}
+
+type CreateKBResponse struct {
+	KbID string `json:"kb_id"`
+}
+
+type CrossKBSearchRequest struct {
+	KbIDs         []string `json:"kb_ids"`
+	Query         string   `json:"query"`
+	TopK          int32    `json:"top_k,default=10"`
+	VectorWeight  float64  `json:"vector_weight,optional"`
+	GraphWeight   float64  `json:"graph_weight,optional"`
+	KeywordWeight float64  `json:"keyword_weight,optional"`
+}
+
+type CrossKBSearchResponse struct {
+	Items     []RecallItemInfo `json:"items"`
+	KbCounts  map[string]int64 `json:"kb_counts"`
+	LatencyMs int64            `json:"latency_ms"`
+	Metacog   *MetaCogInfo     `json:"metacog,omitempty"`
+}
+
 type DeleteBotReq struct {
 	BotId string `path:"bot_id"`
 }
@@ -295,6 +384,11 @@ type DeleteConversationReq struct {
 }
 
 type DeleteConversationResp struct {
+}
+
+type DeleteDocRequest struct {
+	KbID  string `path:"kb_id"`
+	DocID string `path:"doc_id"`
 }
 
 type DeleteFileRequest struct {
@@ -312,6 +406,23 @@ type DeleteFriendReq struct {
 
 type DeleteFriendResp struct {
 	Result bool `json:"result"`
+}
+
+type DeleteKBRequest struct {
+	KbID string `path:"kb_id"`
+}
+
+type DocItem struct {
+	DocID       string `json:"doc_id"`
+	KbID        string `json:"kb_id"`
+	FileName    string `json:"file_name"`
+	ContentType string `json:"content_type"`
+	FileSize    int64  `json:"file_size"`
+	Status      string `json:"status"`
+	ChunkCount  int64  `json:"chunk_count"`
+	ErrorMsg    string `json:"error_msg,omitempty"`
+	CreatedAt   int64  `json:"created_at"`
+	UpdatedAt   int64  `json:"updated_at"`
 }
 
 type EditMessageReq struct {
@@ -337,6 +448,17 @@ type EventDeliveryItem struct {
 	LastError   string `json:"last_error,omitempty"`
 	DeliveredAt int64  `json:"delivered_at,omitempty"`
 	CreatedAt   int64  `json:"created_at"`
+}
+
+type ExternalSyncInfo struct {
+	SyncID       string `json:"sync_id"`
+	KbID         string `json:"kb_id"`
+	SourceType   string `json:"source_type"`
+	SourceConfig string `json:"source_config"`
+	SyncStatus   string `json:"sync_status"`
+	SyncError    string `json:"sync_error,omitempty"`
+	LastSyncedAt int64  `json:"last_synced_at"`
+	CreatedAt    int64  `json:"created_at"`
 }
 
 type FriendItem struct {
@@ -445,6 +567,27 @@ type GetConversationsResp struct {
 	List []ConversationItem `json:"list"`
 }
 
+type GetDocChunksRequest struct {
+	KbID  string `path:"kb_id"`
+	DocID string `path:"doc_id"`
+	Page  int    `form:"page,default=1"`
+	Size  int    `form:"size,default=50"`
+}
+
+type GetDocChunksResponse struct {
+	List  []ChunkItem `json:"list"`
+	Total int64       `json:"total"`
+}
+
+type GetDocStatusRequest struct {
+	KbID  string `path:"kb_id"`
+	DocID string `path:"doc_id"`
+}
+
+type GetDocStatusResponse struct {
+	Doc DocItem `json:"doc"`
+}
+
 type GetDownloadURLRequest struct {
 	ObjectKey  string `json:"object_key"`
 	IndexId    string `json:"index_id,optional"`
@@ -528,6 +671,14 @@ type GetGroupMembersResp struct {
 	List []GroupMemberItem `json:"list"`
 }
 
+type GetKBRequest struct {
+	KbID string `path:"kb_id"`
+}
+
+type GetKBResponse struct {
+	KB KBItem `json:"kb"`
+}
+
 type GetMessageReadMembersReq struct {
 	ConvID string `path:"conv_id"`
 	MsgID  string `path:"msg_id"`
@@ -559,8 +710,49 @@ type GetOrCreateSingleConvResp struct {
 	Created bool   `json:"created"`
 }
 
+type GetSubGraphRequest struct {
+	KbID     string `form:"kb_id"`
+	EntityID string `form:"entity_id"`
+	Depth    int32  `form:"depth,default=2"`
+	Limit    int32  `form:"limit,default=50"`
+}
+
+type GetSubGraphResponse struct {
+	Entities  []GraphEntityInfo   `json:"entities"`
+	Relations []GraphRelationInfo `json:"relations"`
+}
+
+type GetSyncStatusRequest struct {
+	KbID   string `path:"kb_id"`
+	SyncID string `path:"sync_id"`
+}
+
+type GetSyncStatusResponse struct {
+	Sync ExternalSyncInfo `json:"sync"`
+}
+
 type GetTotalUnreadResp struct {
 	Count int64 `json:"count"`
+}
+
+type GrantBotKBAccessRequest struct {
+	BotID  int64 `json:"bot_id"`
+	ConvID int64 `json:"conv_id"`
+}
+
+type GraphEntityInfo struct {
+	EntityID   string            `json:"entity_id"`
+	Name       string            `json:"name"`
+	Type       string            `json:"type"`
+	Properties map[string]string `json:"properties"`
+}
+
+type GraphRelationInfo struct {
+	RelationID   string `json:"relation_id"`
+	SourceEntity string `json:"source_entity"`
+	TargetEntity string `json:"target_entity"`
+	RelationType string `json:"relation_type"`
+	ChunkID      string `json:"chunk_id"`
 }
 
 type GroupInfoResp struct {
@@ -645,23 +837,18 @@ type InitiateUploadResponse struct {
 }
 
 type InstallBotReq struct {
-	ConvId      string   `path:"conv_id"`
-	BotId       string   `json:"bot_id"`
-	Permissions []string `json:"permissions,optional"`
+	ConvId        string   `path:"conv_id"`
+	BotId         string   `json:"bot_id"`
+	Permissions   []string `json:"permissions,optional"`
+	TemplateId    string   `json:"template_id,optional"`
+	ModelProvider string   `json:"model_provider,optional"`
+	ModelName     string   `json:"model_name,optional"`
+	ApiKey        string   `json:"api_key,optional"`
+	KbConfig      string   `json:"kb_config,optional"`
 }
 
 type InstallBotResp struct {
-}
-
-type BatchInstallBotReq struct {
-	BotId       string   `json:"bot_id"`
-	ConvIds     []string `json:"conv_ids"`
-	Permissions []string `json:"permissions,optional"`
-}
-
-type BatchInstallBotResp struct {
-	SuccessCount int32    `json:"success_count"`
-	FailedConvs  []string `json:"failed_convs"`
+	InstanceId string `json:"instance_id"`
 }
 
 type InstallationItem struct {
@@ -703,6 +890,42 @@ type JoinGroupResp struct {
 	Result bool `json:"result"`
 }
 
+type KBAuthItem struct {
+	KbID       string `json:"kb_id"`
+	KbName     string `json:"kb_name"`
+	BotID      int64  `json:"bot_id"`
+	ConvID     int64  `json:"conv_id"`
+	Permission string `json:"permission"`
+	GrantedAt  int64  `json:"granted_at"`
+}
+
+type KBHealthInfo struct {
+	KbID           string            `json:"kb_id"`
+	TotalDocs      int64             `json:"total_docs"`
+	TotalChunks    int64             `json:"total_chunks"`
+	TotalEntities  int64             `json:"total_entities"`
+	TotalRelations int64             `json:"total_relations"`
+	AvgChunkSize   float64           `json:"avg_chunk_size"`
+	CoverageRate   float64           `json:"coverage_rate"`
+	ConflictRate   float64           `json:"conflict_rate"`
+	HealthStatus   string            `json:"health_status"`
+	LastUpdatedAt  int64             `json:"last_updated_at"`
+	Conflicts      []ConflictInfo    `json:"conflicts"`
+	Gaps           []CoverageGapInfo `json:"gaps"`
+}
+
+type KBItem struct {
+	KbID        string `json:"kb_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Status      string `json:"status"`
+	DocCount    int64  `json:"doc_count"`
+	ChunkCount  int64  `json:"chunk_count"`
+	TotalSize   int64  `json:"total_size"`
+	CreatedAt   int64  `json:"created_at"`
+	UpdatedAt   int64  `json:"updated_at"`
+}
+
 type KickMemberReq struct {
 	GroupID string `json:"group_id"`
 	UID     string `json:"uid"`
@@ -720,12 +943,72 @@ type LeaveGroupResp struct {
 	Result bool `json:"result"`
 }
 
+type ListBotKBsRequest struct {
+	BotID  int64 `form:"bot_id"`
+	ConvID int64 `form:"conv_id"`
+}
+
 type ListCommunityBotsReq struct {
 	Keyword string `form:"keyword,optional"`
 }
 
 type ListCommunityBotsResp struct {
-	List []BotItem `json:"list"`
+	HostedBots []CommunityBotItem `json:"hosted_bots"`
+	Templates  []CommunityBotItem `json:"templates"`
+}
+
+type CommunityBotItem struct {
+	Type           string   `json:"type"`
+	InstanceId     string   `json:"instance_id,optional"`
+	BotId          string   `json:"bot_id,optional"`
+	Name           string   `json:"name"`
+	Avatar         string   `json:"avatar,optional"`
+	Description    string   `json:"description,optional"`
+	HostedBy       string   `json:"hosted_by,optional"`
+	InstalledCount int64    `json:"installed_count,optional"`
+	Status         string   `json:"status,optional"`
+	TemplateId     string   `json:"template_id,optional"`
+	Category       string   `json:"category,optional"`
+	Tags           []string `json:"tags,optional"`
+	IsOfficial     bool     `json:"is_official"`
+}
+
+type ListDocsRequest struct {
+	KbID string `path:"kb_id"`
+	Page int    `form:"page,default=1"`
+	Size int    `form:"size,default=20"`
+}
+
+type ListDocsResponse struct {
+	List  []DocItem `json:"list"`
+	Total int64     `json:"total"`
+}
+
+type ListExternalSyncsRequest struct {
+	KbID string `path:"kb_id"`
+}
+
+type ListExternalSyncsResponse struct {
+	List []ExternalSyncInfo `json:"list"`
+}
+
+type ListKBAuthsRequest struct {
+	KbID  string `form:"kb_id,optional"`
+	BotID int64  `form:"bot_id,optional"`
+}
+
+type ListKBAuthsResponse struct {
+	List []KBAuthItem `json:"list"`
+}
+
+type ListKBsRequest struct {
+	Page int `form:"page,default=1"`
+	Size int `form:"size,default=20"`
+}
+
+type ListKBsResponse struct {
+	List  []KBItem `json:"list"`
+	Total int64    `json:"total"`
 }
 
 type ListMyBotsReq struct {
@@ -790,6 +1073,16 @@ type MessageItem struct {
 	CreatedAt    int64  `json:"created_at"`
 }
 
+type MetaCogInfo struct {
+	OverallConfidence float64        `json:"overall_confidence"`
+	CoverageScore     float64        `json:"coverage_score"`
+	RelevanceScore    float64        `json:"relevance_score"`
+	ConsistencyScore  float64        `json:"consistency_score"`
+	FreshnessScore    float64        `json:"freshness_score"`
+	Warnings          []string       `json:"warnings"`
+	Citations         []CitationItem `json:"citations"`
+}
+
 type MuteMemberReq struct {
 	GroupID  string `json:"group_id"`
 	UID      string `json:"uid"`
@@ -820,6 +1113,20 @@ type ReadMemberItem struct {
 	Name   string `json:"name"`
 	Avatar string `json:"avatar"`
 	ReadAt int64  `json:"read_at"`
+}
+
+type RecallItemInfo struct {
+	ChunkID      string   `json:"chunk_id"`
+	DocID        string   `json:"doc_id"`
+	DocName      string   `json:"doc_name"`
+	Content      string   `json:"content"`
+	VectorScore  float64  `json:"vector_score"`
+	GraphScore   float64  `json:"graph_score"`
+	KeywordScore float64  `json:"keyword_score"`
+	FusionScore  float64  `json:"fusion_score"`
+	Entities     []string `json:"entities"`
+	Relations    []string `json:"relations"`
+	ChunkIndex   int32    `json:"chunk_index"`
 }
 
 type RecallMessageReq struct {
@@ -887,12 +1194,40 @@ type RetryEventDeliveryReq struct {
 type RetryEventDeliveryResp struct {
 }
 
+type RevokeBotKBAccessRequest struct {
+	BotID  int64 `json:"bot_id"`
+	ConvID int64 `json:"conv_id"`
+}
+
+type RevokeKBAuthRequest struct {
+	KbID   string `json:"kb_id"`
+	BotID  int64  `json:"bot_id"`
+	ConvID int64  `json:"conv_id"`
+}
+
 type RotateWebhookSecretReq struct {
 	BotId string `path:"bot_id"`
 }
 
 type RotateWebhookSecretResp struct {
 	WebhookSecret string `json:"webhook_secret"`
+}
+
+type SearchKnowledgeRequest struct {
+	KbID           string  `json:"kb_id"`
+	Query          string  `json:"query"`
+	TopK           int32   `json:"top_k,default=10"`
+	VectorWeight   float64 `json:"vector_weight,optional"`
+	GraphWeight    float64 `json:"graph_weight,optional"`
+	KeywordWeight  float64 `json:"keyword_weight,optional"`
+	RerankStrategy string  `json:"rerank_strategy,optional"`
+}
+
+type SearchKnowledgeResponse struct {
+	Items     []RecallItemInfo `json:"items"`
+	Total     int64            `json:"total"`
+	LatencyMs int64            `json:"latency_ms"`
+	Metacog   *MetaCogInfo     `json:"metacog,omitempty"`
 }
 
 type SearchMessagesReq struct {
@@ -1016,6 +1351,15 @@ type TransferOwnerResp struct {
 	Result bool `json:"result"`
 }
 
+type TriggerExternalSyncRequest struct {
+	KbID string `path:"kb_id"`
+}
+
+type TriggerExternalSyncResponse struct {
+	SyncID string `json:"sync_id"`
+	Status string `json:"status"`
+}
+
 type UninstallBotReq struct {
 	ConvId string `path:"conv_id"`
 	BotId  string `json:"bot_id"`
@@ -1077,6 +1421,12 @@ type UpdateGroupResp struct {
 	Result bool `json:"result"`
 }
 
+type UpdateKBRequest struct {
+	KbID        string `path:"kb_id"`
+	Name        string `json:"name,optional"`
+	Description string `json:"description,optional"`
+}
+
 type UpdateProfileReq struct {
 	Name   string `json:"name,optional"`
 	Avatar string `json:"avatar,optional"`
@@ -1085,6 +1435,19 @@ type UpdateProfileReq struct {
 type UpdateProfileResp struct {
 	Name   string `json:"name"`
 	Avatar string `json:"avatar"`
+}
+
+type UploadDocRequest struct {
+	KbID        string `path:"kb_id"`
+	OssKey      string `json:"oss_key"`             // OSS 对象 key
+	FileName    string `json:"file_name,optional"`   // 原始文件名
+	ContentType string `json:"content_type,optional"` // MIME 类型
+	FileSize    int64  `json:"file_size,optional"`   // 文件大小（字节）
+}
+
+type UploadDocResponse struct {
+	DocID  string `json:"doc_id"`
+	Status string `json:"status"`
 }
 
 type UploadPartRequest struct {
@@ -1119,4 +1482,159 @@ type UserInfoResponse struct {
 	CreatedAt int64  `json:"created_at"`
 	UpdatedAt int64  `json:"updated_at"`
 	LastLogin int64  `json:"last_login"`
+}
+
+// ========== Bot Template Types ==========
+
+type CreateBotTemplateReq struct {
+	Name              string   `json:"name"`
+	Avatar            string   `json:"avatar,optional"`
+	Description       string   `json:"description,optional"`
+	Category          string   `json:"category,optional"`
+	SystemPrompt      string   `json:"system_prompt,optional"`
+	WelcomeMessage    string   `json:"welcome_message,optional"`
+	ConversationStyle string   `json:"conversation_style,optional"`
+	ToolDefinitions   string   `json:"tool_definitions,optional"`
+	KbStructure       string   `json:"kb_structure,optional"`
+	ConfigSchema      string   `json:"config_schema,optional"`
+	SupportedModels   string   `json:"supported_models,optional"`
+	Tags              []string `json:"tags,optional"`
+}
+
+type CreateBotTemplateResp struct {
+	TemplateId int64 `json:"template_id"`
+}
+
+type UpdateBotTemplateReq struct {
+	TemplateId        int64    `path:"template_id"`
+	Name              string   `json:"name,optional"`
+	Avatar            string   `json:"avatar,optional"`
+	Description       string   `json:"description,optional"`
+	Category          string   `json:"category,optional"`
+	SystemPrompt      string   `json:"system_prompt,optional"`
+	WelcomeMessage    string   `json:"welcome_message,optional"`
+	ConversationStyle string   `json:"conversation_style,optional"`
+	ToolDefinitions   string   `json:"tool_definitions,optional"`
+	KbStructure       string   `json:"kb_structure,optional"`
+	ConfigSchema      string   `json:"config_schema,optional"`
+	SupportedModels   string   `json:"supported_models,optional"`
+	Tags              []string `json:"tags,optional"`
+}
+
+type UpdateBotTemplateResp struct {
+}
+
+type DeleteBotTemplateReq struct {
+	TemplateId int64 `path:"template_id"`
+}
+
+type DeleteBotTemplateResp struct {
+}
+
+type GetBotTemplateReq struct {
+	TemplateId int64 `path:"template_id"`
+}
+
+type GetBotTemplateResp struct {
+	Template BotTemplateItem `json:"template"`
+}
+
+type ListMyTemplatesReq struct {
+}
+
+type ListMyTemplatesResp struct {
+	List []BotTemplateItem `json:"list"`
+}
+
+type BotTemplateItem struct {
+	TemplateId        int64    `json:"template_id"`
+	Name              string   `json:"name"`
+	Avatar            string   `json:"avatar,optional"`
+	Description       string   `json:"description,optional"`
+	Category          string   `json:"category,optional"`
+	Version           string   `json:"version,optional"`
+	SystemPrompt      string   `json:"system_prompt,optional"`
+	WelcomeMessage    string   `json:"welcome_message,optional"`
+	ConversationStyle string   `json:"conversation_style,optional"`
+	ToolDefinitions   string   `json:"tool_definitions,optional"`
+	KbStructure       string   `json:"kb_structure,optional"`
+	ConfigSchema      string   `json:"config_schema,optional"`
+	SupportedModels   string   `json:"supported_models,optional"`
+	IsOfficial        bool     `json:"is_official"`
+	Tags              []string `json:"tags,optional"`
+	Status            string   `json:"status,optional"`
+	CreatedAt         int64    `json:"created_at,optional"`
+}
+
+// ========== Bot Instance Types ==========
+
+type CreateBotInstanceReq struct {
+	TemplateId     int64  `json:"template_id"`
+	Name           string `json:"name,optional"`
+	Avatar         string `json:"avatar,optional"`
+	IsSelfHosted   bool   `json:"is_self_hosted,default=false"`
+	HostedBy       int64  `json:"hosted_by,optional"`
+	ModelProvider  string `json:"model_provider,optional"`
+	ModelName      string `json:"model_name,optional"`
+	ApiKey         string `json:"api_key,optional"`
+	ApiBaseUrl     string `json:"api_base_url,optional"`
+	KbConfig       string `json:"kb_config,optional"`
+	InstanceConfig string `json:"instance_config,optional"`
+}
+
+type CreateBotInstanceResp struct {
+	InstanceId int64 `json:"instance_id"`
+	BotId      int64 `json:"bot_id"`
+}
+
+type GetBotInstanceReq struct {
+	InstanceId int64 `path:"instance_id"`
+}
+
+type GetBotInstanceResp struct {
+	Instance BotInstanceItem `json:"instance"`
+}
+
+type UpdateBotInstanceReq struct {
+	InstanceId     int64  `path:"instance_id"`
+	Name           string `json:"name,optional"`
+	Avatar         string `json:"avatar,optional"`
+	ModelProvider  string `json:"model_provider,optional"`
+	ModelName      string `json:"model_name,optional"`
+	ApiKey         string `json:"api_key,optional"`
+	ApiBaseUrl     string `json:"api_base_url,optional"`
+	KbConfig       string `json:"kb_config,optional"`
+	InstanceConfig string `json:"instance_config,optional"`
+}
+
+type UpdateBotInstanceResp struct {
+}
+
+type DeleteBotInstanceReq struct {
+	InstanceId int64 `path:"instance_id"`
+}
+
+type DeleteBotInstanceResp struct {
+}
+
+type ListMyInstancesReq struct {
+}
+
+type ListMyInstancesResp struct {
+	List []BotInstanceItem `json:"list"`
+}
+
+type BotInstanceItem struct {
+	InstanceId    int64  `json:"instance_id"`
+	BotId         int64  `json:"bot_id"`
+	TemplateId    int64  `json:"template_id"`
+	Name          string `json:"name"`
+	Avatar        string `json:"avatar,optional"`
+	IsSelfHosted  bool   `json:"is_self_hosted"`
+	HostedBy      int64  `json:"hosted_by,optional"`
+	ModelProvider string `json:"model_provider,optional"`
+	ModelName     string `json:"model_name,optional"`
+	KbConfig      string `json:"kb_config,optional"`
+	Status        string `json:"status,optional"`
+	CreatedAt     int64  `json:"created_at,optional"`
 }

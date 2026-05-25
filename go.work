@@ -9,6 +9,7 @@ use (
 	./services/internal/conversation
 	./services/internal/message
 	./services/internal/oss
+	./services/internal/rag
 	./services/internal/social
 	./services/internal/user
 	./services/thirdparty/ai-bot

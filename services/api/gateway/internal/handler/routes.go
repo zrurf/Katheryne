@@ -14,6 +14,7 @@ import (
 	oauth2 "gateway/internal/handler/oauth2"
 	oss "gateway/internal/handler/oss"
 	oss_public "gateway/internal/handler/oss_public"
+	rag "gateway/internal/handler/rag"
 	social "gateway/internal/handler/social"
 	"gateway/internal/svc"
 
@@ -35,6 +36,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
+				Path:    "/logout",
+				Handler: auth.LogoutHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/refresh",
 				Handler: auth.RefreshTokenHandler(serverCtx),
 			},
@@ -53,31 +59,17 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/tfa-verify",
 				Handler: auth.TFAVerifyHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/user/profile",
+				Handler: auth.UpdateProfileHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/user_info/:uid",
+				Handler: auth.GetUserInfoHandler(serverCtx),
+			},
 		},
-		rest.WithPrefix("/api/v1/auth"),
-	)
-
-	server.AddRoutes(
-		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.AuthMiddleware},
-			[]rest.Route{
-				{
-					Method:  http.MethodPost,
-					Path:    "/logout",
-					Handler: auth.LogoutHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodPost,
-					Path:    "/user/profile",
-					Handler: auth.UpdateProfileHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/user_info/:uid",
-					Handler: auth.GetUserInfoHandler(serverCtx),
-				},
-			}...,
-		),
 		rest.WithPrefix("/api/v1/auth"),
 	)
 
@@ -164,10 +156,85 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		rest.WithPrefix("/api/v1/bot/community"),
 	)
 
+	// ========== Template CRUD ==========
 	server.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{serverCtx.AuthMiddleware},
 			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/templates",
+					Handler: bot.CreateBotTemplateHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/templates",
+					Handler: bot.ListMyTemplatesHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/templates/:template_id",
+					Handler: bot.GetBotTemplateHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/templates/:template_id",
+					Handler: bot.UpdateBotTemplateHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/templates/:template_id",
+					Handler: bot.DeleteBotTemplateHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/v1/bot"),
+	)
+
+	// ========== Instance CRUD ==========
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/instances",
+					Handler: bot.CreateBotInstanceHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/instances",
+					Handler: bot.ListMyInstancesHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/instances/:instance_id",
+					Handler: bot.GetBotInstanceHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/instances/:instance_id",
+					Handler: bot.UpdateBotInstanceHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/instances/:instance_id",
+					Handler: bot.DeleteBotInstanceHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/v1/bot"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/bots/install",
+					Handler: bot.BatchInstallBotHandler(serverCtx),
+				},
 				{
 					Method:  http.MethodGet,
 					Path:    "/convs/:conv_id/bots",
@@ -177,11 +244,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/convs/:conv_id/bots/install",
 					Handler: bot.InstallBotHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodPost,
-					Path:    "/bots/install",
-					Handler: bot.BatchInstallBotHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,
@@ -473,6 +535,135 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 		},
 		rest.WithPrefix("/api/v1/oss"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/auth/authorize-kb",
+					Handler: rag.AuthorizeKBHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/auth/bot-kbs",
+					Handler: rag.ListBotKnowledgeBasesHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/auth/grant-bot",
+					Handler: rag.GrantBotKBAccessHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/auth/list",
+					Handler: rag.ListKBAuthorizationsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/auth/revoke-bot",
+					Handler: rag.RevokeBotKBAccessHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/auth/revoke-kb",
+					Handler: rag.RevokeKBAuthHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/graph/sub",
+					Handler: rag.GetSubGraphHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/kb/:kb_id",
+					Handler: rag.GetKnowledgeBaseHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/kb/:kb_id/delete",
+					Handler: rag.DeleteKnowledgeBaseHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/kb/:kb_id/doc/:doc_id",
+					Handler: rag.GetDocumentStatusHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/kb/:kb_id/doc/:doc_id/chunks",
+					Handler: rag.GetDocumentChunksHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/kb/:kb_id/doc/:doc_id/delete",
+					Handler: rag.DeleteDocumentHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/kb/:kb_id/doc/list",
+					Handler: rag.ListDocumentsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/kb/:kb_id/doc/upload",
+					Handler: rag.UploadDocumentHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/kb/:kb_id/health",
+					Handler: rag.AnalyzeKBHealthHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/kb/:kb_id/sync/:sync_id",
+					Handler: rag.GetSyncStatusHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/kb/:kb_id/sync/list",
+					Handler: rag.ListExternalSyncsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/kb/:kb_id/sync/trigger",
+					Handler: rag.TriggerExternalSyncHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/kb/:kb_id/update",
+					Handler: rag.UpdateKnowledgeBaseHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/kb/create",
+					Handler: rag.CreateKnowledgeBaseHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/kb/list",
+					Handler: rag.ListKnowledgeBasesHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/metacog/assess",
+					Handler: rag.AssessRetrievalHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/search",
+					Handler: rag.SearchKnowledgeHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/search/cross",
+					Handler: rag.CrossKBSearchHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/v1/rag"),
 	)
 
 	server.AddRoutes(

@@ -36,11 +36,49 @@ func (l *InstallBotLogic) InstallBot(in *bot.InstallBotReq) (*bot.InstallBotResp
 		}
 	}
 
-	if err := l.svcCtx.InstDao.Install(l.ctx, in.BotId, in.ConvId, convType, in.Permissions, in.Uid); err != nil {
+	botID := in.BotId
+	var newInstanceID int64
+
+	// If template_id is provided, this is a self-hosted installation:
+	// create a bot instance first, then install
+	if in.TemplateId > 0 {
+		// Create a new bot instance from template
+		createReq := &bot.CreateBotInstanceReq{
+			Uid:            in.Uid,
+			TemplateId:     in.TemplateId,
+			Name:           "", // will be filled from template
+			Avatar:         "",
+			IsSelfHosted:   true,
+			ModelProvider:  in.ModelProvider,
+			ModelName:      in.ModelName,
+			ApiKey:         in.ApiKey,
+			KbConfig:       in.KbConfig,
+		}
+
+		// Load template to get name/avatar
+		tmpl, err := l.svcCtx.TemplateDao.GetTemplateByID(l.ctx, in.TemplateId)
+		if err == nil {
+			if createReq.Name == "" {
+				createReq.Name = tmpl.Name
+			}
+			if createReq.Avatar == "" {
+				createReq.Avatar = tmpl.Avatar
+			}
+		}
+
+		resp, err := l.svcCtx.InstanceDao.CreateInstance(l.ctx, createReq)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create bot instance: %v", err)
+		}
+		botID = resp.BotId
+		newInstanceID = resp.InstanceId
+	}
+
+	if err := l.svcCtx.InstDao.Install(l.ctx, botID, in.ConvId, convType, in.Permissions, in.Uid); err != nil {
 		return nil, fmt.Errorf("failed to install bot: %v", err)
 	}
 
-	l.svcCtx.OAuthDao.AddConvBotCache(l.ctx, in.ConvId, in.BotId)
+	l.svcCtx.OAuthDao.AddConvBotCache(l.ctx, in.ConvId, botID)
 
-	return &bot.InstallBotResp{}, nil
+	return &bot.InstallBotResp{InstanceId: newInstanceID}, nil
 }

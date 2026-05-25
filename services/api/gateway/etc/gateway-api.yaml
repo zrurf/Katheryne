@@ -34,6 +34,11 @@ OssRpc:
     Hosts:
       - "etcd:2379"
     Key: oss.rpc
+RagRpc:
+  Etcd:
+    Hosts:
+      - "etcd:2379"
+    Key: rag.rpc
 SocialRpc:
   Etcd:
     Hosts:

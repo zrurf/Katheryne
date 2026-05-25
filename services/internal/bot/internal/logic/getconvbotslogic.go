@@ -26,7 +26,8 @@ func NewGetConvBotsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetCo
 func (l *GetConvBotsLogic) GetConvBots(in *bot.GetConvBotsReq) (*bot.GetConvBotsResp, error) {
 	list, err := l.svcCtx.InstDao.ListConvBots(l.ctx, in.ConvId)
 	if err != nil {
-		return &bot.GetConvBotsResp{List: []*bot.InstalledBotItem{}}, nil
+		l.Errorf("ListConvBots DB error: %v", err)
+		return nil, err
 	}
 
 	return &bot.GetConvBotsResp{List: list}, nil

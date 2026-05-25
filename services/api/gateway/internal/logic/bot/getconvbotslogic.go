@@ -31,7 +31,8 @@ func (l *GetConvBotsLogic) GetConvBots(req *types.GetConvBotsReq) (resp *types.G
 		ConvId: convId,
 	})
 	if err != nil {
-		return &types.GetConvBotsResp{List: []types.InstalledBotItem{}}, nil
+		l.Errorf("GetConvBots RPC failed: %v", err)
+		return nil, err
 	}
 
 	list := make([]types.InstalledBotItem, 0, len(result.List))

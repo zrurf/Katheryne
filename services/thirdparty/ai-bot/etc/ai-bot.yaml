@@ -26,3 +26,15 @@ LLM:
   Model: "${LLM_MODEL}"
   MaxTokens: 4096
   Temperature: 0.7
+
+RagRpc:
+  Etcd:
+    Hosts:
+    - "etcd:2379"
+    Key: rag.rpc
+
+BotRpc:
+  Etcd:
+    Hosts:
+    - "etcd:2379"
+    Key: bot.rpc

@@ -8,7 +8,7 @@ import { downloadManager } from "../../services/download";
 import { toggleDownloadPanel } from "../ui/download-progress";
 import { Avatar } from "../ui/avatar";
 import { formatConversationTime, truncate, formatMessageSnippet } from "../../lib/utils";
-import type { ConversationItem, FriendItem, FriendRequestItem, GroupInviteItem, ConvBotItem, BotInfo } from "../../services/api";
+import type { ConversationItem, FriendItem, FriendRequestItem, GroupInviteItem, ConvBotItem } from "../../services/api";
 import {
   MessageSquare,
   Users,
@@ -916,7 +916,7 @@ function BotsTab() {
   const [bots, setBots] = createSignal<ConvBotItem[]>([]);
   const [loading, setLoading] = createSignal(false);
   const [showBotList, setShowBotList] = createSignal(false);
-  const [availableBots, setAvailableBots] = createSignal<BotInfo[]>([]);
+  const [availableBots, setAvailableBots] = createSignal<{ bot_id: number; name: string; description?: string }[]>([]);
   const [availableLoading, setAvailableLoading] = createSignal(false);
 
   const loadBots = async () => {
@@ -936,23 +936,23 @@ function BotsTab() {
   const loadAvailableBots = async () => {
     setAvailableLoading(true);
     try {
-      const [myResp, communityResp] = await Promise.all([
-        api.bot.listMyBots(),
-        api.bot.listCommunityBots(),
-      ]);
-      // Combine user's bots + community bots, deduplicate by bot_id
-      const seen = new Set<string>();
-      const combined: typeof myResp.list = [];
-      for (const bot of myResp.list) {
-        if (!seen.has(bot.bot_id)) {
-          seen.add(bot.bot_id);
-          combined.push(bot);
-        }
-      }
-      for (const bot of communityResp.list) {
-        if (!seen.has(bot.bot_id)) {
-          seen.add(bot.bot_id);
-          combined.push(bot);
+      // Load user instances (new model)
+      const instResp = await api.bot.listMyInstances();
+      const mapped: { bot_id: number; name: string; description?: string }[] = (instResp.list || []).map(i => ({
+        bot_id: i.bot_id,
+        name: i.name,
+        description: `实例 #${i.instance_id} (模板 #${i.template_id})`,
+      }));
+      // Also load community hosted bots for legacy compat
+      const communityResp = await api.bot.listCommunityBots();
+      const seen = new Set<number>();
+      const combined = [...mapped];
+      for (const inst of combined) seen.add(inst.bot_id);
+      for (const bot of communityResp.hosted_bots || []) {
+        const numId = parseInt(bot.bot_id, 10);
+        if (!isNaN(numId) && !seen.has(numId)) {
+          seen.add(numId);
+          combined.push({ bot_id: numId, name: bot.name, description: bot.description });
         }
       }
       setAvailableBots(combined);
@@ -1018,7 +1018,7 @@ function BotsTab() {
           <div class="text-center py-6 text-text-muted text-sm">
             <Bot size={24} class="mx-auto mb-2 text-text-muted/50" />
             <p>暂未安装 Bot</p>
-            <p class="text-xs mt-1">点击上方"添加 Bot"</p>
+            <p class="text-xs mt-1">在设置中创建实例，或从社区安装</p>
           </div>
         </Show>
 
@@ -1049,22 +1049,23 @@ function BotsTab() {
             </Show>
             <Show when={!availableLoading() && availableBots().length === 0}>
               <div class="text-center py-4 text-text-muted text-xs">
-                没有可用的 Bot，请在设置中创建
+                没有可用的 Bot，请在设置中创建实例或浏览社区
               </div>
             </Show>
             <For each={availableBots()}>
-              {(bot) => {
-                const installed = isInstalled(String(bot.bot_id));
+              {(bot: { bot_id: number; name: string; description?: string }) => {
+                const botIdStr = String(bot.bot_id);
+                const installed = isInstalled(botIdStr);
                 return (
                   <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-surface border border-transparent transition-colors">
-                    <Avatar name={bot.name} src={bot.avatar} size="sm" />
+                    <Avatar name={bot.name} size="sm" />
                     <div class="flex-1 min-w-0">
                       <p class="text-sm font-medium text-text truncate">{bot.name}</p>
                       <p class="text-xs text-text-muted truncate">{bot.description || ""}</p>
                     </div>
                     <Show when={installed} fallback={
                       <button
-                        onClick={() => handleInstall(String(bot.bot_id))}
+                        onClick={() => handleInstall(botIdStr)}
                         class="px-2 py-1 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-medium transition-colors"
                       >
                         安装

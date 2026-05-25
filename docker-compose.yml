@@ -195,6 +195,32 @@ services:
       etcd:
         condition: service_started
 
+  # RAG 知识库服务
+  rag_services:
+    build:
+      context: .
+      dockerfile: services/internal/rag/Dockerfile
+    container_name: rag-services
+    restart: unless-stopped
+    expose:
+      - "8007"
+      - "6068"
+    env_file:
+      - .env
+    networks:
+      - internal
+    depends_on:
+      postgres:
+        condition: service_started
+      garnet:
+        condition: service_started
+      etcd:
+        condition: service_started
+      qdrant:
+        condition: service_started
+      hugegraph:
+        condition: service_started
+
   # 官方 AI Bot
   ai_bot:
     build:
@@ -258,7 +284,7 @@ services:
     container_name: postgres
     environment:
       - PGDATA=/data/pgdata
-      - DATABASES=users,oauth2,im_social,im_message,mod_bot
+      - DATABASES=users,oauth2,im_social,im_message,mod_bot,mod_rag
     env_file:
       - .env
     volumes:
@@ -347,6 +373,20 @@ services:
       otel-collector:
         condition: service_started
         required: false
+  
+  # 图数据库
+  hugegraph:
+    image: hugegraph/hugegraph:1.7.0
+    container_name: hugegraph
+    restart: unless-stopped
+    expose:
+      - "8080"
+    environment:
+      - HUGEGRAPH_URL=http://hugegraph:8080
+    networks:
+      - internal
+    volumes:
+      - hugegraph_data:/hugegraph-server/data
   
   ### 可观测性 ###
 
@@ -494,6 +534,7 @@ volumes:
   garnet_data:
   rustfs_data:
   qdrant_data:
+  hugegraph_data:
 
   jaeger_data:
   tempo_data:

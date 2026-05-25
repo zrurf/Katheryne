@@ -1381,3 +1381,396 @@ service gateway-api {
 	post /bot/moderate (BotModerateReq) returns (BotModerateResp)
 }
 
+// RAG 知识库服务 Model
+type (
+	// 知识库
+	CreateKBRequest {
+		Name         string `json:"name"`
+		Description  string `json:"description,optional"`
+		SourceType   string `json:"source_type,optional"`
+		SourceConfig string `json:"source_config,optional"`
+	}
+	CreateKBResponse {
+		KbID string `json:"kb_id"`
+	}
+	ListKBsRequest {
+		Page int `form:"page,default=1"`
+		Size int `form:"size,default=20"`
+	}
+	KBItem {
+		KbID        string `json:"kb_id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Status      string `json:"status"`
+		DocCount    int64  `json:"doc_count"`
+		ChunkCount  int64  `json:"chunk_count"`
+		TotalSize   int64  `json:"total_size"`
+		CreatedAt   int64  `json:"created_at"`
+		UpdatedAt   int64  `json:"updated_at"`
+	}
+	ListKBsResponse {
+		List  []KBItem `json:"list"`
+		Total int64    `json:"total"`
+	}
+	GetKBRequest {
+		KbID string `path:"kb_id"`
+	}
+	GetKBResponse {
+		KB KBItem `json:"kb"`
+	}
+	UpdateKBRequest {
+		KbID        string `path:"kb_id"`
+		Name        string `json:"name,optional"`
+		Description string `json:"description,optional"`
+	}
+	DeleteKBRequest {
+		KbID string `path:"kb_id"`
+	}
+	// 文档
+	ListDocsRequest {
+		KbID string `path:"kb_id"`
+		Page int    `form:"page,default=1"`
+		Size int    `form:"size,default=20"`
+	}
+	DocItem {
+		DocID       string `json:"doc_id"`
+		KbID        string `json:"kb_id"`
+		FileName    string `json:"file_name"`
+		ContentType string `json:"content_type"`
+		FileSize    int64  `json:"file_size"`
+		Status      string `json:"status"`
+		ChunkCount  int64  `json:"chunk_count"`
+		ErrorMsg    string `json:"error_msg,omitempty"`
+		CreatedAt   int64  `json:"created_at"`
+		UpdatedAt   int64  `json:"updated_at"`
+	}
+	ListDocsResponse {
+		List  []DocItem `json:"list"`
+		Total int64     `json:"total"`
+	}
+	GetDocStatusRequest {
+		KbID  string `path:"kb_id"`
+		DocID string `path:"doc_id"`
+	}
+	GetDocStatusResponse {
+		Doc DocItem `json:"doc"`
+	}
+	DeleteDocRequest {
+		KbID  string `path:"kb_id"`
+		DocID string `path:"doc_id"`
+	}
+	GetDocChunksRequest {
+		KbID  string `path:"kb_id"`
+		DocID string `path:"doc_id"`
+		Page  int    `form:"page,default=1"`
+		Size  int    `form:"size,default=50"`
+	}
+	ChunkItem {
+		ChunkID    string   `json:"chunk_id"`
+		Content    string   `json:"content"`
+		ChunkIndex int32    `json:"chunk_index"`
+		TokenCount int64    `json:"token_count"`
+		Entities   []string `json:"entities"`
+	}
+	GetDocChunksResponse {
+		List  []ChunkItem `json:"list"`
+		Total int64       `json:"total"`
+	}
+	// 上传文档请求（先上传到 OSS，再提交索引）
+	UploadDocRequest {
+		KbID        string `path:"kb_id"`
+		OssKey      string `json:"oss_key"`               // OSS 对象 key
+		FileName    string `json:"file_name,optional"`    // 原始文件名
+		ContentType string `json:"content_type,optional"` // MIME 类型
+		FileSize    int64  `json:"file_size,optional"`
+	}
+	UploadDocResponse {
+		DocID  string `json:"doc_id"`
+		Status string `json:"status"`
+	}
+	// 知识库授权（Bot 维度）
+	GrantBotKBAccessRequest {
+		BotID  int64 `json:"bot_id"`
+		ConvID int64 `json:"conv_id"`
+	}
+	RevokeBotKBAccessRequest {
+		BotID  int64 `json:"bot_id"`
+		ConvID int64 `json:"conv_id"`
+	}
+	// 知识库授权（知识库维度）
+	AuthorizeKBRequest {
+		KbID       string `json:"kb_id"`
+		BotID      int64  `json:"bot_id"`
+		ConvID     int64  `json:"conv_id"`
+		Permission string `json:"permission,default=READ"`
+	}
+	RevokeKBAuthRequest {
+		KbID   string `json:"kb_id"`
+		BotID  int64  `json:"bot_id"`
+		ConvID int64  `json:"conv_id"`
+	}
+	ListKBAuthsRequest {
+		KbID  string `form:"kb_id,optional"`
+		BotID int64  `form:"bot_id,optional"`
+	}
+	KBAuthItem {
+		KbID       string `json:"kb_id"`
+		KbName     string `json:"kb_name"`
+		BotID      int64  `json:"bot_id"`
+		ConvID     int64  `json:"conv_id"`
+		Permission string `json:"permission"`
+		GrantedAt  int64  `json:"granted_at"`
+	}
+	ListKBAuthsResponse {
+		List []KBAuthItem `json:"list"`
+	}
+	// Bot 可访问的知识库列表
+	ListBotKBsRequest {
+		BotID  int64 `form:"bot_id"`
+		ConvID int64 `form:"conv_id"`
+	}
+	// 知识检索
+	SearchKnowledgeRequest {
+		KbID           string  `json:"kb_id"`
+		Query          string  `json:"query"`
+		TopK           int32   `json:"top_k,default=10"`
+		VectorWeight   float64 `json:"vector_weight,optional"`
+		GraphWeight    float64 `json:"graph_weight,optional"`
+		KeywordWeight  float64 `json:"keyword_weight,optional"`
+		RerankStrategy string  `json:"rerank_strategy,optional"`
+	}
+	RecallItemInfo {
+		ChunkID      string   `json:"chunk_id"`
+		DocID        string   `json:"doc_id"`
+		DocName      string   `json:"doc_name"`
+		Content      string   `json:"content"`
+		VectorScore  float64  `json:"vector_score"`
+		GraphScore   float64  `json:"graph_score"`
+		KeywordScore float64  `json:"keyword_score"`
+		FusionScore  float64  `json:"fusion_score"`
+		Entities     []string `json:"entities"`
+		Relations    []string `json:"relations"`
+		ChunkIndex   int32    `json:"chunk_index"`
+	}
+	MetaCogInfo {
+		OverallConfidence float64        `json:"overall_confidence"`
+		CoverageScore     float64        `json:"coverage_score"`
+		RelevanceScore    float64        `json:"relevance_score"`
+		ConsistencyScore  float64        `json:"consistency_score"`
+		FreshnessScore    float64        `json:"freshness_score"`
+		Warnings          []string       `json:"warnings"`
+		Citations         []CitationItem `json:"citations"`
+	}
+	CitationItem {
+		DocName      string  `json:"doc_name"`
+		ChunkID      string  `json:"chunk_id"`
+		ChunkIndex   int32   `json:"chunk_index"`
+		Contribution float64 `json:"contribution"`
+		Excerpt      string  `json:"excerpt"`
+	}
+	SearchKnowledgeResponse {
+		Items     []RecallItemInfo `json:"items"`
+		Total     int64            `json:"total"`
+		LatencyMs int64            `json:"latency_ms"`
+		Metacog   *MetaCogInfo     `json:"metacog,omitempty"`
+	}
+	// 跨知识库检索
+	CrossKBSearchRequest {
+		KbIDs         []string `json:"kb_ids"`
+		Query         string   `json:"query"`
+		TopK          int32    `json:"top_k,default=10"`
+		VectorWeight  float64  `json:"vector_weight,optional"`
+		GraphWeight   float64  `json:"graph_weight,optional"`
+		KeywordWeight float64  `json:"keyword_weight,optional"`
+	}
+	CrossKBSearchResponse {
+		Items     []RecallItemInfo `json:"items"`
+		KbCounts  map[string]int64 `json:"kb_counts"`
+		LatencyMs int64            `json:"latency_ms"`
+		Metacog   *MetaCogInfo     `json:"metacog,omitempty"`
+	}
+	// 元认知评估
+	AssessRetrievalRequest {
+		Query   string           `json:"query"`
+		Results []RecallItemInfo `json:"results"`
+	}
+	AssessRetrievalResponse {
+		Score MetaCogInfo `json:"score"`
+	}
+	// 知识库健康分析
+	AnalyzeKBHealthRequest {
+		KbID string `path:"kb_id"`
+	}
+	KBHealthInfo {
+		KbID           string            `json:"kb_id"`
+		TotalDocs      int64             `json:"total_docs"`
+		TotalChunks    int64             `json:"total_chunks"`
+		TotalEntities  int64             `json:"total_entities"`
+		TotalRelations int64             `json:"total_relations"`
+		AvgChunkSize   float64           `json:"avg_chunk_size"`
+		CoverageRate   float64           `json:"coverage_rate"`
+		ConflictRate   float64           `json:"conflict_rate"`
+		HealthStatus   string            `json:"health_status"`
+		LastUpdatedAt  int64             `json:"last_updated_at"`
+		Conflicts      []ConflictInfo    `json:"conflicts"`
+		Gaps           []CoverageGapInfo `json:"gaps"`
+	}
+	ConflictInfo {
+		Entity            string   `json:"entity"`
+		ConflictingChunks []string `json:"conflicting_chunks"`
+		Description       string   `json:"description"`
+	}
+	CoverageGapInfo {
+		Topic      string `json:"topic"`
+		Suggestion string `json:"suggestion"`
+	}
+	AnalyzeKBHealthResponse {
+		Report KBHealthInfo `json:"report"`
+	}
+	// 图谱
+	GetSubGraphRequest {
+		KbID     string `form:"kb_id"`
+		EntityID string `form:"entity_id"`
+		Depth    int32  `form:"depth,default=2"`
+		Limit    int32  `form:"limit,default=50"`
+	}
+	GraphEntityInfo {
+		EntityID   string            `json:"entity_id"`
+		Name       string            `json:"name"`
+		Type       string            `json:"type"`
+		Properties map[string]string `json:"properties"`
+	}
+	GraphRelationInfo {
+		RelationID   string `json:"relation_id"`
+		SourceEntity string `json:"source_entity"`
+		TargetEntity string `json:"target_entity"`
+		RelationType string `json:"relation_type"`
+		ChunkID      string `json:"chunk_id"`
+	}
+	GetSubGraphResponse {
+		Entities  []GraphEntityInfo   `json:"entities"`
+		Relations []GraphRelationInfo `json:"relations"`
+	}
+)
+
+// RAG 知识库服务
+@server (
+	prefix:     /api/v1/rag
+	group:      rag
+	middleware: AuthMiddleware
+)
+service gateway-api {
+	// 知识库管理
+	@handler CreateKnowledgeBase
+	post /kb/create (CreateKBRequest) returns (CreateKBResponse)
+
+	@handler ListKnowledgeBases
+	get /kb/list (ListKBsRequest) returns (ListKBsResponse)
+
+	@handler GetKnowledgeBase
+	get /kb/:kb_id (GetKBRequest) returns (GetKBResponse)
+
+	@handler UpdateKnowledgeBase
+	post /kb/:kb_id/update (UpdateKBRequest) returns (EmptyReponse)
+
+	@handler DeleteKnowledgeBase
+	post /kb/:kb_id/delete (DeleteKBRequest) returns (EmptyReponse)
+
+	// 文档管理
+	@handler UploadDocument
+	post /kb/:kb_id/doc/upload (UploadDocRequest) returns (UploadDocResponse)
+
+	@handler ListDocuments
+	get /kb/:kb_id/doc/list (ListDocsRequest) returns (ListDocsResponse)
+
+	@handler GetDocumentStatus
+	get /kb/:kb_id/doc/:doc_id (GetDocStatusRequest) returns (GetDocStatusResponse)
+
+	@handler DeleteDocument
+	post /kb/:kb_id/doc/:doc_id/delete (DeleteDocRequest) returns (EmptyReponse)
+
+	@handler GetDocumentChunks
+	get /kb/:kb_id/doc/:doc_id/chunks (GetDocChunksRequest) returns (GetDocChunksResponse)
+
+	// 知识库授权
+	@handler GrantBotKBAccess
+	post /auth/grant-bot (GrantBotKBAccessRequest) returns (EmptyReponse)
+
+	@handler RevokeBotKBAccess
+	post /auth/revoke-bot (RevokeBotKBAccessRequest) returns (EmptyReponse)
+
+	@handler AuthorizeKB
+	post /auth/authorize-kb (AuthorizeKBRequest) returns (EmptyReponse)
+
+	@handler RevokeKBAuth
+	post /auth/revoke-kb (RevokeKBAuthRequest) returns (EmptyReponse)
+
+	@handler ListKBAuthorizations
+	get /auth/list (ListKBAuthsRequest) returns (ListKBAuthsResponse)
+
+	@handler ListBotKnowledgeBases
+	get /auth/bot-kbs (ListBotKBsRequest) returns (ListKBsResponse)
+
+	// 知识检索
+	@handler SearchKnowledge
+	post /search (SearchKnowledgeRequest) returns (SearchKnowledgeResponse)
+
+	@handler CrossKBSearch
+	post /search/cross (CrossKBSearchRequest) returns (CrossKBSearchResponse)
+
+	// 元认知
+	@handler AssessRetrieval
+	post /metacog/assess (AssessRetrievalRequest) returns (AssessRetrievalResponse)
+
+	@handler AnalyzeKBHealth
+	get /kb/:kb_id/health (AnalyzeKBHealthRequest) returns (AnalyzeKBHealthResponse)
+
+	// 图谱
+	@handler GetSubGraph
+	get /graph/sub (GetSubGraphRequest) returns (GetSubGraphResponse)
+
+	// 外部知识库同步
+	@handler TriggerExternalSync
+	post /kb/:kb_id/sync/trigger (TriggerExternalSyncRequest) returns (TriggerExternalSyncResponse)
+
+	@handler GetSyncStatus
+	get /kb/:kb_id/sync/:sync_id (GetSyncStatusRequest) returns (GetSyncStatusResponse)
+
+	@handler ListExternalSyncs
+	get /kb/:kb_id/sync/list (ListExternalSyncsRequest) returns (ListExternalSyncsResponse)
+}
+
+// 外部知识库同步 Model
+type (
+	TriggerExternalSyncRequest {
+		KbID string `path:"kb_id"`
+	}
+	TriggerExternalSyncResponse {
+		SyncID string `json:"sync_id"`
+		Status string `json:"status"`
+	}
+	GetSyncStatusRequest {
+		KbID   string `path:"kb_id"`
+		SyncID string `path:"sync_id"`
+	}
+	GetSyncStatusResponse {
+		Sync ExternalSyncInfo `json:"sync"`
+	}
+	ListExternalSyncsRequest {
+		KbID string `path:"kb_id"`
+	}
+	ListExternalSyncsResponse {
+		List []ExternalSyncInfo `json:"list"`
+	}
+	ExternalSyncInfo {
+		SyncID       string `json:"sync_id"`
+		KbID         string `json:"kb_id"`
+		SourceType   string `json:"source_type"`
+		SourceConfig string `json:"source_config"`
+		SyncStatus   string `json:"sync_status"`
+		SyncError    string `json:"sync_error,omitempty"`
+		LastSyncedAt int64  `json:"last_synced_at"`
+		CreatedAt    int64  `json:"created_at"`
+	}
+)
+

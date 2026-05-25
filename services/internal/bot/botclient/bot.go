@@ -29,27 +29,44 @@ type (
 	BotGetUserResp           = bot.BotGetUserResp
 	BotInfo                  = bot.BotInfo
 	BotInstallationItem      = bot.BotInstallationItem
+	BotInstanceInfo          = bot.BotInstanceInfo
 	BotRecallMsgReq          = bot.BotRecallMsgReq
 	BotRecallMsgResp         = bot.BotRecallMsgResp
 	BotReplyMsgReq           = bot.BotReplyMsgReq
 	BotReplyMsgResp          = bot.BotReplyMsgResp
 	BotSendMsgReq            = bot.BotSendMsgReq
 	BotSendMsgResp           = bot.BotSendMsgResp
+	BotTemplateInfo          = bot.BotTemplateInfo
 	BotTokenReq              = bot.BotTokenReq
 	BotTokenResp             = bot.BotTokenResp
 	BotUploadFileReq         = bot.BotUploadFileReq
 	BotUploadFileResp        = bot.BotUploadFileResp
+	CommunityBotItem         = bot.CommunityBotItem
+	CreateBotInstanceReq     = bot.CreateBotInstanceReq
+	CreateBotInstanceResp    = bot.CreateBotInstanceResp
 	CreateBotReq             = bot.CreateBotReq
 	CreateBotResp            = bot.CreateBotResp
+	CreateBotTemplateReq     = bot.CreateBotTemplateReq
+	CreateBotTemplateResp    = bot.CreateBotTemplateResp
+	DeleteBotInstanceReq     = bot.DeleteBotInstanceReq
+	DeleteBotInstanceResp    = bot.DeleteBotInstanceResp
 	DeleteBotReq             = bot.DeleteBotReq
 	DeleteBotResp            = bot.DeleteBotResp
+	DeleteBotTemplateReq     = bot.DeleteBotTemplateReq
+	DeleteBotTemplateResp    = bot.DeleteBotTemplateResp
 	EventDeliveryItem        = bot.EventDeliveryItem
 	GetBotInstallationsReq   = bot.GetBotInstallationsReq
 	GetBotInstallationsResp  = bot.GetBotInstallationsResp
+	GetBotInstanceReq        = bot.GetBotInstanceReq
+	GetBotInstanceResp       = bot.GetBotInstanceResp
 	GetBotRateLimitReq       = bot.GetBotRateLimitReq
 	GetBotRateLimitResp      = bot.GetBotRateLimitResp
 	GetBotReq                = bot.GetBotReq
 	GetBotResp               = bot.GetBotResp
+	GetBotRuntimeConfigReq   = bot.GetBotRuntimeConfigReq
+	GetBotRuntimeConfigResp  = bot.GetBotRuntimeConfigResp
+	GetBotTemplateReq        = bot.GetBotTemplateReq
+	GetBotTemplateResp       = bot.GetBotTemplateResp
 	GetConvBotsReq           = bot.GetConvBotsReq
 	GetConvBotsResp          = bot.GetConvBotsResp
 	GetEventDeliveriesReq    = bot.GetEventDeliveriesReq
@@ -59,8 +76,19 @@ type (
 	InstalledBotItem         = bot.InstalledBotItem
 	ListCommunityBotsReq     = bot.ListCommunityBotsReq
 	ListCommunityBotsResp    = bot.ListCommunityBotsResp
+	ListHostedInstancesReq   = bot.ListHostedInstancesReq
+	ListHostedInstancesResp  = bot.ListHostedInstancesResp
 	ListMyBotsReq            = bot.ListMyBotsReq
 	ListMyBotsResp           = bot.ListMyBotsResp
+	ListMyInstancesReq       = bot.ListMyInstancesReq
+	ListMyInstancesResp      = bot.ListMyInstancesResp
+	ListMyTemplatesReq       = bot.ListMyTemplatesReq
+	ListMyTemplatesResp      = bot.ListMyTemplatesResp
+	MentionItem              = bot.MentionItem
+	ParseMentionsReq         = bot.ParseMentionsReq
+	ParseMentionsResp        = bot.ParseMentionsResp
+	PublishBotTemplateReq    = bot.PublishBotTemplateReq
+	PublishBotTemplateResp   = bot.PublishBotTemplateResp
 	RegenerateCredentialReq  = bot.RegenerateCredentialReq
 	RegenerateCredentialResp = bot.RegenerateCredentialResp
 	RetryEventDeliveryReq    = bot.RetryEventDeliveryReq
@@ -69,10 +97,16 @@ type (
 	RotateWebhookSecretResp  = bot.RotateWebhookSecretResp
 	UninstallBotReq          = bot.UninstallBotReq
 	UninstallBotResp         = bot.UninstallBotResp
+	UpdateBotInstanceReq     = bot.UpdateBotInstanceReq
+	UpdateBotInstanceResp    = bot.UpdateBotInstanceResp
 	UpdateBotRateLimitReq    = bot.UpdateBotRateLimitReq
 	UpdateBotRateLimitResp   = bot.UpdateBotRateLimitResp
 	UpdateBotReq             = bot.UpdateBotReq
 	UpdateBotResp            = bot.UpdateBotResp
+	UpdateBotTemplateReq     = bot.UpdateBotTemplateReq
+	UpdateBotTemplateResp    = bot.UpdateBotTemplateResp
+	VerifyBotTokenReq        = bot.VerifyBotTokenReq
+	VerifyBotTokenResp       = bot.VerifyBotTokenResp
 
 	Bot interface {
 		// Developer APIs (user-facing)
@@ -89,10 +123,28 @@ type (
 		RotateWebhookSecret(ctx context.Context, in *RotateWebhookSecretReq, opts ...grpc.CallOption) (*RotateWebhookSecretResp, error)
 		GetEventDeliveries(ctx context.Context, in *GetEventDeliveriesReq, opts ...grpc.CallOption) (*GetEventDeliveriesResp, error)
 		RetryEventDelivery(ctx context.Context, in *RetryEventDeliveryReq, opts ...grpc.CallOption) (*RetryEventDeliveryResp, error)
+		// Template APIs (developer 创建和管理模板)
+		CreateBotTemplate(ctx context.Context, in *CreateBotTemplateReq, opts ...grpc.CallOption) (*CreateBotTemplateResp, error)
+		UpdateBotTemplate(ctx context.Context, in *UpdateBotTemplateReq, opts ...grpc.CallOption) (*UpdateBotTemplateResp, error)
+		DeleteBotTemplate(ctx context.Context, in *DeleteBotTemplateReq, opts ...grpc.CallOption) (*DeleteBotTemplateResp, error)
+		GetBotTemplate(ctx context.Context, in *GetBotTemplateReq, opts ...grpc.CallOption) (*GetBotTemplateResp, error)
+		ListMyTemplates(ctx context.Context, in *ListMyTemplatesReq, opts ...grpc.CallOption) (*ListMyTemplatesResp, error)
+		PublishBotTemplate(ctx context.Context, in *PublishBotTemplateReq, opts ...grpc.CallOption) (*PublishBotTemplateResp, error)
+		// Instance APIs (消费者创建和管理实例)
+		CreateBotInstance(ctx context.Context, in *CreateBotInstanceReq, opts ...grpc.CallOption) (*CreateBotInstanceResp, error)
+		UpdateBotInstance(ctx context.Context, in *UpdateBotInstanceReq, opts ...grpc.CallOption) (*UpdateBotInstanceResp, error)
+		DeleteBotInstance(ctx context.Context, in *DeleteBotInstanceReq, opts ...grpc.CallOption) (*DeleteBotInstanceResp, error)
+		GetBotInstance(ctx context.Context, in *GetBotInstanceReq, opts ...grpc.CallOption) (*GetBotInstanceResp, error)
+		ListMyInstances(ctx context.Context, in *ListMyInstancesReq, opts ...grpc.CallOption) (*ListMyInstancesResp, error)
+		ListHostedInstances(ctx context.Context, in *ListHostedInstancesReq, opts ...grpc.CallOption) (*ListHostedInstancesResp, error)
 		// Installation APIs
 		GetConvBots(ctx context.Context, in *GetConvBotsReq, opts ...grpc.CallOption) (*GetConvBotsResp, error)
 		InstallBot(ctx context.Context, in *InstallBotReq, opts ...grpc.CallOption) (*InstallBotResp, error)
 		UninstallBot(ctx context.Context, in *UninstallBotReq, opts ...grpc.CallOption) (*UninstallBotResp, error)
+		// Bot 消息 & 通信
+		ParseMentions(ctx context.Context, in *ParseMentionsReq, opts ...grpc.CallOption) (*ParseMentionsResp, error)
+		VerifyBotToken(ctx context.Context, in *VerifyBotTokenReq, opts ...grpc.CallOption) (*VerifyBotTokenResp, error)
+		GetBotRuntimeConfig(ctx context.Context, in *GetBotRuntimeConfigReq, opts ...grpc.CallOption) (*GetBotRuntimeConfigResp, error)
 		// Bot APIs (bot 调用 Katheryne)
 		BotGetConv(ctx context.Context, in *BotGetConvReq, opts ...grpc.CallOption) (*BotGetConvResp, error)
 		BotGetConvMembers(ctx context.Context, in *BotGetConvMembersReq, opts ...grpc.CallOption) (*BotGetConvMembersResp, error)
@@ -185,6 +237,68 @@ func (m *defaultBot) RetryEventDelivery(ctx context.Context, in *RetryEventDeliv
 	return client.RetryEventDelivery(ctx, in, opts...)
 }
 
+// Template APIs (developer 创建和管理模板)
+func (m *defaultBot) CreateBotTemplate(ctx context.Context, in *CreateBotTemplateReq, opts ...grpc.CallOption) (*CreateBotTemplateResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.CreateBotTemplate(ctx, in, opts...)
+}
+
+func (m *defaultBot) UpdateBotTemplate(ctx context.Context, in *UpdateBotTemplateReq, opts ...grpc.CallOption) (*UpdateBotTemplateResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.UpdateBotTemplate(ctx, in, opts...)
+}
+
+func (m *defaultBot) DeleteBotTemplate(ctx context.Context, in *DeleteBotTemplateReq, opts ...grpc.CallOption) (*DeleteBotTemplateResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.DeleteBotTemplate(ctx, in, opts...)
+}
+
+func (m *defaultBot) GetBotTemplate(ctx context.Context, in *GetBotTemplateReq, opts ...grpc.CallOption) (*GetBotTemplateResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.GetBotTemplate(ctx, in, opts...)
+}
+
+func (m *defaultBot) ListMyTemplates(ctx context.Context, in *ListMyTemplatesReq, opts ...grpc.CallOption) (*ListMyTemplatesResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.ListMyTemplates(ctx, in, opts...)
+}
+
+func (m *defaultBot) PublishBotTemplate(ctx context.Context, in *PublishBotTemplateReq, opts ...grpc.CallOption) (*PublishBotTemplateResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.PublishBotTemplate(ctx, in, opts...)
+}
+
+// Instance APIs (消费者创建和管理实例)
+func (m *defaultBot) CreateBotInstance(ctx context.Context, in *CreateBotInstanceReq, opts ...grpc.CallOption) (*CreateBotInstanceResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.CreateBotInstance(ctx, in, opts...)
+}
+
+func (m *defaultBot) UpdateBotInstance(ctx context.Context, in *UpdateBotInstanceReq, opts ...grpc.CallOption) (*UpdateBotInstanceResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.UpdateBotInstance(ctx, in, opts...)
+}
+
+func (m *defaultBot) DeleteBotInstance(ctx context.Context, in *DeleteBotInstanceReq, opts ...grpc.CallOption) (*DeleteBotInstanceResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.DeleteBotInstance(ctx, in, opts...)
+}
+
+func (m *defaultBot) GetBotInstance(ctx context.Context, in *GetBotInstanceReq, opts ...grpc.CallOption) (*GetBotInstanceResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.GetBotInstance(ctx, in, opts...)
+}
+
+func (m *defaultBot) ListMyInstances(ctx context.Context, in *ListMyInstancesReq, opts ...grpc.CallOption) (*ListMyInstancesResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.ListMyInstances(ctx, in, opts...)
+}
+
+func (m *defaultBot) ListHostedInstances(ctx context.Context, in *ListHostedInstancesReq, opts ...grpc.CallOption) (*ListHostedInstancesResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.ListHostedInstances(ctx, in, opts...)
+}
+
 // Installation APIs
 func (m *defaultBot) GetConvBots(ctx context.Context, in *GetConvBotsReq, opts ...grpc.CallOption) (*GetConvBotsResp, error) {
 	client := bot.NewBotClient(m.cli.Conn())
@@ -199,6 +313,22 @@ func (m *defaultBot) InstallBot(ctx context.Context, in *InstallBotReq, opts ...
 func (m *defaultBot) UninstallBot(ctx context.Context, in *UninstallBotReq, opts ...grpc.CallOption) (*UninstallBotResp, error) {
 	client := bot.NewBotClient(m.cli.Conn())
 	return client.UninstallBot(ctx, in, opts...)
+}
+
+// Bot 消息 & 通信
+func (m *defaultBot) ParseMentions(ctx context.Context, in *ParseMentionsReq, opts ...grpc.CallOption) (*ParseMentionsResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.ParseMentions(ctx, in, opts...)
+}
+
+func (m *defaultBot) VerifyBotToken(ctx context.Context, in *VerifyBotTokenReq, opts ...grpc.CallOption) (*VerifyBotTokenResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.VerifyBotToken(ctx, in, opts...)
+}
+
+func (m *defaultBot) GetBotRuntimeConfig(ctx context.Context, in *GetBotRuntimeConfigReq, opts ...grpc.CallOption) (*GetBotRuntimeConfigResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.GetBotRuntimeConfig(ctx, in, opts...)
 }
 
 // Bot APIs (bot 调用 Katheryne)

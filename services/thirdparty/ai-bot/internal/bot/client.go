@@ -16,6 +16,8 @@ import (
 
 type MessageHandler interface {
 	HandleEvent(event *types.EventMessage)
+	HandleNewMessage(data json.RawMessage)
+	HandleMentionData(data json.RawMessage)
 	HandleReply(msgID, content string)
 }
 
@@ -28,14 +30,14 @@ type ClientConfig struct {
 }
 
 type Client struct {
-	config        ClientConfig
-	oauth2        *OAuth2Manager
-	conn          *websocket.Conn
-	handler       MessageHandler
-	closed        int32
-	wg            sync.WaitGroup
-	reconnectCh   chan struct{}
-	writeMu       sync.Mutex
+	config      ClientConfig
+	oauth2      *OAuth2Manager
+	conn        *websocket.Conn
+	handler     MessageHandler
+	closed      int32
+	wg          sync.WaitGroup
+	reconnectCh chan struct{}
+	writeMu     sync.Mutex
 }
 
 func NewClient(cfg ClientConfig) *Client {
@@ -132,6 +134,18 @@ func (c *Client) readPump() {
 			}
 			if c.handler != nil {
 				c.handler.HandleEvent(&event)
+			}
+
+		case "new_message":
+			// Wrap new_message data from ws-gateway into EventMessage format
+			if c.handler != nil {
+				c.handler.HandleNewMessage(wsMsg.Data)
+			}
+
+		case "mention":
+			// Wrap mention data from ws-gateway into EventMessage format
+			if c.handler != nil {
+				c.handler.HandleMentionData(wsMsg.Data)
 			}
 
 		case "reply":

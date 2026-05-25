@@ -1,13 +1,11 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"ai-bot/internal/config"
 	"ai-bot/internal/handler"
@@ -28,17 +26,11 @@ func main() {
 
 	ctx := svc.NewServiceContext(c)
 
-	ctx.BotClient.SetHandler(ctx.MsgHandler)
-	ctx.MsgHandler.SetSender(ctx.BotClient)
-
-	if err := ctx.BotClient.Start(); err != nil {
-		logx.Errorf("Failed to start bot WS client: %v", err)
+	if err := ctx.Orchestrator.Start(); err != nil {
+		logx.Errorf("Failed to start orchestrator: %v", err)
 		os.Exit(1)
 	}
-
-	bgCtx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	ctx.MsgHandler.StartCleanup(bgCtx, 10*time.Minute)
+	defer ctx.Orchestrator.Stop()
 
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
@@ -56,8 +48,6 @@ func main() {
 	sig := <-sigCh
 	logx.Infof("Received signal %v, shutting down...", sig)
 
-	cancel()
-	ctx.BotClient.Stop()
 	server.Stop()
 
 	fmt.Println("AI Bot shut down gracefully")

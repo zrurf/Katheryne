@@ -89,6 +89,68 @@ func (s *BotServer) RetryEventDelivery(ctx context.Context, in *bot.RetryEventDe
 	return l.RetryEventDelivery(in)
 }
 
+// Template APIs (developer 创建和管理模板)
+func (s *BotServer) CreateBotTemplate(ctx context.Context, in *bot.CreateBotTemplateReq) (*bot.CreateBotTemplateResp, error) {
+	l := logic.NewCreateBotTemplateLogic(ctx, s.svcCtx)
+	return l.CreateBotTemplate(in)
+}
+
+func (s *BotServer) UpdateBotTemplate(ctx context.Context, in *bot.UpdateBotTemplateReq) (*bot.UpdateBotTemplateResp, error) {
+	l := logic.NewUpdateBotTemplateLogic(ctx, s.svcCtx)
+	return l.UpdateBotTemplate(in)
+}
+
+func (s *BotServer) DeleteBotTemplate(ctx context.Context, in *bot.DeleteBotTemplateReq) (*bot.DeleteBotTemplateResp, error) {
+	l := logic.NewDeleteBotTemplateLogic(ctx, s.svcCtx)
+	return l.DeleteBotTemplate(in)
+}
+
+func (s *BotServer) GetBotTemplate(ctx context.Context, in *bot.GetBotTemplateReq) (*bot.GetBotTemplateResp, error) {
+	l := logic.NewGetBotTemplateLogic(ctx, s.svcCtx)
+	return l.GetBotTemplate(in)
+}
+
+func (s *BotServer) ListMyTemplates(ctx context.Context, in *bot.ListMyTemplatesReq) (*bot.ListMyTemplatesResp, error) {
+	l := logic.NewListMyTemplatesLogic(ctx, s.svcCtx)
+	return l.ListMyTemplates(in)
+}
+
+func (s *BotServer) PublishBotTemplate(ctx context.Context, in *bot.PublishBotTemplateReq) (*bot.PublishBotTemplateResp, error) {
+	l := logic.NewPublishBotTemplateLogic(ctx, s.svcCtx)
+	return l.PublishBotTemplate(in)
+}
+
+// Instance APIs (消费者创建和管理实例)
+func (s *BotServer) CreateBotInstance(ctx context.Context, in *bot.CreateBotInstanceReq) (*bot.CreateBotInstanceResp, error) {
+	l := logic.NewCreateBotInstanceLogic(ctx, s.svcCtx)
+	return l.CreateBotInstance(in)
+}
+
+func (s *BotServer) UpdateBotInstance(ctx context.Context, in *bot.UpdateBotInstanceReq) (*bot.UpdateBotInstanceResp, error) {
+	l := logic.NewUpdateBotInstanceLogic(ctx, s.svcCtx)
+	return l.UpdateBotInstance(in)
+}
+
+func (s *BotServer) DeleteBotInstance(ctx context.Context, in *bot.DeleteBotInstanceReq) (*bot.DeleteBotInstanceResp, error) {
+	l := logic.NewDeleteBotInstanceLogic(ctx, s.svcCtx)
+	return l.DeleteBotInstance(in)
+}
+
+func (s *BotServer) GetBotInstance(ctx context.Context, in *bot.GetBotInstanceReq) (*bot.GetBotInstanceResp, error) {
+	l := logic.NewGetBotInstanceLogic(ctx, s.svcCtx)
+	return l.GetBotInstance(in)
+}
+
+func (s *BotServer) ListMyInstances(ctx context.Context, in *bot.ListMyInstancesReq) (*bot.ListMyInstancesResp, error) {
+	l := logic.NewListMyInstancesLogic(ctx, s.svcCtx)
+	return l.ListMyInstances(in)
+}
+
+func (s *BotServer) ListHostedInstances(ctx context.Context, in *bot.ListHostedInstancesReq) (*bot.ListHostedInstancesResp, error) {
+	l := logic.NewListHostedInstancesLogic(ctx, s.svcCtx)
+	return l.ListHostedInstances(in)
+}
+
 // Installation APIs
 func (s *BotServer) GetConvBots(ctx context.Context, in *bot.GetConvBotsReq) (*bot.GetConvBotsResp, error) {
 	l := logic.NewGetConvBotsLogic(ctx, s.svcCtx)
@@ -103,6 +165,22 @@ func (s *BotServer) InstallBot(ctx context.Context, in *bot.InstallBotReq) (*bot
 func (s *BotServer) UninstallBot(ctx context.Context, in *bot.UninstallBotReq) (*bot.UninstallBotResp, error) {
 	l := logic.NewUninstallBotLogic(ctx, s.svcCtx)
 	return l.UninstallBot(in)
+}
+
+// Bot 消息 & 通信
+func (s *BotServer) ParseMentions(ctx context.Context, in *bot.ParseMentionsReq) (*bot.ParseMentionsResp, error) {
+	l := logic.NewParseMentionsLogic(ctx, s.svcCtx)
+	return l.ParseMentions(in)
+}
+
+func (s *BotServer) VerifyBotToken(ctx context.Context, in *bot.VerifyBotTokenReq) (*bot.VerifyBotTokenResp, error) {
+	l := logic.NewVerifyBotTokenLogic(ctx, s.svcCtx)
+	return l.VerifyBotToken(in)
+}
+
+func (s *BotServer) GetBotRuntimeConfig(ctx context.Context, in *bot.GetBotRuntimeConfigReq) (*bot.GetBotRuntimeConfigResp, error) {
+	l := logic.NewGetBotRuntimeConfigLogic(ctx, s.svcCtx)
+	return l.GetBotRuntimeConfig(in)
 }
 
 // Bot APIs (bot 调用 Katheryne)
