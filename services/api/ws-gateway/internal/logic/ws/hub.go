@@ -192,6 +192,10 @@ func (h *Hub) handleBroadcast(msg *BroadcastMsg) {
 		}
 	}
 
+	// Log broadcast for bot mention routing diagnostics
+	logx.Infof("handleBroadcast: msgId=%d, convId=%d, sender=%d, receiver=%d, contentType=%s, contentPrefix=%.40s",
+		msg.MsgId, msg.ConvId, msg.Sender, msg.Receiver, msg.ContentType, msg.Content)
+
 	push := &NewMessagePush{
 		MsgId:        strconv.FormatInt(msg.MsgId, 10),
 		ConvId:       strconv.FormatInt(msg.ConvId, 10),
@@ -262,14 +266,6 @@ func (h *Hub) handleBroadcast(msg *BroadcastMsg) {
 				}
 			}
 		}
-		if bots, ok := h.botClients[uid]; ok {
-			for b := range bots {
-				select {
-				case b.send <- data:
-				default:
-				}
-			}
-		}
 	}
 
 	// Route @mentions to specific bots installed in the conversation
@@ -288,6 +284,9 @@ func (h *Hub) routeBotMentions(msg *BroadcastMsg, senderName, senderAvatar strin
 	if len(matches) == 0 {
 		return
 	}
+
+	logx.Infof("routeBotMentions: found %d mention(s) in msg %d (conv=%d, content_type=%s, sender=%d)",
+		len(matches), msg.MsgId, msg.ConvId, msg.ContentType, msg.Sender)
 
 	// Get installed bots in this conversation for validation
 	var installedBots map[int64]bool
@@ -311,7 +310,7 @@ func (h *Hub) routeBotMentions(msg *BroadcastMsg, senderName, senderAvatar strin
 	mentionedBots := make(map[int64]bool)
 
 	for _, m := range matches {
-		if len(m) < 8 {
+		if len(m) < 4 {
 			continue
 		}
 		if m[1] != "bot" {
@@ -330,8 +329,9 @@ func (h *Hub) routeBotMentions(msg *BroadcastMsg, senderName, senderAvatar strin
 		}
 		mentionedBots[botID] = true
 
-		// Validate bot installation in the conversation
-		if installedBots != nil && !installedBots[botID] {
+		// Only validate bot installation when we positively know the installed bots list.
+		// If GetConvBots was never called (nil) or returned empty, allow mentions through.
+		if len(installedBots) > 0 && !installedBots[botID] {
 			logx.Infof("bot %d mentioned but not installed in conv %d, skipping mention event", botID, msg.ConvId)
 			continue
 		}
@@ -348,6 +348,8 @@ func (h *Hub) sendMentionEvent(botID int64, msg *BroadcastMsg, senderName, sende
 	h.mu.RUnlock()
 
 	if !ok || len(botClients) == 0 {
+		logx.Infof("mention event DROPPED: bot %d not connected to ws-gateway (conv=%d, msg=%d, mentioned as %q)",
+			botID, msg.ConvId, msg.MsgId, displayName)
 		return
 	}
 

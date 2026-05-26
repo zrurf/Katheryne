@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"strconv"
 
 	"bot/botclient"
 	"gateway/internal/svc"
@@ -26,9 +27,10 @@ func NewUpdateBotTemplateLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 
 func (l *UpdateBotTemplateLogic) UpdateBotTemplate(req *types.UpdateBotTemplateReq) (resp *types.UpdateBotTemplateResp, err error) {
 	uid := l.ctx.Value("uid").(int64)
+	templateId, _ := strconv.ParseInt(req.TemplateId, 10, 64)
 	_, err = l.svcCtx.BotRpc.UpdateBotTemplate(l.ctx, &botclient.UpdateBotTemplateReq{
 		Uid:               uid,
-		TemplateId:        req.TemplateId,
+		TemplateId:        templateId,
 		Name:              req.Name,
 		Avatar:            req.Avatar,
 		Description:       req.Description,

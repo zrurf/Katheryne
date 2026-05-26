@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"strconv"
 
 	"bot/botclient"
 	"gateway/internal/svc"
@@ -25,8 +26,9 @@ func NewGetBotTemplateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 }
 
 func (l *GetBotTemplateLogic) GetBotTemplate(req *types.GetBotTemplateReq) (resp *types.GetBotTemplateResp, err error) {
+	templateId, _ := strconv.ParseInt(req.TemplateId, 10, 64)
 	result, err := l.svcCtx.BotRpc.GetBotTemplate(l.ctx, &botclient.GetBotTemplateReq{
-		TemplateId: req.TemplateId,
+		TemplateId: templateId,
 	})
 	if err != nil {
 		return nil, err

@@ -91,6 +91,8 @@ type (
 	PublishBotTemplateResp   = bot.PublishBotTemplateResp
 	RegenerateCredentialReq  = bot.RegenerateCredentialReq
 	RegenerateCredentialResp = bot.RegenerateCredentialResp
+	ResolveBotCredentialReq  = bot.ResolveBotCredentialReq
+	ResolveBotCredentialResp = bot.ResolveBotCredentialResp
 	RetryEventDeliveryReq    = bot.RetryEventDeliveryReq
 	RetryEventDeliveryResp   = bot.RetryEventDeliveryResp
 	RotateWebhookSecretReq   = bot.RotateWebhookSecretReq
@@ -158,6 +160,7 @@ type (
 		Authorize(ctx context.Context, in *AuthorizeReq, opts ...grpc.CallOption) (*AuthorizeResp, error)
 		ApproveAuthorize(ctx context.Context, in *ApproveAuthorizeReq, opts ...grpc.CallOption) (*ApproveAuthorizeResp, error)
 		BotToken(ctx context.Context, in *BotTokenReq, opts ...grpc.CallOption) (*BotTokenResp, error)
+		ResolveBotCredential(ctx context.Context, in *ResolveBotCredentialReq, opts ...grpc.CallOption) (*ResolveBotCredentialResp, error)
 	}
 
 	defaultBot struct {
@@ -386,4 +389,9 @@ func (m *defaultBot) ApproveAuthorize(ctx context.Context, in *ApproveAuthorizeR
 func (m *defaultBot) BotToken(ctx context.Context, in *BotTokenReq, opts ...grpc.CallOption) (*BotTokenResp, error) {
 	client := bot.NewBotClient(m.cli.Conn())
 	return client.BotToken(ctx, in, opts...)
+}
+
+func (m *defaultBot) ResolveBotCredential(ctx context.Context, in *ResolveBotCredentialReq, opts ...grpc.CallOption) (*ResolveBotCredentialResp, error) {
+	client := bot.NewBotClient(m.cli.Conn())
+	return client.ResolveBotCredential(ctx, in, opts...)
 }

@@ -15,6 +15,7 @@ type Config struct {
 	LLM              LLMConfig
 	RagRpc           zrpc.RpcClientConf
 	BotRpc           zrpc.RpcClientConf
+	MemRpc           zrpc.RpcClientConf
 }
 
 type LLMConfig struct {

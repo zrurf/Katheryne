@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"strconv"
 
 	"bot/botclient"
 	"gateway/internal/svc"
@@ -45,6 +46,6 @@ func (l *CreateBotTemplateLogic) CreateBotTemplate(req *types.CreateBotTemplateR
 		return nil, err
 	}
 	return &types.CreateBotTemplateResp{
-		TemplateId: result.TemplateId,
+		TemplateId: strconv.FormatInt(result.TemplateId, 10),
 	}, nil
 }

@@ -6128,6 +6128,94 @@ func (x *BotTokenResp) GetBotId() int64 {
 	return 0
 }
 
+type ResolveBotCredentialReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientId      string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResolveBotCredentialReq) Reset() {
+	*x = ResolveBotCredentialReq{}
+	mi := &file_bot_proto_msgTypes[93]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResolveBotCredentialReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResolveBotCredentialReq) ProtoMessage() {}
+
+func (x *ResolveBotCredentialReq) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[93]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResolveBotCredentialReq.ProtoReflect.Descriptor instead.
+func (*ResolveBotCredentialReq) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{93}
+}
+
+func (x *ResolveBotCredentialReq) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+type ResolveBotCredentialResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BotId         int64                  `protobuf:"varint,1,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResolveBotCredentialResp) Reset() {
+	*x = ResolveBotCredentialResp{}
+	mi := &file_bot_proto_msgTypes[94]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResolveBotCredentialResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResolveBotCredentialResp) ProtoMessage() {}
+
+func (x *ResolveBotCredentialResp) ProtoReflect() protoreflect.Message {
+	mi := &file_bot_proto_msgTypes[94]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResolveBotCredentialResp.ProtoReflect.Descriptor instead.
+func (*ResolveBotCredentialResp) Descriptor() ([]byte, []int) {
+	return file_bot_proto_rawDescGZIP(), []int{94}
+}
+
+func (x *ResolveBotCredentialResp) GetBotId() int64 {
+	if x != nil {
+		return x.BotId
+	}
+	return 0
+}
+
 var File_bot_proto protoreflect.FileDescriptor
 
 const file_bot_proto_rawDesc = "" +
@@ -6635,7 +6723,11 @@ const file_bot_proto_rawDesc = "" +
 	"\n" +
 	"expires_in\x18\x04 \x01(\x03R\texpiresIn\x12#\n" +
 	"\rrefresh_token\x18\x05 \x01(\tR\frefreshToken\x12\x15\n" +
-	"\x06bot_id\x18\x06 \x01(\x03R\x05botId2\x83\x16\n" +
+	"\x06bot_id\x18\x06 \x01(\x03R\x05botId\"6\n" +
+	"\x17ResolveBotCredentialReq\x12\x1b\n" +
+	"\tclient_id\x18\x01 \x01(\tR\bclientId\"1\n" +
+	"\x18ResolveBotCredentialResp\x12\x15\n" +
+	"\x06bot_id\x18\x01 \x01(\x03R\x05botId2\xd8\x16\n" +
 	"\x03bot\x122\n" +
 	"\tCreateBot\x12\x11.bot.CreateBotReq\x1a\x12.bot.CreateBotResp\x125\n" +
 	"\n" +
@@ -6683,7 +6775,8 @@ const file_bot_proto_rawDesc = "" +
 	"BotGetUser\x12\x12.bot.BotGetUserReq\x1a\x13.bot.BotGetUserResp\x122\n" +
 	"\tAuthorize\x12\x11.bot.AuthorizeReq\x1a\x12.bot.AuthorizeResp\x12G\n" +
 	"\x10ApproveAuthorize\x12\x18.bot.ApproveAuthorizeReq\x1a\x19.bot.ApproveAuthorizeResp\x12/\n" +
-	"\bBotToken\x12\x10.bot.BotTokenReq\x1a\x11.bot.BotTokenRespB\aZ\x05./botb\x06proto3"
+	"\bBotToken\x12\x10.bot.BotTokenReq\x1a\x11.bot.BotTokenResp\x12S\n" +
+	"\x14ResolveBotCredential\x12\x1c.bot.ResolveBotCredentialReq\x1a\x1d.bot.ResolveBotCredentialRespB\aZ\x05./botb\x06proto3"
 
 var (
 	file_bot_proto_rawDescOnce sync.Once
@@ -6697,7 +6790,7 @@ func file_bot_proto_rawDescGZIP() []byte {
 	return file_bot_proto_rawDescData
 }
 
-var file_bot_proto_msgTypes = make([]protoimpl.MessageInfo, 93)
+var file_bot_proto_msgTypes = make([]protoimpl.MessageInfo, 95)
 var file_bot_proto_goTypes = []any{
 	(*BotInfo)(nil),                  // 0: bot.BotInfo
 	(*BotInstallationItem)(nil),      // 1: bot.BotInstallationItem
@@ -6792,6 +6885,8 @@ var file_bot_proto_goTypes = []any{
 	(*ApproveAuthorizeResp)(nil),     // 90: bot.ApproveAuthorizeResp
 	(*BotTokenReq)(nil),              // 91: bot.BotTokenReq
 	(*BotTokenResp)(nil),             // 92: bot.BotTokenResp
+	(*ResolveBotCredentialReq)(nil),  // 93: bot.ResolveBotCredentialReq
+	(*ResolveBotCredentialResp)(nil), // 94: bot.ResolveBotCredentialResp
 }
 var file_bot_proto_depIdxs = []int32{
 	0,  // 0: bot.ListMyBotsResp.list:type_name -> bot.BotInfo
@@ -6852,50 +6947,52 @@ var file_bot_proto_depIdxs = []int32{
 	87, // 55: bot.bot.Authorize:input_type -> bot.AuthorizeReq
 	89, // 56: bot.bot.ApproveAuthorize:input_type -> bot.ApproveAuthorizeReq
 	91, // 57: bot.bot.BotToken:input_type -> bot.BotTokenReq
-	4,  // 58: bot.bot.CreateBot:output_type -> bot.CreateBotResp
-	6,  // 59: bot.bot.ListMyBots:output_type -> bot.ListMyBotsResp
-	62, // 60: bot.bot.ListCommunityBots:output_type -> bot.ListCommunityBotsResp
-	8,  // 61: bot.bot.GetBot:output_type -> bot.GetBotResp
-	10, // 62: bot.bot.UpdateBot:output_type -> bot.UpdateBotResp
-	12, // 63: bot.bot.DeleteBot:output_type -> bot.DeleteBotResp
-	14, // 64: bot.bot.GetBotInstallations:output_type -> bot.GetBotInstallationsResp
-	16, // 65: bot.bot.GetBotRateLimit:output_type -> bot.GetBotRateLimitResp
-	18, // 66: bot.bot.UpdateBotRateLimit:output_type -> bot.UpdateBotRateLimitResp
-	20, // 67: bot.bot.RegenerateCredential:output_type -> bot.RegenerateCredentialResp
-	22, // 68: bot.bot.RotateWebhookSecret:output_type -> bot.RotateWebhookSecretResp
-	25, // 69: bot.bot.GetEventDeliveries:output_type -> bot.GetEventDeliveriesResp
-	27, // 70: bot.bot.RetryEventDelivery:output_type -> bot.RetryEventDeliveryResp
-	36, // 71: bot.bot.CreateBotTemplate:output_type -> bot.CreateBotTemplateResp
-	38, // 72: bot.bot.UpdateBotTemplate:output_type -> bot.UpdateBotTemplateResp
-	40, // 73: bot.bot.DeleteBotTemplate:output_type -> bot.DeleteBotTemplateResp
-	42, // 74: bot.bot.GetBotTemplate:output_type -> bot.GetBotTemplateResp
-	44, // 75: bot.bot.ListMyTemplates:output_type -> bot.ListMyTemplatesResp
-	46, // 76: bot.bot.PublishBotTemplate:output_type -> bot.PublishBotTemplateResp
-	49, // 77: bot.bot.CreateBotInstance:output_type -> bot.CreateBotInstanceResp
-	51, // 78: bot.bot.UpdateBotInstance:output_type -> bot.UpdateBotInstanceResp
-	53, // 79: bot.bot.DeleteBotInstance:output_type -> bot.DeleteBotInstanceResp
-	55, // 80: bot.bot.GetBotInstance:output_type -> bot.GetBotInstanceResp
-	57, // 81: bot.bot.ListMyInstances:output_type -> bot.ListMyInstancesResp
-	59, // 82: bot.bot.ListHostedInstances:output_type -> bot.ListHostedInstancesResp
-	29, // 83: bot.bot.GetConvBots:output_type -> bot.GetConvBotsResp
-	31, // 84: bot.bot.InstallBot:output_type -> bot.InstallBotResp
-	33, // 85: bot.bot.UninstallBot:output_type -> bot.UninstallBotResp
-	65, // 86: bot.bot.ParseMentions:output_type -> bot.ParseMentionsResp
-	67, // 87: bot.bot.VerifyBotToken:output_type -> bot.VerifyBotTokenResp
-	69, // 88: bot.bot.GetBotRuntimeConfig:output_type -> bot.GetBotRuntimeConfigResp
-	71, // 89: bot.bot.BotGetConv:output_type -> bot.BotGetConvResp
-	74, // 90: bot.bot.BotGetConvMembers:output_type -> bot.BotGetConvMembersResp
-	76, // 91: bot.bot.BotGetMsg:output_type -> bot.BotGetMsgResp
-	78, // 92: bot.bot.BotSendMsg:output_type -> bot.BotSendMsgResp
-	80, // 93: bot.bot.BotRecallMsg:output_type -> bot.BotRecallMsgResp
-	82, // 94: bot.bot.BotReplyMsg:output_type -> bot.BotReplyMsgResp
-	84, // 95: bot.bot.BotUploadFile:output_type -> bot.BotUploadFileResp
-	86, // 96: bot.bot.BotGetUser:output_type -> bot.BotGetUserResp
-	88, // 97: bot.bot.Authorize:output_type -> bot.AuthorizeResp
-	90, // 98: bot.bot.ApproveAuthorize:output_type -> bot.ApproveAuthorizeResp
-	92, // 99: bot.bot.BotToken:output_type -> bot.BotTokenResp
-	58, // [58:100] is the sub-list for method output_type
-	16, // [16:58] is the sub-list for method input_type
+	93, // 58: bot.bot.ResolveBotCredential:input_type -> bot.ResolveBotCredentialReq
+	4,  // 59: bot.bot.CreateBot:output_type -> bot.CreateBotResp
+	6,  // 60: bot.bot.ListMyBots:output_type -> bot.ListMyBotsResp
+	62, // 61: bot.bot.ListCommunityBots:output_type -> bot.ListCommunityBotsResp
+	8,  // 62: bot.bot.GetBot:output_type -> bot.GetBotResp
+	10, // 63: bot.bot.UpdateBot:output_type -> bot.UpdateBotResp
+	12, // 64: bot.bot.DeleteBot:output_type -> bot.DeleteBotResp
+	14, // 65: bot.bot.GetBotInstallations:output_type -> bot.GetBotInstallationsResp
+	16, // 66: bot.bot.GetBotRateLimit:output_type -> bot.GetBotRateLimitResp
+	18, // 67: bot.bot.UpdateBotRateLimit:output_type -> bot.UpdateBotRateLimitResp
+	20, // 68: bot.bot.RegenerateCredential:output_type -> bot.RegenerateCredentialResp
+	22, // 69: bot.bot.RotateWebhookSecret:output_type -> bot.RotateWebhookSecretResp
+	25, // 70: bot.bot.GetEventDeliveries:output_type -> bot.GetEventDeliveriesResp
+	27, // 71: bot.bot.RetryEventDelivery:output_type -> bot.RetryEventDeliveryResp
+	36, // 72: bot.bot.CreateBotTemplate:output_type -> bot.CreateBotTemplateResp
+	38, // 73: bot.bot.UpdateBotTemplate:output_type -> bot.UpdateBotTemplateResp
+	40, // 74: bot.bot.DeleteBotTemplate:output_type -> bot.DeleteBotTemplateResp
+	42, // 75: bot.bot.GetBotTemplate:output_type -> bot.GetBotTemplateResp
+	44, // 76: bot.bot.ListMyTemplates:output_type -> bot.ListMyTemplatesResp
+	46, // 77: bot.bot.PublishBotTemplate:output_type -> bot.PublishBotTemplateResp
+	49, // 78: bot.bot.CreateBotInstance:output_type -> bot.CreateBotInstanceResp
+	51, // 79: bot.bot.UpdateBotInstance:output_type -> bot.UpdateBotInstanceResp
+	53, // 80: bot.bot.DeleteBotInstance:output_type -> bot.DeleteBotInstanceResp
+	55, // 81: bot.bot.GetBotInstance:output_type -> bot.GetBotInstanceResp
+	57, // 82: bot.bot.ListMyInstances:output_type -> bot.ListMyInstancesResp
+	59, // 83: bot.bot.ListHostedInstances:output_type -> bot.ListHostedInstancesResp
+	29, // 84: bot.bot.GetConvBots:output_type -> bot.GetConvBotsResp
+	31, // 85: bot.bot.InstallBot:output_type -> bot.InstallBotResp
+	33, // 86: bot.bot.UninstallBot:output_type -> bot.UninstallBotResp
+	65, // 87: bot.bot.ParseMentions:output_type -> bot.ParseMentionsResp
+	67, // 88: bot.bot.VerifyBotToken:output_type -> bot.VerifyBotTokenResp
+	69, // 89: bot.bot.GetBotRuntimeConfig:output_type -> bot.GetBotRuntimeConfigResp
+	71, // 90: bot.bot.BotGetConv:output_type -> bot.BotGetConvResp
+	74, // 91: bot.bot.BotGetConvMembers:output_type -> bot.BotGetConvMembersResp
+	76, // 92: bot.bot.BotGetMsg:output_type -> bot.BotGetMsgResp
+	78, // 93: bot.bot.BotSendMsg:output_type -> bot.BotSendMsgResp
+	80, // 94: bot.bot.BotRecallMsg:output_type -> bot.BotRecallMsgResp
+	82, // 95: bot.bot.BotReplyMsg:output_type -> bot.BotReplyMsgResp
+	84, // 96: bot.bot.BotUploadFile:output_type -> bot.BotUploadFileResp
+	86, // 97: bot.bot.BotGetUser:output_type -> bot.BotGetUserResp
+	88, // 98: bot.bot.Authorize:output_type -> bot.AuthorizeResp
+	90, // 99: bot.bot.ApproveAuthorize:output_type -> bot.ApproveAuthorizeResp
+	92, // 100: bot.bot.BotToken:output_type -> bot.BotTokenResp
+	94, // 101: bot.bot.ResolveBotCredential:output_type -> bot.ResolveBotCredentialResp
+	59, // [59:102] is the sub-list for method output_type
+	16, // [16:59] is the sub-list for method input_type
 	16, // [16:16] is the sub-list for extension type_name
 	16, // [16:16] is the sub-list for extension extendee
 	0,  // [0:16] is the sub-list for field type_name
@@ -6912,7 +7009,7 @@ func file_bot_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_bot_proto_rawDesc), len(file_bot_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   93,
+			NumMessages:   95,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

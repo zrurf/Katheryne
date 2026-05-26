@@ -2,6 +2,7 @@ package orchestrator
 
 import (
 	"context"
+	"mem/memclient"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -31,6 +32,7 @@ type OrchestratorConfig struct {
 	ClientSecret string
 	RagClient    ragclient.Rag
 	BotRpcClient botclient.Bot
+	MemClient    memclient.Mem
 	DefaultLLM   LLMDefaults
 }
 
@@ -211,6 +213,7 @@ func (o *Orchestrator) startInstance(botID int64) error {
 	// Build MessageHandler with instance-specific config
 	handlerCfg := logic.HandlerConfig{
 		RagClient: o.config.RagClient,
+		MemClient: o.config.MemClient,
 		KBIDs:     cfg.KBIDs,
 	}
 	handlerCfg.LLMProvider = cfg.ModelProvider

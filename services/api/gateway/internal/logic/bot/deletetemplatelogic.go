@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"strconv"
 
 	"bot/botclient"
 	"gateway/internal/svc"
@@ -26,9 +27,10 @@ func NewDeleteBotTemplateLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 
 func (l *DeleteBotTemplateLogic) DeleteBotTemplate(req *types.DeleteBotTemplateReq) (resp *types.DeleteBotTemplateResp, err error) {
 	uid := l.ctx.Value("uid").(int64)
+	templateId, _ := strconv.ParseInt(req.TemplateId, 10, 64)
 	_, err = l.svcCtx.BotRpc.DeleteBotTemplate(l.ctx, &botclient.DeleteBotTemplateReq{
 		Uid:        uid,
-		TemplateId: req.TemplateId,
+		TemplateId: templateId,
 	})
 	if err != nil {
 		return nil, err

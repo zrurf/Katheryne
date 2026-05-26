@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"ai-bot/internal/types"
+	mempb "mem/mem/mem"
+	"mem/memclient"
 	"rag/ragclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -23,6 +25,7 @@ type HandlerConfig struct {
 	LLMMaxTokens   int
 	LLMTemperature float64
 	RagClient      ragclient.Rag
+	MemClient      memclient.Mem
 	KBIDs          []string // Authorized knowledge base IDs for this bot instance
 }
 
@@ -185,7 +188,16 @@ func (h *MessageHandler) HandleMentionData(data json.RawMessage) {
 			}
 		}()
 
-		reply, err := h.engine.Chat(messages, systemPrompt)
+		ctx := context.Background()
+
+		// Recall relevant memories
+		memCtx := h.recallMemories(ctx, convID, prompt)
+		finalPrompt := systemPrompt
+		if memCtx != "" {
+			finalPrompt = finalPrompt + "\n\n" + memCtx
+		}
+
+		reply, err := h.engine.Chat(messages, finalPrompt)
 		if err != nil {
 			logx.Errorf("AI chat failed in handleMentionData: %v", err)
 			h.sendTextMessage(convID, "抱歉，我暂时无法回答你的问题，请稍后再试。")
@@ -199,6 +211,9 @@ func (h *MessageHandler) HandleMentionData(data json.RawMessage) {
 			Role:    "assistant",
 			Content: reply,
 		})
+
+		// Save to memory service
+		h.saveMemory(ctx, convID, mentionEvt.SenderName, prompt, reply)
 	}()
 }
 
@@ -278,7 +293,16 @@ func (h *MessageHandler) handleAtBot(event *types.MessageCreateEvent, content st
 			}
 		}()
 
-		reply, err := h.engine.Chat(messages, systemPrompt)
+		ctx := context.Background()
+
+		// Recall relevant memories
+		memCtx := h.recallMemories(ctx, convID, prompt)
+		finalPrompt := systemPrompt
+		if memCtx != "" {
+			finalPrompt = finalPrompt + "\n\n" + memCtx
+		}
+
+		reply, err := h.engine.Chat(messages, finalPrompt)
 		if err != nil {
 			logx.Errorf("AI chat failed in handleAtBot: %v", err)
 			h.sendTextMessage(convID, "抱歉，我暂时无法回答你的问题，请稍后再试。")
@@ -292,6 +316,9 @@ func (h *MessageHandler) handleAtBot(event *types.MessageCreateEvent, content st
 			Role:    "assistant",
 			Content: reply,
 		})
+
+		// Save to memory service
+		h.saveMemory(ctx, convID, event.SenderName, prompt, reply)
 	}()
 }
 
@@ -329,7 +356,16 @@ func (h *MessageHandler) handleMention(event *types.EventMessage) {
 			}
 		}()
 
-		reply, err := h.engine.Chat(messages, systemPrompt)
+		ctx := context.Background()
+
+		// Recall relevant memories
+		memCtx := h.recallMemories(ctx, convID, prompt)
+		finalPrompt := systemPrompt
+		if memCtx != "" {
+			finalPrompt = finalPrompt + "\n\n" + memCtx
+		}
+
+		reply, err := h.engine.Chat(messages, finalPrompt)
 		if err != nil {
 			logx.Errorf("AI chat failed: %v", err)
 			h.sendTextMessage(convID, "抱歉，我暂时无法回答你的问题，请稍后再试。")
@@ -345,7 +381,73 @@ func (h *MessageHandler) handleMention(event *types.EventMessage) {
 			Role:    "assistant",
 			Content: reply,
 		})
+
+		// Save to memory service
+		h.saveMemory(ctx, convID, mention.SenderName, prompt, reply)
 	}()
+}
+
+// recallMemories searches the memory service for relevant context before LLM calls.
+// Returns formatted memory context to inject into the system prompt.
+func (h *MessageHandler) recallMemories(ctx context.Context, convID, userMessage string) string {
+	if h.config.MemClient == nil {
+		return ""
+	}
+
+	resp, err := h.config.MemClient.SearchMemories(ctx, &memclient.SearchMemoriesReq{
+		TenantId:      convID,
+		TenantType:    "conversation",
+		Query:         userMessage,
+		TopK:          5,
+		MinImportance: 0.2,
+	})
+	if err != nil {
+		logx.Debugf("recall memories failed: %v", err)
+		return ""
+	}
+
+	if len(resp.Results) == 0 {
+		return ""
+	}
+
+	var sb strings.Builder
+	sb.WriteString("## 从历史记忆中召回的上下文\n")
+	sb.WriteString("以下是关于此对话的历史记忆，请参考这些信息：\n")
+	for i, r := range resp.Results {
+		if r.Memory == nil {
+			continue
+		}
+		sb.WriteString(fmt.Sprintf("%d. %s\n", i+1, r.Memory.Content))
+	}
+
+	return sb.String()
+}
+
+// saveMemory stores conversation exchanges as memories for future recall.
+func (h *MessageHandler) saveMemory(ctx context.Context, convID, senderName, userMsg, botReply string) {
+	if h.config.MemClient == nil {
+		return
+	}
+
+	// Save user message as event memory
+	_, _ = h.config.MemClient.AddMemory(ctx, &memclient.AddMemoryReq{
+		TenantId:   convID,
+		TenantType: "conversation",
+		Type:       mempb.MemoryType_EVENT,
+		Content:    senderName + ": " + userMsg,
+		Importance: 0.4,
+		Metadata:   map[string]string{"sender": senderName, "role": "user"},
+	})
+
+	// Save bot response as event memory
+	_, _ = h.config.MemClient.AddMemory(ctx, &memclient.AddMemoryReq{
+		TenantId:   convID,
+		TenantType: "conversation",
+		Type:       mempb.MemoryType_EVENT,
+		Content:    "Katheryne: " + botReply,
+		Importance: 0.4,
+		Metadata:   map[string]string{"sender": "bot", "role": "assistant"},
+	})
 }
 
 // buildSystemPrompt constructs a triple-layer system prompt.
@@ -400,7 +502,10 @@ func (h *MessageHandler) buildSystemPrompt() string {
 	sb.WriteString("- 语言要简洁但亲切。避免过于正式或机械化的表述。\n")
 	sb.WriteString("- 可以适当地使用表情符号和 Markdown 格式。\n")
 	sb.WriteString("- 在生成较长的回复时，使用自然的段落分隔符。\n")
-	sb.WriteString("- 若不了解某些内容，应诚实地承认，而非编造信息。\n")
+	sb.WriteString("- 若不了解某些内容，应诚实地承认，而非编造信息。\n\n")
+	sb.WriteString("- 【重要】长回复请拆成多段自然段落，每段末尾不要使用句号/句点。\n")
+	sb.WriteString("- 【重要】像真人一样说话：短句为主，偶尔加个表情（😊🤔😄😅😂👍✨💡），偶尔发\"嗯\"\"哈哈\"\"懂了\"之类的独立短句。\n")
+	sb.WriteString("- 【重要】不用每句都打句号，像聊天一样自然。可以用换行代替句号。\n")
 
 	return sb.String()
 }
@@ -417,17 +522,16 @@ func stripMention(content, mentionName string) string {
 // sendMultiMessage splits a long response into multiple natural parts and sends them
 // with small delays to simulate human-like typing behavior.
 func (h *MessageHandler) sendMultiMessage(convID, reply string) {
-	parts := splitNaturalBreaks(reply, 500, 2000)
-	if len(parts) <= 1 {
+	segments := HumanizeChat(reply)
+	if len(segments) == 0 {
 		h.sendTextMessage(convID, reply)
 		return
 	}
 
-	for i, part := range parts {
-		h.sendTextMessage(convID, part)
-		if i < len(parts)-1 {
-			// Small delay between messages to feel natural
-			time.Sleep(time.Duration(800+len(part)/10) * time.Millisecond)
+	for _, seg := range segments {
+		h.sendTextMessage(convID, seg.Text)
+		if seg.DelayMs > 0 {
+			time.Sleep(time.Duration(seg.DelayMs) * time.Millisecond)
 		}
 	}
 }

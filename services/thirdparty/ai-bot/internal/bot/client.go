@@ -83,7 +83,56 @@ func (c *Client) connect() error {
 	}
 	c.conn = conn
 
-	logx.Infof("AI Bot connected to WS gateway")
+	// Step 1: Read hello from ws-gateway
+	conn.SetReadDeadline(time.Now().Add(15 * time.Second))
+	_, helloData, err := conn.ReadMessage()
+	if err != nil {
+		conn.Close()
+		return fmt.Errorf("read hello: %w", err)
+	}
+	var helloMsg types.WSMessage
+	if err := json.Unmarshal(helloData, &helloMsg); err != nil {
+		conn.Close()
+		return fmt.Errorf("unmarshal hello: %w", err)
+	}
+	if helloMsg.Type != "hello" {
+		conn.Close()
+		return fmt.Errorf("expected hello, got: %s", helloMsg.Type)
+	}
+	logx.Infof("AI Bot received hello from WS gateway")
+
+	// Step 2: Send identify with access token
+	identify := &types.WSMessage{
+		Type: "identify",
+	}
+	identifyData := map[string]string{"token": token}
+	identifyBytes, _ := json.Marshal(identifyData)
+	identify.Data = identifyBytes
+
+	conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	if err := conn.WriteJSON(identify); err != nil {
+		conn.Close()
+		return fmt.Errorf("send identify: %w", err)
+	}
+	logx.Infof("AI Bot sent identify to WS gateway")
+
+	// Step 3: Read ready from ws-gateway
+	conn.SetReadDeadline(time.Now().Add(15 * time.Second))
+	_, readyData, err := conn.ReadMessage()
+	if err != nil {
+		conn.Close()
+		return fmt.Errorf("read ready: %w", err)
+	}
+	var readyMsg types.WSMessage
+	if err := json.Unmarshal(readyData, &readyMsg); err != nil {
+		conn.Close()
+		return fmt.Errorf("unmarshal ready: %w", err)
+	}
+	if readyMsg.Type != "ready" {
+		conn.Close()
+		return fmt.Errorf("expected ready, got: %s", readyMsg.Type)
+	}
+	logx.Infof("AI Bot received ready from WS gateway (handshake complete)")
 
 	c.wg.Add(2)
 	go c.readPump()

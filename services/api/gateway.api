@@ -887,11 +887,27 @@ type (
 		Total int64     `json:"total"`
 	}
 	// ListCommunityBots
+	CommunityBotItem {
+		Type           string   `json:"type"`
+		InstanceId     string   `json:"instance_id,optional"`
+		BotId          string   `json:"bot_id,optional"`
+		Name           string   `json:"name"`
+		Avatar         string   `json:"avatar,optional"`
+		Description    string   `json:"description,optional"`
+		HostedBy       string   `json:"hosted_by,optional"`
+		InstalledCount int64    `json:"installed_count,optional"`
+		Status         string   `json:"status,optional"`
+		TemplateId     string   `json:"template_id,optional"`
+		Category       string   `json:"category,optional"`
+		Tags           []string `json:"tags,optional"`
+		IsOfficial     bool     `json:"is_official"`
+	}
 	ListCommunityBotsReq {
 		Keyword string `form:"keyword,optional"`
 	}
 	ListCommunityBotsResp {
-		List []BotItem `json:"list"`
+		HostedBots []CommunityBotItem `json:"hosted_bots"`
+		Templates  []CommunityBotItem `json:"templates"`
 	}
 	// GetBot
 	GetBotReq {
@@ -933,7 +949,7 @@ type (
 		Size  int    `form:"size,default=20"`
 	}
 	InstallationItem {
-		InstId      int64    `json:"inst_id"`
+		InstId      string   `json:"inst_id"`
 		BotId       string   `json:"bot_id"`
 		BotName     string   `json:"bot_name"`
 		ConvId      string   `json:"conv_id"`
@@ -1015,7 +1031,7 @@ type (
 		ConvId string `path:"conv_id"`
 	}
 	InstalledBotItem {
-		InstId      int64    `json:"inst_id"`
+		InstId      string   `json:"inst_id"`
 		BotId       string   `json:"bot_id"`
 		Name        string   `json:"name"`
 		Avatar      string   `json:"avatar"`
@@ -1028,11 +1044,18 @@ type (
 	}
 	// InstallBot
 	InstallBotReq {
-		ConvId      string   `path:"conv_id"`
-		BotId       string   `json:"bot_id"`
-		Permissions []string `json:"permissions,optional"`
+		ConvId        string   `path:"conv_id"`
+		BotId         string   `json:"bot_id"`
+		Permissions   []string `json:"permissions,optional"`
+		TemplateId    string   `json:"template_id,optional"`
+		ModelProvider string   `json:"model_provider,optional"`
+		ModelName     string   `json:"model_name,optional"`
+		ApiKey        string   `json:"api_key,optional"`
+		KbConfig      string   `json:"kb_config,optional"`
 	}
-	InstallBotResp  {}
+	InstallBotResp {
+		InstanceId string `json:"instance_id,optional"`
+	}
 	// BatchInstallBot
 	BatchInstallBotReq {
 		BotId       string   `json:"bot_id"`
@@ -1049,6 +1072,131 @@ type (
 		BotId  string `json:"bot_id"`
 	}
 	UninstallBotResp  {}
+	// ===== Bot Instance Types =====
+	BotInstanceItem {
+		InstanceId    string `json:"instance_id"`
+		BotId         string `json:"bot_id"`
+		TemplateId    string `json:"template_id"`
+		Name          string `json:"name"`
+		Avatar        string `json:"avatar,optional"`
+		IsSelfHosted  bool   `json:"is_self_hosted"`
+		HostedBy      string `json:"hosted_by,optional"`
+		ModelProvider string `json:"model_provider,optional"`
+		ModelName     string `json:"model_name,optional"`
+		KbConfig      string `json:"kb_config,optional"`
+		Status        string `json:"status,optional"`
+		CreatedAt     int64  `json:"created_at,optional"`
+	}
+	CreateBotInstanceReq {
+		TemplateId     string `json:"template_id"`
+		Name           string `json:"name,optional"`
+		Avatar         string `json:"avatar,optional"`
+		IsSelfHosted   bool   `json:"is_self_hosted,default=false"`
+		HostedBy       string `json:"hosted_by,optional"`
+		ModelProvider  string `json:"model_provider,optional"`
+		ModelName      string `json:"model_name,optional"`
+		ApiKey         string `json:"api_key,optional"`
+		ApiBaseUrl     string `json:"api_base_url,optional"`
+		KbConfig       string `json:"kb_config,optional"`
+		InstanceConfig string `json:"instance_config,optional"`
+	}
+	CreateBotInstanceResp {
+		InstanceId string `json:"instance_id"`
+		BotId      string `json:"bot_id"`
+	}
+	GetBotInstanceReq {
+		InstanceId string `path:"instance_id"`
+	}
+	GetBotInstanceResp {
+		Instance BotInstanceItem `json:"instance"`
+	}
+	UpdateBotInstanceReq {
+		InstanceId     string `path:"instance_id"`
+		Name           string `json:"name,optional"`
+		Avatar         string `json:"avatar,optional"`
+		ModelProvider  string `json:"model_provider,optional"`
+		ModelName      string `json:"model_name,optional"`
+		ApiKey         string `json:"api_key,optional"`
+		ApiBaseUrl     string `json:"api_base_url,optional"`
+		KbConfig       string `json:"kb_config,optional"`
+		InstanceConfig string `json:"instance_config,optional"`
+	}
+	UpdateBotInstanceResp  {}
+	DeleteBotInstanceReq {
+		InstanceId string `path:"instance_id"`
+	}
+	DeleteBotInstanceResp  {}
+	ListMyInstancesReq  {}
+	ListMyInstancesResp {
+		List []BotInstanceItem `json:"list"`
+	}
+	// ===== Bot Template Types =====
+	BotTemplateItem {
+		TemplateId        string   `json:"template_id"`
+		Name              string   `json:"name"`
+		Avatar            string   `json:"avatar,optional"`
+		Description       string   `json:"description,optional"`
+		Category          string   `json:"category,optional"`
+		Version           string   `json:"version,optional"`
+		SystemPrompt      string   `json:"system_prompt,optional"`
+		WelcomeMessage    string   `json:"welcome_message,optional"`
+		ConversationStyle string   `json:"conversation_style,optional"`
+		ToolDefinitions   string   `json:"tool_definitions,optional"`
+		KbStructure       string   `json:"kb_structure,optional"`
+		ConfigSchema      string   `json:"config_schema,optional"`
+		SupportedModels   string   `json:"supported_models,optional"`
+		IsOfficial        bool     `json:"is_official"`
+		Tags              []string `json:"tags,optional"`
+		Status            string   `json:"status,optional"`
+		CreatedAt         int64    `json:"created_at,optional"`
+	}
+	CreateBotTemplateReq {
+		Name              string   `json:"name"`
+		Avatar            string   `json:"avatar,optional"`
+		Description       string   `json:"description,optional"`
+		Category          string   `json:"category,optional"`
+		SystemPrompt      string   `json:"system_prompt,optional"`
+		WelcomeMessage    string   `json:"welcome_message,optional"`
+		ConversationStyle string   `json:"conversation_style,optional"`
+		ToolDefinitions   string   `json:"tool_definitions,optional"`
+		KbStructure       string   `json:"kb_structure,optional"`
+		ConfigSchema      string   `json:"config_schema,optional"`
+		SupportedModels   string   `json:"supported_models,optional"`
+		Tags              []string `json:"tags,optional"`
+	}
+	CreateBotTemplateResp {
+		TemplateId string `json:"template_id"`
+	}
+	UpdateBotTemplateReq {
+		TemplateId        string   `path:"template_id"`
+		Name              string   `json:"name,optional"`
+		Avatar            string   `json:"avatar,optional"`
+		Description       string   `json:"description,optional"`
+		Category          string   `json:"category,optional"`
+		SystemPrompt      string   `json:"system_prompt,optional"`
+		WelcomeMessage    string   `json:"welcome_message,optional"`
+		ConversationStyle string   `json:"conversation_style,optional"`
+		ToolDefinitions   string   `json:"tool_definitions,optional"`
+		KbStructure       string   `json:"kb_structure,optional"`
+		ConfigSchema      string   `json:"config_schema,optional"`
+		SupportedModels   string   `json:"supported_models,optional"`
+		Tags              []string `json:"tags,optional"`
+	}
+	UpdateBotTemplateResp  {}
+	DeleteBotTemplateReq {
+		TemplateId string `path:"template_id"`
+	}
+	DeleteBotTemplateResp  {}
+	GetBotTemplateReq {
+		TemplateId string `path:"template_id"`
+	}
+	GetBotTemplateResp {
+		Template BotTemplateItem `json:"template"`
+	}
+	ListMyTemplatesReq  {}
+	ListMyTemplatesResp {
+		List []BotTemplateItem `json:"list"`
+	}
 	// BotGetConv
 	BotGetConvReq {
 		ConvId string `path:"conv_id"`
@@ -1288,6 +1436,52 @@ service gateway-api {
 	get /users/:uid (BotGetUserReq) returns (BotGetUserResp)
 }
 
+// Bot服务 - Template CRUD
+@server (
+	prefix:     /api/v1/bot
+	group:      bot
+	middleware: AuthMiddleware
+)
+service gateway-api {
+	@handler CreateBotTemplate
+	post /templates (CreateBotTemplateReq) returns (CreateBotTemplateResp)
+
+	@handler ListMyTemplates
+	get /templates (ListMyTemplatesReq) returns (ListMyTemplatesResp)
+
+	@handler GetBotTemplate
+	get /templates/:template_id (GetBotTemplateReq) returns (GetBotTemplateResp)
+
+	@handler UpdateBotTemplate
+	put /templates/:template_id (UpdateBotTemplateReq) returns (UpdateBotTemplateResp)
+
+	@handler DeleteBotTemplate
+	delete /templates/:template_id (DeleteBotTemplateReq) returns (DeleteBotTemplateResp)
+}
+
+// Bot服务 - Instance CRUD
+@server (
+	prefix:     /api/v1/bot
+	group:      bot
+	middleware: AuthMiddleware
+)
+service gateway-api {
+	@handler CreateBotInstance
+	post /instances (CreateBotInstanceReq) returns (CreateBotInstanceResp)
+
+	@handler ListMyInstances
+	get /instances (ListMyInstancesReq) returns (ListMyInstancesResp)
+
+	@handler GetBotInstance
+	get /instances/:instance_id (GetBotInstanceReq) returns (GetBotInstanceResp)
+
+	@handler UpdateBotInstance
+	put /instances/:instance_id (UpdateBotInstanceReq) returns (UpdateBotInstanceResp)
+
+	@handler DeleteBotInstance
+	delete /instances/:instance_id (DeleteBotInstanceReq) returns (DeleteBotInstanceResp)
+}
+
 // Bot服务 - OAuth2 APIs（公开接口：授权页查询、Token 签发，使用 client_id/secret 认证）
 @server (
 	prefix: /api/v1/bot/oauth2
@@ -1479,8 +1673,8 @@ type (
 	// 上传文档请求（先上传到 OSS，再提交索引）
 	UploadDocRequest {
 		KbID        string `path:"kb_id"`
-		OssKey      string `json:"oss_key"`               // OSS 对象 key
-		FileName    string `json:"file_name,optional"`    // 原始文件名
+		OssKey      string `json:"oss_key"` // OSS 对象 key
+		FileName    string `json:"file_name,optional"` // 原始文件名
 		ContentType string `json:"content_type,optional"` // MIME 类型
 		FileSize    int64  `json:"file_size,optional"`
 	}

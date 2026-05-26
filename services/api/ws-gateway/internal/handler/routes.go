@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"ws-gateway/internal/handler/internal"
 	"ws-gateway/internal/handler/ws"
 	"ws-gateway/internal/svc"
 
@@ -30,5 +31,17 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 		},
 		rest.WithPrefix("/api/v1/bot"),
+	)
+
+	// Internal endpoints (not exposed to clients)
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/push_message",
+				Handler: internal.PushMessageHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api/v1/internal"),
 	)
 }

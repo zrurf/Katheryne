@@ -1,6 +1,7 @@
 package oauth2
 
 import (
+	"bot/botclient"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
@@ -33,6 +34,8 @@ func (l *TokenLogic) Token(req *types.TokenRequest) (resp *types.TokenResponse, 
 		return l.handleAuthorizationCode(req)
 	case "refresh_token":
 		return l.handleRefreshToken(req)
+	case "client_credentials":
+		return l.handleClientCredentials(req)
 	default:
 		return nil, fmt.Errorf("unsupported grant_type: %s", req.GrantType)
 	}
@@ -93,6 +96,26 @@ func (l *TokenLogic) handleRefreshToken(req *types.TokenRequest) (*types.TokenRe
 		TokenType:    "Bearer",
 		ExpiresIn:    expiresIn,
 		Scope:        req.Scope,
+	}, nil
+}
+
+func (l *TokenLogic) handleClientCredentials(req *types.TokenRequest) (*types.TokenResponse, error) {
+	botResp, err := l.svcCtx.BotRpc.BotToken(l.ctx, &botclient.BotTokenReq{
+		GrantType:    "client_credentials",
+		ClientId:     req.ClientId,
+		ClientSecret: req.ClientSecret,
+		Scope:        req.Scope,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("bot auth failed: %w", err)
+	}
+
+	return &types.TokenResponse{
+		AccessToken:  botResp.AccessToken,
+		RefreshToken: botResp.RefreshToken,
+		TokenType:    "Bearer",
+		ExpiresIn:    botResp.ExpiresIn,
+		Scope:        botResp.Scope,
 	}, nil
 }
 

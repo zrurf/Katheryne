@@ -156,76 +156,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		rest.WithPrefix("/api/v1/bot/community"),
 	)
 
-	// ========== Template CRUD ==========
-	server.AddRoutes(
-		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.AuthMiddleware},
-			[]rest.Route{
-				{
-					Method:  http.MethodPost,
-					Path:    "/templates",
-					Handler: bot.CreateBotTemplateHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/templates",
-					Handler: bot.ListMyTemplatesHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/templates/:template_id",
-					Handler: bot.GetBotTemplateHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodPut,
-					Path:    "/templates/:template_id",
-					Handler: bot.UpdateBotTemplateHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodDelete,
-					Path:    "/templates/:template_id",
-					Handler: bot.DeleteBotTemplateHandler(serverCtx),
-				},
-			}...,
-		),
-		rest.WithPrefix("/api/v1/bot"),
-	)
-
-	// ========== Instance CRUD ==========
-	server.AddRoutes(
-		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.AuthMiddleware},
-			[]rest.Route{
-				{
-					Method:  http.MethodPost,
-					Path:    "/instances",
-					Handler: bot.CreateBotInstanceHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/instances",
-					Handler: bot.ListMyInstancesHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/instances/:instance_id",
-					Handler: bot.GetBotInstanceHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodPut,
-					Path:    "/instances/:instance_id",
-					Handler: bot.UpdateBotInstanceHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodDelete,
-					Path:    "/instances/:instance_id",
-					Handler: bot.DeleteBotInstanceHandler(serverCtx),
-				},
-			}...,
-		),
-		rest.WithPrefix("/api/v1/bot"),
-	)
-
 	server.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{serverCtx.AuthMiddleware},
@@ -298,6 +228,74 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodGet,
 					Path:    "/users/:uid",
 					Handler: bot.BotGetUserHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/v1/bot"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/templates",
+					Handler: bot.CreateBotTemplateHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/templates",
+					Handler: bot.ListMyTemplatesHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/templates/:template_id",
+					Handler: bot.GetBotTemplateHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/templates/:template_id",
+					Handler: bot.UpdateBotTemplateHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/templates/:template_id",
+					Handler: bot.DeleteBotTemplateHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/v1/bot"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/instances",
+					Handler: bot.CreateBotInstanceHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/instances",
+					Handler: bot.ListMyInstancesHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/instances/:instance_id",
+					Handler: bot.GetBotInstanceHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/instances/:instance_id",
+					Handler: bot.UpdateBotInstanceHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/instances/:instance_id",
+					Handler: bot.DeleteBotInstanceHandler(serverCtx),
 				},
 			}...,
 		),

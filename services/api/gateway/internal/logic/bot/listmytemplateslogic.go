@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"strconv"
 
 	"bot/botclient"
 	"gateway/internal/svc"
@@ -45,7 +46,7 @@ func (l *ListMyTemplatesLogic) ListMyTemplates(req *types.ListMyTemplatesReq) (r
 
 func convertTemplate(t *botclient.BotTemplateInfo) types.BotTemplateItem {
 	item := types.BotTemplateItem{
-		TemplateId:        t.TemplateId,
+		TemplateId:        strconv.FormatInt(t.TemplateId, 10),
 		Name:              t.Name,
 		Avatar:            t.Avatar,
 		Description:       t.Description,

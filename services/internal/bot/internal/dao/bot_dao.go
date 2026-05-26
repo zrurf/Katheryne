@@ -23,6 +23,20 @@ func NewBotDao(db *pgxpool.Pool) *BotDao {
 	return &BotDao{db: db}
 }
 
+// BotExists checks if a bot with the given botID exists and is ACTIVE.
+func (d *BotDao) BotExists(ctx context.Context, botID int64) (bool, error) {
+	var status string
+	err := d.db.QueryRow(ctx,
+		`SELECT status FROM bot WHERE bot_id = $1`, botID).Scan(&status)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+	return status == "ACTIVE", nil
+}
+
 func (d *BotDao) CreateBot(ctx context.Context, uid int64, req *bot.CreateBotReq) (*bot.CreateBotResp, error) {
 	botID := time.Now().UnixNano()
 	clientID := "bot_" + randomHex(16)
@@ -396,4 +410,14 @@ func randomHex(n int) string {
 func HashSecret(secret string) string {
 	h := sha256.Sum256([]byte(secret))
 	return hex.EncodeToString(h[:])
+}
+
+// ResolveByClientID looks up the bot_id by its OAuth2 client_id
+func (d *BotDao) ResolveByClientID(ctx context.Context, clientID string) (int64, error) {
+	var botID int64
+	err := d.db.QueryRow(ctx,
+		`SELECT bc.bot_id FROM bot_credential bc
+		 JOIN bot_instance bi ON bi.bot_id = bc.bot_id
+		 WHERE bc.client_id = $1 AND bi.status = 'ACTIVE'`, clientID).Scan(&botID)
+	return botID, err
 }

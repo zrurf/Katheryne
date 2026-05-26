@@ -72,6 +72,17 @@ func (l *InstallBotLogic) InstallBot(in *bot.InstallBotReq) (*bot.InstallBotResp
 		}
 		botID = resp.BotId
 		newInstanceID = resp.InstanceId
+	} else {
+		// Installing a hosted/official bot — validate it exists and is ACTIVE
+		exists, err := l.svcCtx.BotDao.BotExists(l.ctx, botID)
+		if err != nil {
+			l.Errorf("check bot existence failed: bot_id=%d, err=%v", botID, err)
+			return nil, fmt.Errorf("failed to verify bot: %v", err)
+		}
+		if !exists {
+			l.Errorf("bot not found or inactive: bot_id=%d", botID)
+			return nil, fmt.Errorf("bot not found or inactive: bot_id=%d", botID)
+		}
 	}
 
 	if err := l.svcCtx.InstDao.Install(l.ctx, botID, in.ConvId, convType, in.Permissions, in.Uid); err != nil {

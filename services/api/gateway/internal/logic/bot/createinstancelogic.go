@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"strconv"
 
 	"bot/botclient"
 	"gateway/internal/svc"
@@ -26,13 +27,15 @@ func NewCreateBotInstanceLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 
 func (l *CreateBotInstanceLogic) CreateBotInstance(req *types.CreateBotInstanceReq) (resp *types.CreateBotInstanceResp, err error) {
 	uid := l.ctx.Value("uid").(int64)
+	templateId, _ := strconv.ParseInt(req.TemplateId, 10, 64)
+	hostedBy, _ := strconv.ParseInt(req.HostedBy, 10, 64)
 	result, err := l.svcCtx.BotRpc.CreateBotInstance(l.ctx, &botclient.CreateBotInstanceReq{
 		Uid:            uid,
-		TemplateId:     req.TemplateId,
+		TemplateId:     templateId,
 		Name:           req.Name,
 		Avatar:         req.Avatar,
 		IsSelfHosted:   req.IsSelfHosted,
-		HostedBy:       req.HostedBy,
+		HostedBy:       hostedBy,
 		ModelProvider:  req.ModelProvider,
 		ModelName:      req.ModelName,
 		ApiKey:         req.ApiKey,
@@ -44,7 +47,7 @@ func (l *CreateBotInstanceLogic) CreateBotInstance(req *types.CreateBotInstanceR
 		return nil, err
 	}
 	return &types.CreateBotInstanceResp{
-		InstanceId: result.InstanceId,
-		BotId:      result.BotId,
+		InstanceId: strconv.FormatInt(result.InstanceId, 10),
+		BotId:      strconv.FormatInt(result.BotId, 10),
 	}, nil
 }

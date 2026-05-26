@@ -432,10 +432,10 @@ export function ChatView() {
 
     // Extract mentions: @[type:uid:nickname]
     const mentionPattern = /@\[([a-z]+):(\d+):([^\]]+)\]/g;
-    const mentions: string[] = [];
+    const mentions: { type: string; id: string; name: string }[] = [];
     let match;
     while ((match = mentionPattern.exec(text)) !== null) {
-      mentions.push(match[2]); // uid is match[2]
+      mentions.push({ type: match[1], id: match[2], name: match[3] });
     }
     const extra = mentions.length > 0 ? JSON.stringify({ mentions }) : undefined;
 

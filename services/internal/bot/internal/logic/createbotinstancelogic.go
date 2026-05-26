@@ -20,9 +20,8 @@ func NewCreateBotInstanceLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *CreateBotInstanceLogic) CreateBotInstance(in *bot.CreateBotInstanceReq) (*bot.CreateBotInstanceResp, error) {
-	// Set self-hosted by default if not specified
-	if !in.IsSelfHosted && in.HostedBy == 0 {
-		in.IsSelfHosted = true
-	}
+	// Let DAO handle the hosted_by logic properly.
+	// Do NOT force IsSelfHosted=true — orchestrator relies on is_self_hosted=FALSE
+	// to discover platform-hosted instances.
 	return l.svcCtx.InstanceDao.CreateInstance(l.ctx, in)
 }

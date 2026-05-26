@@ -584,6 +584,13 @@ message BotTokenResp {
   int64 bot_id = 6;
 }
 
+message ResolveBotCredentialReq {
+  string client_id = 1;
+}
+message ResolveBotCredentialResp {
+  int64 bot_id = 1;
+}
+
 // ========== Service ==========
 service bot {
   // Developer APIs (user-facing)
@@ -641,4 +648,5 @@ service bot {
   rpc Authorize(AuthorizeReq) returns (AuthorizeResp);
   rpc ApproveAuthorize(ApproveAuthorizeReq) returns (ApproveAuthorizeResp);
   rpc BotToken(BotTokenReq) returns (BotTokenResp);
+  rpc ResolveBotCredential(ResolveBotCredentialReq) returns (ResolveBotCredentialResp);
 }

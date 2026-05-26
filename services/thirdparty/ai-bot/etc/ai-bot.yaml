@@ -38,3 +38,9 @@ BotRpc:
     Hosts:
     - "etcd:2379"
     Key: bot.rpc
+
+MemRpc:
+  Etcd:
+    Hosts:
+    - "etcd:2379"
+    Key: mem.rpc

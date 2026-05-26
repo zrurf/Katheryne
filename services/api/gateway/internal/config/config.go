@@ -23,4 +23,9 @@ type Config struct {
 	RedisAddr   string
 	AiBotUrl    string
 	MaxFileSize int64 `json:",default=104857600"`
+
+	// WsGatewayUrl is the internal HTTP address of the ws-gateway service,
+	// used to push REST-sent messages into the WebSocket broadcast pipeline
+	// so that @mentions are routed to bots.
+	WsGatewayUrl string `json:",default=http://ws-gateway:8080"`
 }

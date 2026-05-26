@@ -221,6 +221,30 @@ services:
       hugegraph:
         condition: service_started
 
+  # 记忆管理服务
+  mem_services:
+    build:
+      context: .
+      dockerfile: services/internal/mem/Dockerfile
+    container_name: mem-services
+    restart: unless-stopped
+    expose:
+      - "8008"
+      - "6069"
+    env_file:
+      - .env
+    networks:
+      - internal
+    depends_on:
+      postgres:
+        condition: service_started
+      qdrant:
+        condition: service_started
+      hugegraph:
+        condition: service_started
+      etcd:
+        condition: service_started
+
   # 官方 AI Bot
   ai_bot:
     build:

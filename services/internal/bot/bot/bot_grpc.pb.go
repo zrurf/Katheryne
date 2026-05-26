@@ -61,6 +61,7 @@ const (
 	Bot_Authorize_FullMethodName            = "/bot.bot/Authorize"
 	Bot_ApproveAuthorize_FullMethodName     = "/bot.bot/ApproveAuthorize"
 	Bot_BotToken_FullMethodName             = "/bot.bot/BotToken"
+	Bot_ResolveBotCredential_FullMethodName = "/bot.bot/ResolveBotCredential"
 )
 
 // BotClient is the client API for Bot service.
@@ -118,6 +119,7 @@ type BotClient interface {
 	Authorize(ctx context.Context, in *AuthorizeReq, opts ...grpc.CallOption) (*AuthorizeResp, error)
 	ApproveAuthorize(ctx context.Context, in *ApproveAuthorizeReq, opts ...grpc.CallOption) (*ApproveAuthorizeResp, error)
 	BotToken(ctx context.Context, in *BotTokenReq, opts ...grpc.CallOption) (*BotTokenResp, error)
+	ResolveBotCredential(ctx context.Context, in *ResolveBotCredentialReq, opts ...grpc.CallOption) (*ResolveBotCredentialResp, error)
 }
 
 type botClient struct {
@@ -548,6 +550,16 @@ func (c *botClient) BotToken(ctx context.Context, in *BotTokenReq, opts ...grpc.
 	return out, nil
 }
 
+func (c *botClient) ResolveBotCredential(ctx context.Context, in *ResolveBotCredentialReq, opts ...grpc.CallOption) (*ResolveBotCredentialResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ResolveBotCredentialResp)
+	err := c.cc.Invoke(ctx, Bot_ResolveBotCredential_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BotServer is the server API for Bot service.
 // All implementations must embed UnimplementedBotServer
 // for forward compatibility.
@@ -603,6 +615,7 @@ type BotServer interface {
 	Authorize(context.Context, *AuthorizeReq) (*AuthorizeResp, error)
 	ApproveAuthorize(context.Context, *ApproveAuthorizeReq) (*ApproveAuthorizeResp, error)
 	BotToken(context.Context, *BotTokenReq) (*BotTokenResp, error)
+	ResolveBotCredential(context.Context, *ResolveBotCredentialReq) (*ResolveBotCredentialResp, error)
 	mustEmbedUnimplementedBotServer()
 }
 
@@ -738,6 +751,9 @@ func (UnimplementedBotServer) ApproveAuthorize(context.Context, *ApproveAuthoriz
 }
 func (UnimplementedBotServer) BotToken(context.Context, *BotTokenReq) (*BotTokenResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method BotToken not implemented")
+}
+func (UnimplementedBotServer) ResolveBotCredential(context.Context, *ResolveBotCredentialReq) (*ResolveBotCredentialResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method ResolveBotCredential not implemented")
 }
 func (UnimplementedBotServer) mustEmbedUnimplementedBotServer() {}
 func (UnimplementedBotServer) testEmbeddedByValue()             {}
@@ -1516,6 +1532,24 @@ func _Bot_BotToken_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Bot_ResolveBotCredential_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResolveBotCredentialReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BotServer).ResolveBotCredential(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Bot_ResolveBotCredential_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BotServer).ResolveBotCredential(ctx, req.(*ResolveBotCredentialReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Bot_ServiceDesc is the grpc.ServiceDesc for Bot service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1690,6 +1724,10 @@ var Bot_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BotToken",
 			Handler:    _Bot_BotToken_Handler,
+		},
+		{
+			MethodName: "ResolveBotCredential",
+			Handler:    _Bot_ResolveBotCredential_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,0 +1,36 @@
+Name: mem.rpc
+ListenOn: 0.0.0.0:8008
+Etcd:
+  Hosts:
+  - "etcd:2379"
+  Key: mem.rpc
+
+Telemetry:
+  Name: mem.rpc
+  Endpoint: otel-collector:4317
+  Batcher: otlpgrpc
+  Sampler: 1.0
+
+DevServer:
+  Enable: true
+  Port: 6069
+  MetricsPath: /metrics
+  HealthPath: /healthz
+
+MemDB:
+  Host: "postgres"
+  Port: 5432
+  User: "kadmin"
+  Password: "nimdaP@ssW0rd"
+  DBName: "mod_rag"
+
+Qdrant:
+  Host: "qdrant"
+  Port: 6334
+  UseTLS: false
+  APIKey: ""
+  VectorDim: 1024
+
+HugeGraph:
+  BaseURL: "http://hugegraph:8080"
+  Graph: "katheryne"

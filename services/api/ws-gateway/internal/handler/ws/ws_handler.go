@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"bot/botclient"
 	"ws-gateway/internal/logic/ws"
 	"ws-gateway/internal/svc"
 
@@ -140,6 +141,7 @@ type botTokenInfo struct {
 }
 
 func resolveBotID(svcCtx *svc.ServiceContext, token string) (int64, error) {
+	// Try bot_access_token: prefix (OAuth2 client_credentials grant)
 	jsonData, err := svcCtx.Redis.Get(context.Background(), "bot_access_token:"+token).Result()
 	if err == nil {
 		var info botTokenInfo
@@ -148,5 +150,20 @@ func resolveBotID(svcCtx *svc.ServiceContext, token string) (int64, error) {
 		}
 	}
 
-	return svcCtx.Redis.Get(context.Background(), "bot_token:"+token).Int64()
+	// Try bot_token: prefix (legacy)
+	botID, err := svcCtx.Redis.Get(context.Background(), "bot_token:"+token).Int64()
+	if err == nil {
+		return botID, nil
+	}
+
+	// Try oauth2:token: prefix (gateway-issued token for client_credentials)
+	clientID, err := svcCtx.Redis.HGet(context.Background(), "oauth2:token:"+token, "client_id").Result()
+	if err == nil && clientID != "" {
+		resp, rpcErr := svcCtx.BotRpc.ResolveBotCredential(context.Background(), &botclient.ResolveBotCredentialReq{ClientId: clientID})
+		if rpcErr == nil && resp != nil {
+			return resp.BotId, nil
+		}
+	}
+
+	return 0, err
 }

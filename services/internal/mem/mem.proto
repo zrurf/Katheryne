@@ -1,0 +1,266 @@
+syntax = "proto3";
+
+package mem;
+
+option go_package = "./mem/mem";
+
+// ========== Memory Types ==========
+
+// MemoryType classifies stored memories
+enum MemoryType {
+  UNSPECIFIED = 0;
+  FACT         = 1;  // Factual information about the user/entity
+  PREFERENCE   = 2;  // User preferences, likes, dislikes
+  EVENT        = 3;  // Events and actions the user was involved in
+  SUMMARY      = 4;  // Conversation summaries
+  RELATIONSHIP = 5;  // Relationships between entities
+  CONTEXT      = 6;  // Situational context (current task, mood, etc.)
+}
+
+// MemoryItem is a single memory entry
+message MemoryItem {
+  string memory_id = 1;       // Unique memory identifier
+  string tenant_id = 2;       // Multi-tenant: user_id or conv_id
+  string tenant_type = 3;     // "user" or "conv"
+  MemoryType type = 4;        // Memory classification
+  string content = 5;         // The memory content
+  double importance = 6;      // Importance score (0.0-1.0)
+  int64 created_at = 7;       // Unix timestamp
+  int64 updated_at = 8;
+  int64 last_accessed_at = 9;
+  int32 access_count = 10;    // How often this memory was recalled
+  int64 expires_at = 11;      // Optional TTL-based expiry (0 = never)
+  map<string, string> metadata = 12;  // Extra metadata (source, key phrases, etc.)
+  repeated string entities = 13;      // Named entities extracted from this memory
+}
+
+// ========== Add / Store ==========
+
+message AddMemoryReq {
+  string tenant_id = 1;       // user_id or conv_id
+  string tenant_type = 2;     // "user" or "conv"
+  MemoryType type = 3;
+  string content = 4;
+  double importance = 5;      // 0.0 - 1.0, default 0.5
+  int64 ttl_seconds = 6;      // Auto-expire after N seconds (0 = never)
+  map<string, string> metadata = 7;
+}
+
+message AddMemoryResp {
+  string memory_id = 1;
+}
+
+// Batch add for efficiency (e.g., after conversation ends)
+message BatchAddMemoryReq {
+  repeated AddMemoryItem items = 1;
+}
+
+message AddMemoryItem {
+  string tenant_id = 1;
+  string tenant_type = 2;
+  MemoryType type = 3;
+  string content = 4;
+  double importance = 5;
+  int64 ttl_seconds = 6;
+  map<string, string> metadata = 7;
+}
+
+message BatchAddMemoryResp {
+  repeated string memory_ids = 1;
+}
+
+// ========== Get / Read ==========
+
+message GetMemoryReq {
+  string memory_id = 1;
+}
+
+message GetMemoryResp {
+  MemoryItem memory = 1;
+}
+
+message ListMemoriesReq {
+  string tenant_id = 1;
+  string tenant_type = 2;
+  MemoryType type = 3;        // Optional: filter by type (0 = all)
+  int32 page = 4;
+  int32 size = 5;
+}
+
+message ListMemoriesResp {
+  repeated MemoryItem list = 1;
+  int64 total = 2;
+}
+
+// ========== Search / Recall (Multi-path) ==========
+
+// SearchMemories performs multi-path recall combining:
+//   - Vector semantic search (Qdrant)
+//   - Graph-based entity traversal (HugeGraph)
+//   - Keyword full-text search (PostgreSQL)
+// Results are fused and re-ranked.
+message SearchMemoriesReq {
+  string tenant_id = 1;
+  string tenant_type = 2;
+  string query = 3;           // The query text (user's current question)
+  int32 top_k = 4;            // Max results (default 10)
+  float vector_weight = 5;    // Vector similarity weight (0-1, default 0.5)
+  float graph_weight = 6;     // Graph traversal weight (0-1, default 0.3)
+  float keyword_weight = 7;   // Keyword match weight (0-1, default 0.2)
+  repeated MemoryType type_filter = 8;  // Optional: filter by types
+  double min_importance = 9;  // Minimum importance threshold (default 0.0)
+  repeated string filter_entities = 10; // Filter by entities
+}
+
+message SearchMemoriesResp {
+  repeated MemorySearchResult results = 1;
+  int32 total = 2;
+  int64 latency_ms = 3;
+  RecallMeta recall_meta = 4;  // Diagnostic info
+}
+
+// MemorySearchResult is a single search hit
+message MemorySearchResult {
+  MemoryItem memory = 1;
+  double vector_score = 2;    // Qdrant similarity
+  double graph_score = 3;     // HugeGraph relevance
+  double keyword_score = 4;   // PostgreSQL FTS relevance
+  double fusion_score = 5;    // Weighted fusion score
+}
+
+// RecallMeta provides diagnostic info about the recall process
+message RecallMeta {
+  int32 vector_hits = 1;
+  int32 graph_hits = 2;
+  int32 keyword_hits = 3;
+  int32 fused_count = 4;
+  double avg_fusion_score = 5;
+}
+
+// ========== Update ==========
+
+message UpdateMemoryReq {
+  string memory_id = 1;
+  string content = 2;
+  double importance = 3;
+  int64 ttl_seconds = 4;
+  map<string, string> metadata = 5;
+}
+
+message UpdateMemoryResp {}
+
+// ========== Delete ==========
+
+message DeleteMemoryReq {
+  string memory_id = 1;
+}
+
+message DeleteMemoryResp {}
+
+// Clear all memories for a tenant
+message ClearMemoriesReq {
+  string tenant_id = 1;
+  string tenant_type = 2;
+}
+
+message ClearMemoriesResp {
+  int64 deleted_count = 1;
+}
+
+// ========== Consolidate (Summarize) ==========
+
+// ConsolidateMemories consolidates multiple related memories into
+// higher-level summaries. Useful for periodic memory compression.
+// e.g., merge daily conversation snippets into weekly summaries.
+message ConsolidateMemoriesReq {
+  string tenant_id = 1;
+  string tenant_type = 2;
+  MemoryType target_type = 3;  // Type to consolidate (e.g., EVENT → SUMMARY)
+  int64 older_than = 4;        // Only consolidate memories older than this timestamp
+  int32 max_items = 5;         // Max memories to consolidate in one batch
+  bool dry_run = 6;            // If true, only return count without actually consolidating
+}
+
+message ConsolidateMemoriesResp {
+  int64 consolidated_count = 1;
+  int64 new_memory_count = 2;  // Number of new summary memories created
+  int64 deleted_count = 3;     // Number of source memories removed
+}
+
+// ========== Extract Entities ==========
+
+// ExtractEntitiesFromText extracts key entities, facts, and preferences
+// from a block of text (typically a conversation segment).
+// This is called by ai-bot to persist important information from conversations.
+message ExtractMemoriesReq {
+  string tenant_id = 1;
+  string tenant_type = 2;
+  string text = 3;             // The conversation text to extract from
+}
+
+message ExtractMemoriesResp {
+  repeated ExtractedMemory items = 1;
+}
+
+message ExtractedMemory {
+  MemoryType type = 1;
+  string content = 2;
+  double importance = 3;       // AI-estimated importance
+  repeated string entities = 4;
+}
+
+// ========== Knowledge Graph ==========
+
+// QueryKnowledgeGraph traverses the memory graph starting from entities
+message QueryKnowledgeGraphReq {
+  string tenant_id = 1;
+  string tenant_type = 2;
+  repeated string entity_ids = 3;  // Starting entities
+  int32 depth = 4;                 // Traversal depth (default 2)
+  int32 limit = 5;                 // Max nodes
+}
+
+message QueryKnowledgeGraphResp {
+  repeated GraphNode nodes = 1;
+  repeated GraphEdge edges = 2;
+}
+
+message GraphNode {
+  string entity_id = 1;
+  string name = 2;
+  string entity_type = 3;
+  map<string, string> properties = 4;
+}
+
+message GraphEdge {
+  string edge_id = 1;
+  string source = 2;
+  string target = 3;
+  string relation_type = 4;
+  double weight = 5;
+}
+
+// ========== Service ==========
+
+service mem {
+  // Core CRUD
+  rpc AddMemory(AddMemoryReq) returns (AddMemoryResp);
+  rpc BatchAddMemory(BatchAddMemoryReq) returns (BatchAddMemoryResp);
+  rpc GetMemory(GetMemoryReq) returns (GetMemoryResp);
+  rpc ListMemories(ListMemoriesReq) returns (ListMemoriesResp);
+  rpc UpdateMemory(UpdateMemoryReq) returns (UpdateMemoryResp);
+  rpc DeleteMemory(DeleteMemoryReq) returns (DeleteMemoryResp);
+  rpc ClearMemories(ClearMemoriesReq) returns (ClearMemoriesResp);
+
+  // Search & Recall (multi-path)
+  rpc SearchMemories(SearchMemoriesReq) returns (SearchMemoriesResp);
+
+  // Memory management
+  rpc ConsolidateMemories(ConsolidateMemoriesReq) returns (ConsolidateMemoriesResp);
+
+  // AI-assisted extraction
+  rpc ExtractMemories(ExtractMemoriesReq) returns (ExtractMemoriesResp);
+
+  // Knowledge graph
+  rpc QueryKnowledgeGraph(QueryKnowledgeGraphReq) returns (QueryKnowledgeGraphResp);
+}

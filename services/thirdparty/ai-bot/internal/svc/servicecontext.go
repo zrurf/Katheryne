@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"bot/botclient"
+	"mem/memclient"
 	"rag/ragclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -23,7 +24,7 @@ type ServiceContext struct {
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	var ragClient ragclient.Rag
-	if c.RagRpc.Target != "" || len(c.RagRpc.Endpoints) > 0 {
+	if c.RagRpc.Target != "" || len(c.RagRpc.Endpoints) > 0 || len(c.RagRpc.Etcd.Hosts) > 0 {
 		client, err := zrpc.NewClient(c.RagRpc)
 		if err != nil {
 			logx.Errorf("create rag rpc client failed: %v", err)
@@ -33,12 +34,23 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 
 	var botRpcClient botclient.Bot
-	if c.BotRpc.Target != "" || len(c.BotRpc.Endpoints) > 0 {
+	if c.BotRpc.Target != "" || len(c.BotRpc.Endpoints) > 0 || len(c.BotRpc.Etcd.Hosts) > 0 {
 		client, err := zrpc.NewClient(c.BotRpc)
 		if err != nil {
 			logx.Errorf("create bot rpc client failed: %v", err)
 		} else {
 			botRpcClient = botclient.NewBot(client)
+		}
+	}
+
+	var memClient memclient.Mem
+	if c.MemRpc.Target != "" || len(c.MemRpc.Endpoints) > 0 || len(c.MemRpc.Etcd.Hosts) > 0 {
+		client, err := zrpc.NewClient(c.MemRpc)
+		if err != nil {
+			logx.Errorf("create mem rpc client failed: %v", err)
+		} else {
+			memClient = memclient.NewMem(client)
+			logx.Infof("mem rpc client connected")
 		}
 	}
 
@@ -51,6 +63,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		LLMMaxTokens:   c.LLM.MaxTokens,
 		LLMTemperature: c.LLM.Temperature,
 		RagClient:      ragClient,
+		MemClient:      memClient,
 	})
 
 	orch := orchestrator.NewOrchestrator(orchestrator.OrchestratorConfig{
@@ -61,6 +74,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		ClientSecret: c.BotClientSecret,
 		RagClient:    ragClient,
 		BotRpcClient: botRpcClient,
+		MemClient:    memClient,
 		DefaultLLM: orchestrator.LLMDefaults{
 			Provider:    c.LLM.Provider,
 			BaseURL:     c.LLM.BaseURL,

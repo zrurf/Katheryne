@@ -262,16 +262,24 @@ func (d *InstanceDao) DeleteInstance(ctx context.Context, uid, instanceID int64)
 	}
 	defer tx.Rollback(ctx)
 
-	// Verify ownership
+	// Check if instance exists at all (including already deleted)
 	var ownerUID, botID int64
+	var status string
 	err = tx.QueryRow(ctx,
-		`SELECT owner_uid, bot_id FROM bot_instance WHERE instance_id = $1 AND status != 'DELETED'`,
-		instanceID).Scan(&ownerUID, &botID)
+		`SELECT owner_uid, bot_id, status FROM bot_instance WHERE instance_id = $1`,
+		instanceID).Scan(&ownerUID, &botID, &status)
 	if err != nil {
-		return fmt.Errorf("instance not found: %w", err)
+		return fmt.Errorf("instance not found")
 	}
+
+	// Check if already deleted
+	if status == "DELETED" {
+		return fmt.Errorf("instance already deleted")
+	}
+
+	// Verify ownership
 	if ownerUID != uid {
-		return fmt.Errorf("not authorized")
+		return fmt.Errorf("not authorized to delete this instance")
 	}
 
 	// Soft delete instance
@@ -337,7 +345,8 @@ func (d *InstanceDao) ListHostedInstances(ctx context.Context, keyword string) (
 		          bi.kb_config::text, bi.instance_config::text, bi.status,
 		          EXTRACT(EPOCH FROM bi.created_at)::bigint
 		   FROM bot_instance bi
-		   WHERE bi.is_self_hosted = FALSE AND bi.status = 'ACTIVE'`
+		   WHERE bi.status = 'ACTIVE'
+		     AND (bi.is_self_hosted = FALSE OR bi.hosted_by = 0)`
 
 	args := []interface{}{}
 	argIdx := 1

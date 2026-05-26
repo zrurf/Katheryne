@@ -239,3 +239,8 @@ func (s *BotServer) BotToken(ctx context.Context, in *bot.BotTokenReq) (*bot.Bot
 	l := logic.NewBotTokenLogic(ctx, s.svcCtx)
 	return l.BotToken(in)
 }
+
+func (s *BotServer) ResolveBotCredential(ctx context.Context, in *bot.ResolveBotCredentialReq) (*bot.ResolveBotCredentialResp, error) {
+	l := logic.NewResolveBotCredentialLogic(ctx, s.svcCtx)
+	return l.ResolveBotCredential(in)
+}

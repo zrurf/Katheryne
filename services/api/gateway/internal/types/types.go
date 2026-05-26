@@ -127,6 +127,21 @@ type BotGetUserResp struct {
 	Avatar string `json:"avatar"`
 }
 
+type BotInstanceItem struct {
+	InstanceId    string `json:"instance_id"`
+	BotId         string `json:"bot_id"`
+	TemplateId    string `json:"template_id"`
+	Name          string `json:"name"`
+	Avatar        string `json:"avatar,optional"`
+	IsSelfHosted  bool   `json:"is_self_hosted"`
+	HostedBy      string `json:"hosted_by,optional"`
+	ModelProvider string `json:"model_provider,optional"`
+	ModelName     string `json:"model_name,optional"`
+	KbConfig      string `json:"kb_config,optional"`
+	Status        string `json:"status,optional"`
+	CreatedAt     int64  `json:"created_at,optional"`
+}
+
 type BotItem struct {
 	BotId        string `json:"bot_id"`
 	Name         string `json:"name"`
@@ -212,6 +227,26 @@ type BotSummarizeResp struct {
 	ActionItems []string `json:"action_items"`
 }
 
+type BotTemplateItem struct {
+	TemplateId        string   `json:"template_id"`
+	Name              string   `json:"name"`
+	Avatar            string   `json:"avatar,optional"`
+	Description       string   `json:"description,optional"`
+	Category          string   `json:"category,optional"`
+	Version           string   `json:"version,optional"`
+	SystemPrompt      string   `json:"system_prompt,optional"`
+	WelcomeMessage    string   `json:"welcome_message,optional"`
+	ConversationStyle string   `json:"conversation_style,optional"`
+	ToolDefinitions   string   `json:"tool_definitions,optional"`
+	KbStructure       string   `json:"kb_structure,optional"`
+	ConfigSchema      string   `json:"config_schema,optional"`
+	SupportedModels   string   `json:"supported_models,optional"`
+	IsOfficial        bool     `json:"is_official"`
+	Tags              []string `json:"tags,optional"`
+	Status            string   `json:"status,optional"`
+	CreatedAt         int64    `json:"created_at,optional"`
+}
+
 type BotTokenReq struct {
 	GrantType    string `form:"grant_type"`
 	ClientId     string `form:"client_id"`
@@ -276,6 +311,22 @@ type ClearUnreadReq struct {
 type ClearUnreadResp struct {
 }
 
+type CommunityBotItem struct {
+	Type           string   `json:"type"`
+	InstanceId     string   `json:"instance_id,optional"`
+	BotId          string   `json:"bot_id,optional"`
+	Name           string   `json:"name"`
+	Avatar         string   `json:"avatar,optional"`
+	Description    string   `json:"description,optional"`
+	HostedBy       string   `json:"hosted_by,optional"`
+	InstalledCount int64    `json:"installed_count,optional"`
+	Status         string   `json:"status,optional"`
+	TemplateId     string   `json:"template_id,optional"`
+	Category       string   `json:"category,optional"`
+	Tags           []string `json:"tags,optional"`
+	IsOfficial     bool     `json:"is_official"`
+}
+
 type CompleteUploadRequest struct {
 	UploadID string     `json:"upload_id"`
 	Parts    []PartInfo `json:"parts"`
@@ -318,6 +369,25 @@ type CreateAnnouncementResp struct {
 	Result bool `json:"result"`
 }
 
+type CreateBotInstanceReq struct {
+	TemplateId     string `json:"template_id"`
+	Name           string `json:"name,optional"`
+	Avatar         string `json:"avatar,optional"`
+	IsSelfHosted   bool   `json:"is_self_hosted,default=false"`
+	HostedBy       string `json:"hosted_by,optional"`
+	ModelProvider  string `json:"model_provider,optional"`
+	ModelName      string `json:"model_name,optional"`
+	ApiKey         string `json:"api_key,optional"`
+	ApiBaseUrl     string `json:"api_base_url,optional"`
+	KbConfig       string `json:"kb_config,optional"`
+	InstanceConfig string `json:"instance_config,optional"`
+}
+
+type CreateBotInstanceResp struct {
+	InstanceId string `json:"instance_id"`
+	BotId      string `json:"bot_id"`
+}
+
 type CreateBotReq struct {
 	Name        string `json:"name"`
 	Description string `json:"description,optional"`
@@ -331,6 +401,25 @@ type CreateBotResp struct {
 	BotId        string `json:"bot_id"`
 	ClientId     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
+}
+
+type CreateBotTemplateReq struct {
+	Name              string   `json:"name"`
+	Avatar            string   `json:"avatar,optional"`
+	Description       string   `json:"description,optional"`
+	Category          string   `json:"category,optional"`
+	SystemPrompt      string   `json:"system_prompt,optional"`
+	WelcomeMessage    string   `json:"welcome_message,optional"`
+	ConversationStyle string   `json:"conversation_style,optional"`
+	ToolDefinitions   string   `json:"tool_definitions,optional"`
+	KbStructure       string   `json:"kb_structure,optional"`
+	ConfigSchema      string   `json:"config_schema,optional"`
+	SupportedModels   string   `json:"supported_models,optional"`
+	Tags              []string `json:"tags,optional"`
+}
+
+type CreateBotTemplateResp struct {
+	TemplateId string `json:"template_id"`
 }
 
 type CreateGroupReq struct {
@@ -372,11 +461,25 @@ type CrossKBSearchResponse struct {
 	Metacog   *MetaCogInfo     `json:"metacog,omitempty"`
 }
 
+type DeleteBotInstanceReq struct {
+	InstanceId string `path:"instance_id"`
+}
+
+type DeleteBotInstanceResp struct {
+}
+
 type DeleteBotReq struct {
 	BotId string `path:"bot_id"`
 }
 
 type DeleteBotResp struct {
+}
+
+type DeleteBotTemplateReq struct {
+	TemplateId string `path:"template_id"`
+}
+
+type DeleteBotTemplateResp struct {
 }
 
 type DeleteConversationReq struct {
@@ -507,6 +610,14 @@ type GetBotInstallationsResp struct {
 	Total int64              `json:"total"`
 }
 
+type GetBotInstanceReq struct {
+	InstanceId string `path:"instance_id"`
+}
+
+type GetBotInstanceResp struct {
+	Instance BotInstanceItem `json:"instance"`
+}
+
 type GetBotRateLimitReq struct {
 	BotId string `path:"bot_id"`
 }
@@ -535,6 +646,14 @@ type GetBotResp struct {
 	PrivacyUrl  string `json:"privacy_url"`
 	CreatedAt   int64  `json:"created_at"`
 	UpdatedAt   int64  `json:"updated_at"`
+}
+
+type GetBotTemplateReq struct {
+	TemplateId string `path:"template_id"`
+}
+
+type GetBotTemplateResp struct {
+	Template BotTemplateItem `json:"template"`
 }
 
 type GetConvBotsReq struct {
@@ -848,11 +967,11 @@ type InstallBotReq struct {
 }
 
 type InstallBotResp struct {
-	InstanceId string `json:"instance_id"`
+	InstanceId string `json:"instance_id,optional"`
 }
 
 type InstallationItem struct {
-	InstId      int64    `json:"inst_id"`
+	InstId      string   `json:"inst_id"`
 	BotId       string   `json:"bot_id"`
 	BotName     string   `json:"bot_name"`
 	ConvId      string   `json:"conv_id"`
@@ -862,7 +981,7 @@ type InstallationItem struct {
 }
 
 type InstalledBotItem struct {
-	InstId      int64    `json:"inst_id"`
+	InstId      string   `json:"inst_id"`
 	BotId       string   `json:"bot_id"`
 	Name        string   `json:"name"`
 	Avatar      string   `json:"avatar"`
@@ -957,22 +1076,6 @@ type ListCommunityBotsResp struct {
 	Templates  []CommunityBotItem `json:"templates"`
 }
 
-type CommunityBotItem struct {
-	Type           string   `json:"type"`
-	InstanceId     string   `json:"instance_id,optional"`
-	BotId          string   `json:"bot_id,optional"`
-	Name           string   `json:"name"`
-	Avatar         string   `json:"avatar,optional"`
-	Description    string   `json:"description,optional"`
-	HostedBy       string   `json:"hosted_by,optional"`
-	InstalledCount int64    `json:"installed_count,optional"`
-	Status         string   `json:"status,optional"`
-	TemplateId     string   `json:"template_id,optional"`
-	Category       string   `json:"category,optional"`
-	Tags           []string `json:"tags,optional"`
-	IsOfficial     bool     `json:"is_official"`
-}
-
 type ListDocsRequest struct {
 	KbID string `path:"kb_id"`
 	Page int    `form:"page,default=1"`
@@ -1019,6 +1122,20 @@ type ListMyBotsReq struct {
 type ListMyBotsResp struct {
 	List  []BotItem `json:"list"`
 	Total int64     `json:"total"`
+}
+
+type ListMyInstancesReq struct {
+}
+
+type ListMyInstancesResp struct {
+	List []BotInstanceItem `json:"list"`
+}
+
+type ListMyTemplatesReq struct {
+}
+
+type ListMyTemplatesResp struct {
+	List []BotTemplateItem `json:"list"`
 }
 
 type LoginFinalizeRequest struct {
@@ -1368,6 +1485,21 @@ type UninstallBotReq struct {
 type UninstallBotResp struct {
 }
 
+type UpdateBotInstanceReq struct {
+	InstanceId     string `path:"instance_id"`
+	Name           string `json:"name,optional"`
+	Avatar         string `json:"avatar,optional"`
+	ModelProvider  string `json:"model_provider,optional"`
+	ModelName      string `json:"model_name,optional"`
+	ApiKey         string `json:"api_key,optional"`
+	ApiBaseUrl     string `json:"api_base_url,optional"`
+	KbConfig       string `json:"kb_config,optional"`
+	InstanceConfig string `json:"instance_config,optional"`
+}
+
+type UpdateBotInstanceResp struct {
+}
+
 type UpdateBotRateLimitReq struct {
 	BotId          string `path:"bot_id"`
 	MaxConcurrency int32  `json:"max_concurrency,optional"`
@@ -1389,6 +1521,25 @@ type UpdateBotReq struct {
 }
 
 type UpdateBotResp struct {
+}
+
+type UpdateBotTemplateReq struct {
+	TemplateId        string   `path:"template_id"`
+	Name              string   `json:"name,optional"`
+	Avatar            string   `json:"avatar,optional"`
+	Description       string   `json:"description,optional"`
+	Category          string   `json:"category,optional"`
+	SystemPrompt      string   `json:"system_prompt,optional"`
+	WelcomeMessage    string   `json:"welcome_message,optional"`
+	ConversationStyle string   `json:"conversation_style,optional"`
+	ToolDefinitions   string   `json:"tool_definitions,optional"`
+	KbStructure       string   `json:"kb_structure,optional"`
+	ConfigSchema      string   `json:"config_schema,optional"`
+	SupportedModels   string   `json:"supported_models,optional"`
+	Tags              []string `json:"tags,optional"`
+}
+
+type UpdateBotTemplateResp struct {
 }
 
 type UpdateFriendRemarkReq struct {
@@ -1439,10 +1590,10 @@ type UpdateProfileResp struct {
 
 type UploadDocRequest struct {
 	KbID        string `path:"kb_id"`
-	OssKey      string `json:"oss_key"`             // OSS 对象 key
-	FileName    string `json:"file_name,optional"`   // 原始文件名
+	OssKey      string `json:"oss_key"`               // OSS 对象 key
+	FileName    string `json:"file_name,optional"`    // 原始文件名
 	ContentType string `json:"content_type,optional"` // MIME 类型
-	FileSize    int64  `json:"file_size,optional"`   // 文件大小（字节）
+	FileSize    int64  `json:"file_size,optional"`
 }
 
 type UploadDocResponse struct {
@@ -1482,159 +1633,4 @@ type UserInfoResponse struct {
 	CreatedAt int64  `json:"created_at"`
 	UpdatedAt int64  `json:"updated_at"`
 	LastLogin int64  `json:"last_login"`
-}
-
-// ========== Bot Template Types ==========
-
-type CreateBotTemplateReq struct {
-	Name              string   `json:"name"`
-	Avatar            string   `json:"avatar,optional"`
-	Description       string   `json:"description,optional"`
-	Category          string   `json:"category,optional"`
-	SystemPrompt      string   `json:"system_prompt,optional"`
-	WelcomeMessage    string   `json:"welcome_message,optional"`
-	ConversationStyle string   `json:"conversation_style,optional"`
-	ToolDefinitions   string   `json:"tool_definitions,optional"`
-	KbStructure       string   `json:"kb_structure,optional"`
-	ConfigSchema      string   `json:"config_schema,optional"`
-	SupportedModels   string   `json:"supported_models,optional"`
-	Tags              []string `json:"tags,optional"`
-}
-
-type CreateBotTemplateResp struct {
-	TemplateId int64 `json:"template_id"`
-}
-
-type UpdateBotTemplateReq struct {
-	TemplateId        int64    `path:"template_id"`
-	Name              string   `json:"name,optional"`
-	Avatar            string   `json:"avatar,optional"`
-	Description       string   `json:"description,optional"`
-	Category          string   `json:"category,optional"`
-	SystemPrompt      string   `json:"system_prompt,optional"`
-	WelcomeMessage    string   `json:"welcome_message,optional"`
-	ConversationStyle string   `json:"conversation_style,optional"`
-	ToolDefinitions   string   `json:"tool_definitions,optional"`
-	KbStructure       string   `json:"kb_structure,optional"`
-	ConfigSchema      string   `json:"config_schema,optional"`
-	SupportedModels   string   `json:"supported_models,optional"`
-	Tags              []string `json:"tags,optional"`
-}
-
-type UpdateBotTemplateResp struct {
-}
-
-type DeleteBotTemplateReq struct {
-	TemplateId int64 `path:"template_id"`
-}
-
-type DeleteBotTemplateResp struct {
-}
-
-type GetBotTemplateReq struct {
-	TemplateId int64 `path:"template_id"`
-}
-
-type GetBotTemplateResp struct {
-	Template BotTemplateItem `json:"template"`
-}
-
-type ListMyTemplatesReq struct {
-}
-
-type ListMyTemplatesResp struct {
-	List []BotTemplateItem `json:"list"`
-}
-
-type BotTemplateItem struct {
-	TemplateId        int64    `json:"template_id"`
-	Name              string   `json:"name"`
-	Avatar            string   `json:"avatar,optional"`
-	Description       string   `json:"description,optional"`
-	Category          string   `json:"category,optional"`
-	Version           string   `json:"version,optional"`
-	SystemPrompt      string   `json:"system_prompt,optional"`
-	WelcomeMessage    string   `json:"welcome_message,optional"`
-	ConversationStyle string   `json:"conversation_style,optional"`
-	ToolDefinitions   string   `json:"tool_definitions,optional"`
-	KbStructure       string   `json:"kb_structure,optional"`
-	ConfigSchema      string   `json:"config_schema,optional"`
-	SupportedModels   string   `json:"supported_models,optional"`
-	IsOfficial        bool     `json:"is_official"`
-	Tags              []string `json:"tags,optional"`
-	Status            string   `json:"status,optional"`
-	CreatedAt         int64    `json:"created_at,optional"`
-}
-
-// ========== Bot Instance Types ==========
-
-type CreateBotInstanceReq struct {
-	TemplateId     int64  `json:"template_id"`
-	Name           string `json:"name,optional"`
-	Avatar         string `json:"avatar,optional"`
-	IsSelfHosted   bool   `json:"is_self_hosted,default=false"`
-	HostedBy       int64  `json:"hosted_by,optional"`
-	ModelProvider  string `json:"model_provider,optional"`
-	ModelName      string `json:"model_name,optional"`
-	ApiKey         string `json:"api_key,optional"`
-	ApiBaseUrl     string `json:"api_base_url,optional"`
-	KbConfig       string `json:"kb_config,optional"`
-	InstanceConfig string `json:"instance_config,optional"`
-}
-
-type CreateBotInstanceResp struct {
-	InstanceId int64 `json:"instance_id"`
-	BotId      int64 `json:"bot_id"`
-}
-
-type GetBotInstanceReq struct {
-	InstanceId int64 `path:"instance_id"`
-}
-
-type GetBotInstanceResp struct {
-	Instance BotInstanceItem `json:"instance"`
-}
-
-type UpdateBotInstanceReq struct {
-	InstanceId     int64  `path:"instance_id"`
-	Name           string `json:"name,optional"`
-	Avatar         string `json:"avatar,optional"`
-	ModelProvider  string `json:"model_provider,optional"`
-	ModelName      string `json:"model_name,optional"`
-	ApiKey         string `json:"api_key,optional"`
-	ApiBaseUrl     string `json:"api_base_url,optional"`
-	KbConfig       string `json:"kb_config,optional"`
-	InstanceConfig string `json:"instance_config,optional"`
-}
-
-type UpdateBotInstanceResp struct {
-}
-
-type DeleteBotInstanceReq struct {
-	InstanceId int64 `path:"instance_id"`
-}
-
-type DeleteBotInstanceResp struct {
-}
-
-type ListMyInstancesReq struct {
-}
-
-type ListMyInstancesResp struct {
-	List []BotInstanceItem `json:"list"`
-}
-
-type BotInstanceItem struct {
-	InstanceId    int64  `json:"instance_id"`
-	BotId         int64  `json:"bot_id"`
-	TemplateId    int64  `json:"template_id"`
-	Name          string `json:"name"`
-	Avatar        string `json:"avatar,optional"`
-	IsSelfHosted  bool   `json:"is_self_hosted"`
-	HostedBy      int64  `json:"hosted_by,optional"`
-	ModelProvider string `json:"model_provider,optional"`
-	ModelName     string `json:"model_name,optional"`
-	KbConfig      string `json:"kb_config,optional"`
-	Status        string `json:"status,optional"`
-	CreatedAt     int64  `json:"created_at,optional"`
 }

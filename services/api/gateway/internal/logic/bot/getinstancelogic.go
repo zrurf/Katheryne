@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"strconv"
 
 	"bot/botclient"
 	"gateway/internal/svc"
@@ -26,8 +27,9 @@ func NewGetBotInstanceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 
 func (l *GetBotInstanceLogic) GetBotInstance(req *types.GetBotInstanceReq) (resp *types.GetBotInstanceResp, err error) {
 	uid := l.ctx.Value("uid").(int64)
+	instanceId, _ := strconv.ParseInt(req.InstanceId, 10, 64)
 	result, err := l.svcCtx.BotRpc.GetBotInstance(l.ctx, &botclient.GetBotInstanceReq{
-		InstanceId: req.InstanceId,
+		InstanceId: instanceId,
 		Uid:        uid,
 	})
 	if err != nil {

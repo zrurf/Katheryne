@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"strconv"
 
 	"bot/botclient"
 	"gateway/internal/svc"
@@ -45,13 +46,13 @@ func (l *ListMyInstancesLogic) ListMyInstances(req *types.ListMyInstancesReq) (r
 
 func convertInstance(inst *botclient.BotInstanceInfo) types.BotInstanceItem {
 	return types.BotInstanceItem{
-		InstanceId:    inst.InstanceId,
-		BotId:         inst.BotId,
-		TemplateId:    inst.TemplateId,
+		InstanceId:    strconv.FormatInt(inst.InstanceId, 10),
+		BotId:         strconv.FormatInt(inst.BotId, 10),
+		TemplateId:    strconv.FormatInt(inst.TemplateId, 10),
 		Name:          inst.Name,
 		Avatar:        inst.Avatar,
 		IsSelfHosted:  inst.IsSelfHosted,
-		HostedBy:      inst.HostedBy,
+		HostedBy:      strconv.FormatInt(inst.HostedBy, 10),
 		ModelProvider: inst.ModelProvider,
 		ModelName:     inst.ModelName,
 		KbConfig:      inst.KbConfig,
