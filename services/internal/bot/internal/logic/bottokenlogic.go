@@ -27,6 +27,7 @@ func NewBotTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *BotToken
 }
 
 func (l *BotTokenLogic) BotToken(in *bot.BotTokenReq) (*bot.BotTokenResp, error) {
+	l.Infof("BotToken: grant_type=%s, client_id=%s", in.GrantType, in.ClientId)
 	switch in.GrantType {
 	case "authorization_code":
 		return l.handleAuthorizationCode(in)

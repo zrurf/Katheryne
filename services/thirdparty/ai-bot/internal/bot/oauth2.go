@@ -106,6 +106,16 @@ func (m *OAuth2Manager) doTokenRequest(data url.Values) (string, error) {
 		return "", fmt.Errorf("parse token response: %w", err)
 	}
 
+	// Validate that the token response contains required fields.
+	// The gateway may return HTTP 200 with an error body (e.g. {"code":-1,"message":"..."})
+	// which would unmarshal to zero values silently.
+	if token.AccessToken == "" {
+		return "", fmt.Errorf("token response missing access_token, body: %s", string(body))
+	}
+	if token.ExpiresIn <= 0 {
+		return "", fmt.Errorf("token response invalid expires_in=%d, body: %s", token.ExpiresIn, string(body))
+	}
+
 	m.cache = &types.TokenCache{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,

@@ -127,7 +127,7 @@ INSERT INTO "bot_instance" (
     FALSE,          -- is_self_hosted (官方托管)
     0,              -- hosted_by (官方)
     'openai',       -- model_provider
-    'gpt-4o',       -- model_name
+    'deepseek-v4-flash', -- model_name
     '{"official": true}'::jsonb,
     'kth_official_token_v1',
     'ACTIVE'

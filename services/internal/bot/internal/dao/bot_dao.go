@@ -145,8 +145,8 @@ func (d *BotDao) GetBotByClientID(ctx context.Context, clientID string) (*bot.Bo
 
 func (d *BotDao) GetBotCredentials(ctx context.Context, clientID string) (botID int64, clientSecret string, err error) {
 	row := d.db.QueryRow(ctx,
-		`SELECT b.bot_id, bc.client_secret FROM bot b
-		 JOIN bot_credential bc ON b.bot_id = bc.bot_id
+		`SELECT bc.bot_id, bc.client_secret FROM bot_credential bc
+		 JOIN bot b ON b.bot_id = bc.bot_id
 		 WHERE bc.client_id = $1 AND b.status = 'ACTIVE'`, clientID)
 	err = row.Scan(&botID, &clientSecret)
 	return

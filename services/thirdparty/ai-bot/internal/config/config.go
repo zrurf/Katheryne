@@ -20,9 +20,9 @@ type Config struct {
 
 type LLMConfig struct {
 	Provider    string  `json:"Provider,default=openai"`
-	APIKey      string  `json:"APIKey"`
-	BaseURL     string  `json:"BaseURL,default=https://api.openai.com/v1"`
-	Model       string  `json:"Model,default=gpt-4o"`
+	APIKey      string  `json:"APIKey,env=OPENAI_API_KEY"`
+	BaseURL     string  `json:"BaseURL,env=OPENAI_BASE_URL"`
+	Model       string  `json:"Model,env=LLM_MODEL"`
 	MaxTokens   int     `json:"MaxTokens,default=4096"`
 	Temperature float64 `json:"Temperature,default=0.7"`
 }

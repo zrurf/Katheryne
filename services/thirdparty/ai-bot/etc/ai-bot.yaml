@@ -21,9 +21,9 @@ BotClientSecret: "kth_official_secret_v1_production"
 
 LLM:
   Provider: "openai"
-  APIKey: "${OPENAI_API_KEY}"
-  BaseURL: "${OPENAI_BASE_URL}"
-  Model: "${LLM_MODEL}"
+  APIKey: ${OPENAI_API_KEY}
+  BaseURL: ${OPENAI_BASE_URL}
+  Model: ${LLM_MODEL}
   MaxTokens: 4096
   Temperature: 0.7
 

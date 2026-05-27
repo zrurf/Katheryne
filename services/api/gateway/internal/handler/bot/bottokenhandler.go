@@ -4,29 +4,38 @@
 package bot
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"gateway/internal/logic/bot"
 	"gateway/internal/svc"
 	"gateway/internal/types"
 	"github.com/zeromicro/go-zero/rest/httpx"
-	xhttp "github.com/zeromicro/x/http"
 )
 
 func BotTokenHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.BotTokenReq
 		if err := httpx.Parse(r, &req); err != nil {
-			xhttp.JsonBaseResponseCtx(r.Context(), w, err)
+			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
 
 		l := bot.NewBotTokenLogic(r.Context(), svcCtx)
 		resp, err := l.BotToken(&req)
 		if err != nil {
-			xhttp.JsonBaseResponseCtx(r.Context(), w, err)
-		} else {
-			xhttp.JsonBaseResponseCtx(r.Context(), w, resp)
+			writeOAuth2Error(w, http.StatusBadRequest, "invalid_grant", err.Error())
+			return
 		}
+		httpx.OkJsonCtx(r.Context(), w, resp)
 	}
+}
+
+func writeOAuth2Error(w http.ResponseWriter, statusCode int, errorCode, description string) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(map[string]string{
+		"error":             errorCode,
+		"error_description": description,
+	})
 }

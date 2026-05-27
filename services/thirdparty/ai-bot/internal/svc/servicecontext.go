@@ -78,6 +78,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		DefaultLLM: orchestrator.LLMDefaults{
 			Provider:    c.LLM.Provider,
 			BaseURL:     c.LLM.BaseURL,
+			APIKey:      c.LLM.APIKey,
+			Model:       c.LLM.Model,
 			MaxTokens:   c.LLM.MaxTokens,
 			Temperature: c.LLM.Temperature,
 		},

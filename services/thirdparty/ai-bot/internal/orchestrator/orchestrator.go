@@ -19,6 +19,8 @@ import (
 type LLMDefaults struct {
 	Provider    string
 	BaseURL     string
+	APIKey      string
+	Model       string
 	MaxTokens   int
 	Temperature float64
 }
@@ -225,7 +227,13 @@ func (o *Orchestrator) startInstance(botID int64) error {
 		handlerCfg.LLMBaseURL = o.config.DefaultLLM.BaseURL
 	}
 	handlerCfg.LLMAPIKey = cfg.APIKey
+	if handlerCfg.LLMAPIKey == "" {
+		handlerCfg.LLMAPIKey = o.config.DefaultLLM.APIKey
+	}
 	handlerCfg.LLMModel = cfg.ModelName
+	if handlerCfg.LLMModel == "" {
+		handlerCfg.LLMModel = o.config.DefaultLLM.Model
+	}
 	handlerCfg.LLMMaxTokens = o.config.DefaultLLM.MaxTokens
 	handlerCfg.LLMTemperature = o.config.DefaultLLM.Temperature
 

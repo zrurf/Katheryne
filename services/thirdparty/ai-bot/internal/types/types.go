@@ -16,7 +16,7 @@ type OAuth2Token struct {
 	Scope        string `json:"scope"`
 	ExpiresIn    int64  `json:"expires_in"`
 	RefreshToken string `json:"refresh_token"`
-	BotID        int64  `json:"bot_id"`
+	BotID        string `json:"bot_id,omitempty"`
 }
 
 type TokenCache struct {
