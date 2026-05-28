@@ -368,6 +368,15 @@ func (c *Client) handleReadReceipt(data *ReadReceiptData) {
 		return
 	}
 
+	// Also clear the user_unread counter so it persists across refresh
+	_, err = c.hub.config.ConversationRpc.ClearUnread(ctx, &conversationclient.ClearUnreadReq{
+		ConvId: convId,
+		Uid:    c.uid,
+	})
+	if err != nil {
+		logx.Errorf("clear unread after read receipt error: uid=%d, convId=%d, err=%v", c.uid, convId, err)
+	}
+
 	push := &ReadReceiptPush{
 		ConvId:        data.ConvId,
 		Uid:           strconv.FormatInt(c.uid, 10),

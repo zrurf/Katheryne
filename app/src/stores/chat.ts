@@ -85,6 +85,9 @@ function createChatStore() {
         if (data.conv_id === activeConvId()) {
           setMessages((prev) => {
             const filtered = prev.filter((m) => !m.id.startsWith("temp_"));
+            if (filtered.some((m) => m.id === data.msg_id)) {
+              return filtered;
+            }
             return [...filtered, newMsg];
           });
         }
@@ -322,7 +325,6 @@ function createChatStore() {
     setAnnouncements([]);
     setShowGroupPanel(false);
 
-    // 保存当前会话的未读数
     const conv = conversations().find((c) => c.conv_id === convId);
     const unreadCount = conv?.unread_count || 0;
     setActiveConvUnreadCount(unreadCount);
@@ -330,12 +332,19 @@ function createChatStore() {
 
     await loadMessages(convId);
 
-    // 计算第一条未读消息 ID
     if (unreadCount > 0) {
       const msgs = messages();
-      const count = Math.min(unreadCount, msgs.length);
-      if (count > 0) {
-        setFirstUnreadMsgId(String(msgs[msgs.length - count].id));
+      if (unreadCount <= msgs.length) {
+        setFirstUnreadMsgId(String(msgs[msgs.length - unreadCount].id));
+      } else {
+        // Unread count exceeds loaded page - load older messages to find the first unread
+        const oldestMsg = msgs[0];
+        await loadMessages(convId, oldestMsg.id);
+        const allMsgs = messages();
+        const idx = Math.max(0, allMsgs.length - unreadCount);
+        if (idx < allMsgs.length) {
+          setFirstUnreadMsgId(String(allMsgs[idx].id));
+        }
       }
     }
 

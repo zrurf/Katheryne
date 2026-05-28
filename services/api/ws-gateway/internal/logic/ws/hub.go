@@ -184,13 +184,31 @@ func (h *Hub) Run() {
 func (h *Hub) handleBroadcast(msg *BroadcastMsg) {
 	senderName := msg.SenderName
 	senderAvatar := msg.SenderAvatar
-	if senderName == "" && msg.Sender > 0 {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-		resp, err := h.config.UserRpc.GetUserByUID(ctx, &userclient.GetUserByUIDReq{Uid: msg.Sender})
-		cancel()
-		if err == nil && resp != nil && resp.User != nil {
-			senderName = resp.User.Name
-			senderAvatar = resp.User.Avatar
+	if msg.Sender > 0 && (senderName == "" || senderAvatar == "") {
+		if msg.Sender >= 10000 && msg.Sender < 20000 {
+			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			botResp, err := h.config.BotRpc.GetBot(ctx, &botclient.GetBotReq{BotId: msg.Sender})
+			cancel()
+			if err == nil && botResp.Bot != nil {
+				if senderName == "" {
+					senderName = botResp.Bot.Name
+				}
+				if senderAvatar == "" {
+					senderAvatar = botResp.Bot.Avatar
+				}
+			}
+		} else {
+			ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+			resp, err := h.config.UserRpc.GetUserByUID(ctx, &userclient.GetUserByUIDReq{Uid: msg.Sender})
+			cancel()
+			if err == nil && resp != nil && resp.User != nil {
+				if senderName == "" {
+					senderName = resp.User.Name
+				}
+				if senderAvatar == "" {
+					senderAvatar = resp.User.Avatar
+				}
+			}
 		}
 	}
 

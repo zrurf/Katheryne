@@ -118,7 +118,12 @@ export function ChatView() {
   });
 
   const scrollToBottom = () => {
-    messagesEndRef?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef?.scrollIntoView({ behavior: "instant", block: "end" });
+    // Double-tap: first instant to ensure we reach the bottom,
+    // then smooth for visual polish if supported
+    requestAnimationFrame(() => {
+      messagesEndRef?.scrollIntoView({ behavior: "smooth", block: "end" });
+    });
   };
 
   onMount(() => {
@@ -133,25 +138,33 @@ export function ChatView() {
   const isNearBottom = () => {
     const container = messagesContainerRef;
     if (!container) return true;
-    return container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+    return container.scrollHeight - container.scrollTop - container.clientHeight < 160;
   };
 
   createEffect(() => {
     const msgs = chatStore.messages();
-    if (msgs.length > 0) {
-      // 如果用户在底部或之前就在底部，自动滚到底部并清除标签
-      if (isNearBottom() || prevMsgCount === 0) {
-        scrollToBottom();
-        setBadgeCount(0);
-        setBadgeFirstMsgId("");
-        setTimeout(() => trackVisibleMessages(), 100);
-      } else if (msgs.length > prevMsgCount) {
-        // 有新消息但用户不在底部，递增标签计数
-        setBadgeCount((c) => c + (msgs.length - prevMsgCount));
-        if (!badgeFirstMsgId()) {
-          // 记录第一条新消息
-          setBadgeFirstMsgId(String(msgs[prevMsgCount]?.id || ""));
-        }
+    if (msgs.length === 0) {
+      prevMsgCount = 0;
+      return;
+    }
+
+    const isInitialLoad = prevMsgCount === 0;
+    const hasUnread = chatStore.activeConvUnreadCount() > 0;
+
+    if (!isInitialLoad && isNearBottom()) {
+      scrollToBottom();
+      setBadgeCount(0);
+      setBadgeFirstMsgId("");
+      setTimeout(() => trackVisibleMessages(), 100);
+    } else if (isInitialLoad && !hasUnread) {
+      scrollToBottom();
+      setBadgeCount(0);
+      setBadgeFirstMsgId("");
+      setTimeout(() => trackVisibleMessages(), 150);
+    } else if (msgs.length > prevMsgCount && !isNearBottom()) {
+      setBadgeCount((c) => c + (msgs.length - prevMsgCount));
+      if (!badgeFirstMsgId()) {
+        setBadgeFirstMsgId(String(msgs[prevMsgCount]?.id || ""));
       }
     }
     prevMsgCount = msgs.length;
@@ -190,13 +203,10 @@ export function ChatView() {
   };
 
   const handleBadgeClick = () => {
-    const msgId = badgeFirstMsgId();
-    if (msgId) {
-      const el = document.getElementById(`msg-${msgId}`);
-      el?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
+    scrollToBottom();
     setBadgeCount(0);
     setBadgeFirstMsgId("");
+    setTimeout(() => trackVisibleMessages(), 100);
   };
 
   const trackVisibleMessages = () => {
@@ -217,7 +227,7 @@ export function ChatView() {
       const rect = el.getBoundingClientRect();
       if (rect.bottom > containerRect.top && rect.top < containerRect.bottom) {
         const msgId = el.getAttribute("data-msg-id");
-        if (msgId) {
+        if (msgId && !msgId.startsWith("temp_")) {
           if (!minMsgId || msgId < minMsgId) minMsgId = msgId;
           if (!maxMsgId || msgId > maxMsgId) maxMsgId = msgId;
         }
