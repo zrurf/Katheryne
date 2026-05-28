@@ -237,9 +237,20 @@ func (r *ToolRegistry) List() []map[string]string {
 	return tools
 }
 
+// SkillDefinition represents a tool/skill from a bot template's tool_definitions JSON.
+type SkillDefinition struct {
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Type        string                 `json:"type,omitempty"`
+	Config      map[string]interface{} `json:"config,omitempty"`
+}
+
 // ToolExecutor runs tools requested by LLM
 type ToolExecutor struct {
-	registry *ToolRegistry
+	registry      *ToolRegistry
+	ragClient     ragclient.Rag
+	kbIDs         []string
+	customSkillDefs []SkillDefinition
 }
 
 func NewToolExecutor(ragClient ragclient.Rag, kbIDs []string) *ToolExecutor {
@@ -248,7 +259,89 @@ func NewToolExecutor(ragClient ragclient.Rag, kbIDs []string) *ToolExecutor {
 	if ragClient != nil {
 		reg.Register(NewKnowledgeSearchTool(ragClient, kbIDs))
 	}
-	return &ToolExecutor{registry: reg}
+	return &ToolExecutor{
+		registry:  reg,
+		ragClient: ragClient,
+		kbIDs:     kbIDs,
+	}
+}
+
+// LoadCustomTools parses tool_definitions JSON from a bot template and registers custom skills.
+func (e *ToolExecutor) LoadCustomTools(defsJSON string) {
+	if defsJSON == "" {
+		return
+	}
+
+	var defs []SkillDefinition
+	if err := json.Unmarshal([]byte(defsJSON), &defs); err != nil {
+		logx.Errorf("parse tool_definitions JSON failed: %v", err)
+		return
+	}
+
+	e.customSkillDefs = defs
+	for _, def := range defs {
+		if def.Name == "" {
+			continue
+		}
+		if e.registry.Get(def.Name) != nil {
+			continue
+		}
+		var tool Tool
+		switch def.Type {
+		case "knowledge_search":
+			if e.ragClient != nil {
+				kbIDs := e.kbIDs
+				if rawIDs, ok := def.Config["kb_ids"]; ok {
+					if ids, ok := rawIDs.([]interface{}); ok {
+						kbIDs = nil
+						for _, id := range ids {
+							if s, ok := id.(string); ok {
+								kbIDs = append(kbIDs, s)
+							}
+						}
+					}
+				}
+				tool = NewKnowledgeSearchTool(e.ragClient, kbIDs)
+			}
+		case "web_search":
+			tool = NewWebSearchTool()
+		default:
+			tool = &configurableSkill{def: def}
+		}
+		if tool != nil {
+			e.registry.Register(tool)
+		}
+	}
+	logx.Infof("tool_executor: loaded %d custom tools from template", len(defs))
+}
+
+// GetAvailableToolsList returns all registered tools for the system prompt.
+func (e *ToolExecutor) GetAvailableToolsList() []Tool {
+	var tools []Tool
+	for _, t := range e.registry.List() {
+		if tool := e.registry.Get(t["name"]); tool != nil {
+			tools = append(tools, tool)
+		}
+	}
+	return tools
+}
+
+// configurableSkill is a generic tool wrapper for custom skill definitions.
+type configurableSkill struct {
+	def SkillDefinition
+}
+
+func (s *configurableSkill) Name() string {
+	return s.def.Name
+}
+
+func (s *configurableSkill) Description() string {
+	return s.def.Description
+}
+
+func (s *configurableSkill) Execute(args map[string]interface{}) (string, error) {
+	argsJSON, _ := json.Marshal(args)
+	return fmt.Sprintf("技能 %s 收到参数: %s。此技能需要外部服务支持，当前为占位实现。请根据技能描述给出合理回复。", s.def.Name, string(argsJSON)), nil
 }
 
 func (e *ToolExecutor) ExecuteToolCalls(ctx context.Context, response string) (replaced string, hasTools bool) {

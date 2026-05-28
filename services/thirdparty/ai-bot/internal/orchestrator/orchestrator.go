@@ -244,6 +244,9 @@ func (o *Orchestrator) startInstance(botID int64) error {
 	if cfg.SystemPrompt != "" {
 		msgHandler.SetSystemPrompt(cfg.SystemPrompt)
 	}
+	if cfg.ToolDefinitions != "" {
+		msgHandler.SetToolDefinitions(cfg.ToolDefinitions)
+	}
 
 	// Set up the handler chain
 	wsClient.SetHandler(msgHandler)

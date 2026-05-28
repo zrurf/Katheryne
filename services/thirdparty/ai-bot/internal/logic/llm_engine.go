@@ -52,6 +52,18 @@ func (e *LLMEngine) Chat(messages []types.ChatMessage, systemPrompt string) (str
 	return reply, nil
 }
 
+func (e *LLMEngine) SetToolDefinitions(defsJSON string) {
+	e.toolExecutor.LoadCustomTools(defsJSON)
+}
+
+func (e *LLMEngine) GetToolsDescription() string {
+	return e.toolExecutor.GetAvailableToolsDescription()
+}
+
+func (e *LLMEngine) GetAvailableTools() []Tool {
+	return e.toolExecutor.GetAvailableToolsList()
+}
+
 func (e *LLMEngine) Summarize(msgs []types.ChatMessage) (*types.SummarizeResponse, error) {
 	convText := buildConversationText(msgs)
 	if convText == "" {

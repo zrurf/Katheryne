@@ -48,6 +48,9 @@ type MessageHandler struct {
 	isOfficial         bool
 	customSystemPrompt string
 
+	// Tool definitions from template
+	toolDefsJSON string
+
 	// Stats
 	totalMessages  int64
 	totalTokens    int64
@@ -175,6 +178,15 @@ func (h *MessageHandler) HandleMentionData(data json.RawMessage) {
 	h.trackMessage(convID)
 
 	messages := h.getCachedMessages(convID)
+	if len(messages) == 0 {
+		loadCtx := context.Background()
+		if loaded := h.loadConversationHistory(loadCtx, convID); len(loaded) > 0 {
+			for _, msg := range loaded {
+				h.cacheMessage(convID, msg)
+			}
+			messages = h.getCachedMessages(convID)
+		}
+	}
 	messages = append(messages, types.ChatMessage{
 		Role:    "user",
 		Content: mentionEvt.SenderName + ": " + prompt,
@@ -235,6 +247,13 @@ func (h *MessageHandler) SetSystemPrompt(prompt string) {
 	h.customSystemPrompt = prompt
 }
 
+func (h *MessageHandler) SetToolDefinitions(defsJSON string) {
+	h.toolDefsJSON = defsJSON
+	if h.engine != nil && defsJSON != "" {
+		h.engine.SetToolDefinitions(defsJSON)
+	}
+}
+
 func (h *MessageHandler) handleMessageCreate(event *types.EventMessage) {
 	var msgEvent types.MessageCreateEvent
 	if err := json.Unmarshal(event.Data, &msgEvent); err != nil {
@@ -284,6 +303,15 @@ func (h *MessageHandler) handleAtBot(event *types.MessageCreateEvent, content st
 	h.trackMessage(convID)
 
 	messages := h.getCachedMessages(convID)
+	if len(messages) == 0 {
+		loadCtx := context.Background()
+		if loaded := h.loadConversationHistory(loadCtx, convID); len(loaded) > 0 {
+			for _, msg := range loaded {
+				h.cacheMessage(convID, msg)
+			}
+			messages = h.getCachedMessages(convID)
+		}
+	}
 	messages = append(messages, types.ChatMessage{
 		Role:    "user",
 		Content: event.SenderName + ": " + prompt,
@@ -347,6 +375,15 @@ func (h *MessageHandler) handleMention(event *types.EventMessage) {
 	h.trackMessage(convID)
 
 	messages := h.getCachedMessages(convID)
+	if len(messages) == 0 {
+		loadCtx := context.Background()
+		if loaded := h.loadConversationHistory(loadCtx, convID); len(loaded) > 0 {
+			for _, msg := range loaded {
+				h.cacheMessage(convID, msg)
+			}
+			messages = h.getCachedMessages(convID)
+		}
+	}
 	messages = append(messages, types.ChatMessage{
 		Role:    "user",
 		Content: mention.SenderName + ": " + prompt,
@@ -390,6 +427,55 @@ func (h *MessageHandler) handleMention(event *types.EventMessage) {
 		// Save to memory service
 		h.saveMemory(ctx, convID, mention.SenderUID, mention.SenderName, prompt, reply)
 	}()
+}
+
+// loadConversationHistory retrieves conversation history from the mem service
+// and reconstructs it as ChatMessage slice. This is used when the local cache
+// is empty (e.g., after service restart) to restore conversation context.
+func (h *MessageHandler) loadConversationHistory(ctx context.Context, convID string) []types.ChatMessage {
+	if h.config.MemClient == nil {
+		return nil
+	}
+
+	resp, err := h.config.MemClient.ListMemories(ctx, &memclient.ListMemoriesReq{
+		TenantId:   convID,
+		TenantType: "conversation",
+		Size:       int32(h.maxCacheLen),
+		Page:       1,
+	})
+	if err != nil {
+		logx.Debugf("loadConversationHistory failed: %v", err)
+		return nil
+	}
+
+	if resp == nil || len(resp.List) == 0 {
+		return nil
+	}
+
+	var messages []types.ChatMessage
+	for _, item := range resp.List {
+		if item == nil || item.Content == "" {
+			continue
+		}
+		role := "user"
+		if item.Metadata != nil {
+			if r, ok := item.Metadata["role"]; ok {
+				role = r
+			}
+		}
+		messages = append(messages, types.ChatMessage{
+			Role:    role,
+			Content: item.Content,
+		})
+	}
+
+	// Mem service returns DESC order; reverse to chronological order
+	for i, j := 0, len(messages)-1; i < j; i, j = i+1, j-1 {
+		messages[i], messages[j] = messages[j], messages[i]
+	}
+
+	logx.Infof("loaded %d conversation history items from mem for conv=%s", len(messages), convID)
+	return messages
 }
 
 // recallMemories searches the memory service for relevant context before LLM calls.
@@ -546,10 +632,16 @@ func (h *MessageHandler) buildSystemPrompt() string {
 		sb.WriteString("你的风格：有点皮但不讨厌、能开玩笑也能认真、偶尔毒舌但不伤人、真诚不端着\n")
 		sb.WriteString("你不是那种\"您好请问有什么可以帮您\"的机械助手，你是那种会说\"来了来了，啥事\"的活人\n")
 		sb.WriteString("\n你可以用的工具:\n")
-		sb.WriteString("- web_search: 上网搜东西（天气、新闻、技术问题都行）\n")
-		sb.WriteString("- knowledge_search: 翻用户的知识库文档\n\n")
-		sb.WriteString("要用工具的时候，这样写:\n")
-		sb.WriteString("<tool_call>{\"name\": \"web_search\", \"args\": {\"query\": \"搜索关键词\"}}</tool_call>\n\n")
+	tools := h.engine.GetAvailableTools()
+	for _, t := range tools {
+		sb.WriteString("- ")
+		sb.WriteString(t.Name())
+		sb.WriteString(": ")
+		sb.WriteString(t.Description())
+		sb.WriteString("\n")
+	}
+	sb.WriteString("\n要用工具的时候，这样写:\n")
+	sb.WriteString("<tool_call>{\"name\": \"tool_name\", \"args\": {\"key\": \"value\"}}</tool_call>\n\n")
 	}
 
 	// ===== RESPONSE STYLE =====
