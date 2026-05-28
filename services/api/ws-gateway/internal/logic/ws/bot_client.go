@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 	"ws-gateway/internal/metrics"
@@ -197,12 +198,17 @@ func (b *BotClient) handleSendMessage(data *BotSendMessageData) {
 		}
 	}
 
+	msgType := strings.ToLower(data.MsgType)
+	if msgType == "" {
+		msgType = "text"
+	}
+
 	ctx := context.Background()
 	resp, err := b.hub.config.MessageRpc.SendMessage(ctx, &messageclient.SendMessageReq{
 		ConvId:      convId,
 		Sender:      b.botId,
 		Receiver:    0,
-		Type:        "bot",
+		Type:        msgType,
 		Content:     data.Content,
 		ContentType: data.ContentType,
 		QuoteMsgId:  quoteMsgId,
@@ -227,17 +233,19 @@ func (b *BotClient) handleSendMessage(data *BotSendMessageData) {
 	}
 
 	b.hub.Broadcast(&BroadcastMsg{
-		ConvId:      convId,
-		Sender:      b.botId,
-		Receiver:    0,
-		MsgType:     "bot",
-		Content:     data.Content,
-		ContentType: data.ContentType,
-		QuoteMsgId:  quoteMsgId,
-		Extra:       data.Extra,
-		MsgId:       resp.MsgId,
-		CreatedAt:   resp.CreatedAt,
-		ExcludeUid:  b.botId,
+		ConvId:       convId,
+		Sender:       b.botId,
+		Receiver:     0,
+		MsgType:      msgType,
+		Content:      data.Content,
+		ContentType:  data.ContentType,
+		SenderName:   data.SenderName,
+		SenderAvatar: data.SenderAvatar,
+		QuoteMsgId:   quoteMsgId,
+		Extra:        data.Extra,
+		MsgId:        resp.MsgId,
+		CreatedAt:    resp.CreatedAt,
+		ExcludeUid:   b.botId,
 	})
 
 	go func() {

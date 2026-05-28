@@ -4,6 +4,7 @@ import (
 	"context"
 	"strconv"
 
+	"bot/botclient"
 	"gateway/internal/svc"
 	"gateway/internal/types"
 	"message/messageclient"
@@ -77,6 +78,14 @@ func (l *GetMessagesLogic) GetMessages(req *types.GetMessagesReq) (resp *types.G
 		}
 	}
 
+	botMap := make(map[int64]*botclient.InstalledBotItem)
+	botResp, botErr := l.svcCtx.BotRpc.GetConvBots(l.ctx, &botclient.GetConvBotsReq{ConvId: convId})
+	if botErr == nil {
+		for _, bot := range botResp.List {
+			botMap[bot.BotId] = bot
+		}
+	}
+
 	list := make([]types.MessageItem, len(result.List))
 	for i, item := range result.List {
 		senderName := ""
@@ -84,6 +93,9 @@ func (l *GetMessagesLogic) GetMessages(req *types.GetMessagesReq) (resp *types.G
 		if u, ok := userMap[item.Sender]; ok {
 			senderName = u.Name
 			senderAvatar = u.Avatar
+		} else if bot, ok := botMap[item.Sender]; ok {
+			senderName = bot.Name
+			senderAvatar = bot.Avatar
 		}
 
 		list[i] = types.MessageItem{

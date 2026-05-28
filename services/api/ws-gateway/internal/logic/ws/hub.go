@@ -58,17 +58,19 @@ type Hub struct {
 }
 
 type BroadcastMsg struct {
-	ConvId      int64
-	Sender      int64
-	Receiver    int64
-	MsgType     string
-	Content     string
-	ContentType string
-	QuoteMsgId  int64
-	Extra       string
-	MsgId       int64
-	CreatedAt   int64
-	ExcludeUid  int64
+	ConvId       int64
+	Sender       int64
+	Receiver     int64
+	MsgType      string
+	Content      string
+	ContentType  string
+	SenderName   string
+	SenderAvatar string
+	QuoteMsgId   int64
+	Extra        string
+	MsgId        int64
+	CreatedAt    int64
+	ExcludeUid   int64
 }
 
 func NewHub(cfg HubConfig) *Hub {
@@ -180,9 +182,9 @@ func (h *Hub) Run() {
 }
 
 func (h *Hub) handleBroadcast(msg *BroadcastMsg) {
-	senderName := ""
-	senderAvatar := ""
-	if msg.Sender > 0 {
+	senderName := msg.SenderName
+	senderAvatar := msg.SenderAvatar
+	if senderName == "" && msg.Sender > 0 {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		resp, err := h.config.UserRpc.GetUserByUID(ctx, &userclient.GetUserByUIDReq{Uid: msg.Sender})
 		cancel()

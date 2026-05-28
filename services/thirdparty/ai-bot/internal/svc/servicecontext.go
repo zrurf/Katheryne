@@ -65,6 +65,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		RagClient:      ragClient,
 		MemClient:      memClient,
 	})
+	msgHandler.SetBotName("Katheryne AI")
 
 	orch := orchestrator.NewOrchestrator(orchestrator.OrchestratorConfig{
 		TokenURL:     c.BotAPITokenURL,

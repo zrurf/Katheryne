@@ -1,4 +1,5 @@
 import { For, Show, createSignal, onCleanup, onMount, createEffect, createMemo } from "solid-js";
+import { marked } from "marked";
 import { chatStore } from "../../stores/chat";
 import { authStore } from "../../stores/auth";
 import { api } from "../../services/api";
@@ -1413,6 +1414,16 @@ function MentionText(props: { content: string; isMine: boolean }) {
   return parts.length > 0 ? <>{parts}</> : <>{props.content}</>;
 }
 
+function MarkdownText(props: { content: string; isMine: boolean }) {
+  const html = marked.parse(props.content, { breaks: true }) as string;
+  return (
+    <div
+      class={`markdown-body ${props.isMine ? "markdown-mine" : ""}`}
+      innerHTML={html}
+    />
+  );
+}
+
 /**
  * Shows an uploading message bubble with a progress bar.
  * For images, displays a local preview via object URL.
@@ -1656,6 +1667,8 @@ function MessageBubble(props: {
             >
               {props.msg.content_type === "text" ? (
                 <MentionText content={props.msg.content} isMine={props.isMine} />
+              ) : props.msg.content_type === "markdown" ? (
+                <MarkdownText content={props.msg.content} isMine={props.isMine} />
               ) : props.msg.content_type?.startsWith("image/") ? (
                 <div class="relative group/img">
                   <img
@@ -1707,7 +1720,7 @@ function MessageBubble(props: {
                   <Reply size={14} />
                 </button>
                 {/* Translate button - only for text messages */}
-                <Show when={props.msg.content_type === "text"}>
+                <Show when={props.msg.content_type === "text" || props.msg.content_type === "markdown"}>
                   <button
                     onClick={props.onTranslate}
                     disabled={props.isTranslating}

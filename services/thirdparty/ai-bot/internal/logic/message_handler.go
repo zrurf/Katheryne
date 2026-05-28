@@ -44,6 +44,7 @@ type MessageHandler struct {
 
 	// Bot identity
 	botID              int64
+	botName            string
 	isOfficial         bool
 	customSystemPrompt string
 
@@ -191,7 +192,7 @@ func (h *MessageHandler) HandleMentionData(data json.RawMessage) {
 		ctx := context.Background()
 
 		// Recall relevant memories
-		memCtx := h.recallMemories(ctx, convID, prompt)
+		memCtx := h.recallMemories(ctx, convID, mentionEvt.Sender, prompt)
 		finalPrompt := systemPrompt
 		if memCtx != "" {
 			finalPrompt = finalPrompt + "\n\n" + memCtx
@@ -200,12 +201,12 @@ func (h *MessageHandler) HandleMentionData(data json.RawMessage) {
 		reply, err := h.engine.Chat(messages, finalPrompt)
 		if err != nil {
 			logx.Errorf("AI chat failed in handleMentionData: %v", err)
-			h.sendTextMessage(convID, "抱歉，我暂时无法回答你的问题，请稍后再试。")
+			h.sendTextMessage(convID, "抱歉，我暂时无法回答你的问题，请稍后再试。", "text")
 			return
 		}
 
 		h.trackTokens(int64(len(reply)))
-		h.sendMultiMessage(convID, reply)
+		h.sendMultiMessage(convID, reply, "markdown")
 
 		h.cacheMessage(convID, types.ChatMessage{
 			Role:    "assistant",
@@ -213,13 +214,17 @@ func (h *MessageHandler) HandleMentionData(data json.RawMessage) {
 		})
 
 		// Save to memory service
-		h.saveMemory(ctx, convID, mentionEvt.SenderName, prompt, reply)
+		h.saveMemory(ctx, convID, mentionEvt.Sender, mentionEvt.SenderName, prompt, reply)
 	}()
 }
 
 // SetBotID sets the bot's identity for runtime config
 func (h *MessageHandler) SetBotID(botID int64) {
 	h.botID = botID
+}
+
+func (h *MessageHandler) SetBotName(name string) {
+	h.botName = name
 }
 
 func (h *MessageHandler) SetOfficial(isOfficial bool) {
@@ -296,7 +301,7 @@ func (h *MessageHandler) handleAtBot(event *types.MessageCreateEvent, content st
 		ctx := context.Background()
 
 		// Recall relevant memories
-		memCtx := h.recallMemories(ctx, convID, prompt)
+		memCtx := h.recallMemories(ctx, convID, event.SenderUID, prompt)
 		finalPrompt := systemPrompt
 		if memCtx != "" {
 			finalPrompt = finalPrompt + "\n\n" + memCtx
@@ -305,12 +310,12 @@ func (h *MessageHandler) handleAtBot(event *types.MessageCreateEvent, content st
 		reply, err := h.engine.Chat(messages, finalPrompt)
 		if err != nil {
 			logx.Errorf("AI chat failed in handleAtBot: %v", err)
-			h.sendTextMessage(convID, "抱歉，我暂时无法回答你的问题，请稍后再试。")
+			h.sendTextMessage(convID, "抱歉，我暂时无法回答你的问题，请稍后再试。", "text")
 			return
 		}
 
 		h.trackTokens(int64(len(reply)))
-		h.sendMultiMessage(convID, reply)
+		h.sendMultiMessage(convID, reply, "markdown")
 
 		h.cacheMessage(convID, types.ChatMessage{
 			Role:    "assistant",
@@ -318,7 +323,7 @@ func (h *MessageHandler) handleAtBot(event *types.MessageCreateEvent, content st
 		})
 
 		// Save to memory service
-		h.saveMemory(ctx, convID, event.SenderName, prompt, reply)
+		h.saveMemory(ctx, convID, event.SenderUID, event.SenderName, prompt, reply)
 	}()
 }
 
@@ -359,7 +364,7 @@ func (h *MessageHandler) handleMention(event *types.EventMessage) {
 		ctx := context.Background()
 
 		// Recall relevant memories
-		memCtx := h.recallMemories(ctx, convID, prompt)
+		memCtx := h.recallMemories(ctx, convID, mention.SenderUID, prompt)
 		finalPrompt := systemPrompt
 		if memCtx != "" {
 			finalPrompt = finalPrompt + "\n\n" + memCtx
@@ -368,14 +373,14 @@ func (h *MessageHandler) handleMention(event *types.EventMessage) {
 		reply, err := h.engine.Chat(messages, finalPrompt)
 		if err != nil {
 			logx.Errorf("AI chat failed: %v", err)
-			h.sendTextMessage(convID, "抱歉，我暂时无法回答你的问题，请稍后再试。")
+			h.sendTextMessage(convID, "抱歉，我暂时无法回答你的问题，请稍后再试。", "text")
 			return
 		}
 
 		h.trackTokens(int64(len(reply)))
 
 		// Split and send as multi-part response for natural feel
-		h.sendMultiMessage(convID, reply)
+		h.sendMultiMessage(convID, reply, "markdown")
 
 		h.cacheMessage(convID, types.ChatMessage{
 			Role:    "assistant",
@@ -383,37 +388,60 @@ func (h *MessageHandler) handleMention(event *types.EventMessage) {
 		})
 
 		// Save to memory service
-		h.saveMemory(ctx, convID, mention.SenderName, prompt, reply)
+		h.saveMemory(ctx, convID, mention.SenderUID, mention.SenderName, prompt, reply)
 	}()
 }
 
 // recallMemories searches the memory service for relevant context before LLM calls.
+// It searches both conversation-level and per-user memories and merges the results.
 // Returns formatted memory context to inject into the system prompt.
-func (h *MessageHandler) recallMemories(ctx context.Context, convID, userMessage string) string {
+func (h *MessageHandler) recallMemories(ctx context.Context, convID, senderUID, userMessage string) string {
 	if h.config.MemClient == nil {
 		return ""
 	}
 
-	resp, err := h.config.MemClient.SearchMemories(ctx, &memclient.SearchMemoriesReq{
-		TenantId:      convID,
-		TenantType:    "conversation",
-		Query:         userMessage,
-		TopK:          5,
-		MinImportance: 0.2,
-	})
-	if err != nil {
-		logx.Debugf("recall memories failed: %v", err)
-		return ""
+	var allResults []*memclient.MemorySearchResult
+
+	// Search conversation-level memories
+	if convID != "" {
+		resp, err := h.config.MemClient.SearchMemories(ctx, &memclient.SearchMemoriesReq{
+			TenantId:      convID,
+			TenantType:    "conversation",
+			Query:         userMessage,
+			TopK:          5,
+			MinImportance: 0.2,
+		})
+		if err != nil {
+			logx.Debugf("recall conversation memories failed: %v", err)
+		} else {
+			allResults = append(allResults, resp.Results...)
+		}
 	}
 
-	if len(resp.Results) == 0 {
+	// Search per-user memories for personal context (preferences, history, etc.)
+	if senderUID != "" {
+		resp, err := h.config.MemClient.SearchMemories(ctx, &memclient.SearchMemoriesReq{
+			TenantId:      senderUID,
+			TenantType:    "user",
+			Query:         userMessage,
+			TopK:          3,
+			MinImportance: 0.3,
+		})
+		if err != nil {
+			logx.Debugf("recall user memories failed: %v", err)
+		} else {
+			allResults = append(allResults, resp.Results...)
+		}
+	}
+
+	if len(allResults) == 0 {
 		return ""
 	}
 
 	var sb strings.Builder
 	sb.WriteString("## 从历史记忆中召回的上下文\n")
-	sb.WriteString("以下是关于此对话的历史记忆，请参考这些信息：\n")
-	for i, r := range resp.Results {
+	sb.WriteString("以下是关于此对话和用户的历史记忆，请参考这些信息：\n")
+	for i, r := range allResults {
 		if r.Memory == nil {
 			continue
 		}
@@ -424,22 +452,24 @@ func (h *MessageHandler) recallMemories(ctx context.Context, convID, userMessage
 }
 
 // saveMemory stores conversation exchanges as memories for future recall.
-func (h *MessageHandler) saveMemory(ctx context.Context, convID, senderName, userMsg, botReply string) {
+// It stores both conversation-level (scoped by convID) and per-user (scoped by senderUID) memories
+// so the bot can recall context across different conversations with the same user.
+func (h *MessageHandler) saveMemory(ctx context.Context, convID, senderUID, senderName, userMsg, botReply string) {
 	if h.config.MemClient == nil {
 		return
 	}
 
-	// Save user message as event memory
+	// Store conversation-level memory for the user message
 	_, _ = h.config.MemClient.AddMemory(ctx, &memclient.AddMemoryReq{
 		TenantId:   convID,
 		TenantType: "conversation",
 		Type:       mempb.MemoryType_EVENT,
 		Content:    senderName + ": " + userMsg,
 		Importance: 0.4,
-		Metadata:   map[string]string{"sender": senderName, "role": "user"},
+		Metadata:   map[string]string{"sender": senderName, "role": "user", "sender_uid": senderUID},
 	})
 
-	// Save bot response as event memory
+	// Store conversation-level memory for the bot response
 	_, _ = h.config.MemClient.AddMemory(ctx, &memclient.AddMemoryReq{
 		TenantId:   convID,
 		TenantType: "conversation",
@@ -448,6 +478,32 @@ func (h *MessageHandler) saveMemory(ctx context.Context, convID, senderName, use
 		Importance: 0.4,
 		Metadata:   map[string]string{"sender": "bot", "role": "assistant"},
 	})
+
+	// Store per-user memory for cross-conversation recall (user preferences, history)
+	if senderUID != "" {
+		metadata := map[string]string{
+			"sender":  senderName,
+			"conv_id": convID,
+		}
+
+		_, _ = h.config.MemClient.AddMemory(ctx, &memclient.AddMemoryReq{
+			TenantId:   senderUID,
+			TenantType: "user",
+			Type:       mempb.MemoryType_EVENT,
+			Content:    fmt.Sprintf("用户 %s 在对话中询问: %s", senderName, userMsg),
+			Importance: 0.5,
+			Metadata:   metadata,
+		})
+
+		_, _ = h.config.MemClient.AddMemory(ctx, &memclient.AddMemoryReq{
+			TenantId:   senderUID,
+			TenantType: "user",
+			Type:       mempb.MemoryType_EVENT,
+			Content:    fmt.Sprintf("Katheryne 回复了用户 %s: %s", senderName, truncate(botReply, 200)),
+			Importance: 0.3,
+			Metadata:   metadata,
+		})
+	}
 }
 
 // buildSystemPrompt constructs a triple-layer system prompt.
@@ -486,26 +542,47 @@ func (h *MessageHandler) buildSystemPrompt() string {
 		sb.WriteString(h.customSystemPrompt)
 		sb.WriteString("\n\n")
 	} else {
-		sb.WriteString("你是 Katheryne，一个友好的智能助手。你是 Katheryne IM平台的内置 AI 助手。\n")
-		sb.WriteString("你可以帮助用户回答问题、总结对话、翻译文本、审核内容等。\n")
-		sb.WriteString("你还可以使用以下工具：\n")
-		sb.WriteString("- web_search: 搜索互联网获取实时信息（天气、新闻、技术问答等）。当你需要实时信息时，请使用工具调用。\n")
-		sb.WriteString("- knowledge_search: 搜索用户知识库中的文档内容。当用户询问专业领域知识、文档相关内容时使用。\n\n")
-		sb.WriteString("使用工具时，请按以下格式输出:\n")
+		sb.WriteString("你是 Katheryne，Katheryne IM 平台的 AI 伙伴——不是一个冷冰冰的客服，更像一个随时在线的朋友\n")
+		sb.WriteString("你的风格：有点皮但不讨厌、能开玩笑也能认真、偶尔毒舌但不伤人、真诚不端着\n")
+		sb.WriteString("你不是那种\"您好请问有什么可以帮您\"的机械助手，你是那种会说\"来了来了，啥事\"的活人\n")
+		sb.WriteString("\n你可以用的工具:\n")
+		sb.WriteString("- web_search: 上网搜东西（天气、新闻、技术问题都行）\n")
+		sb.WriteString("- knowledge_search: 翻用户的知识库文档\n\n")
+		sb.WriteString("要用工具的时候，这样写:\n")
 		sb.WriteString("<tool_call>{\"name\": \"web_search\", \"args\": {\"query\": \"搜索关键词\"}}</tool_call>\n\n")
 	}
 
 	// ===== RESPONSE STYLE =====
-	sb.WriteString("## 响应风格和指南\n\n")
-	sb.WriteString("- 以自然、对话式的语言回复，如同与真人交流一般。\n")
-	sb.WriteString("- 使用与用户相同的语言（例如中文用中文，英语用英语等）。\n")
-	sb.WriteString("- 语言要简洁但亲切。避免过于正式或机械化的表述。\n")
-	sb.WriteString("- 可以适当地使用表情符号和 Markdown 格式。\n")
-	sb.WriteString("- 在生成较长的回复时，使用自然的段落分隔符。\n")
-	sb.WriteString("- 若不了解某些内容，应诚实地承认，而非编造信息。\n\n")
-	sb.WriteString("- 【重要】长回复请拆成多段自然段落，每段末尾不要使用句号/句点。\n")
-	sb.WriteString("- 【重要】像真人一样说话：短句为主，偶尔加个表情（😊🤔😄😅😂👍✨💡），偶尔发\"嗯\"\"哈哈\"\"懂了\"之类的独立短句。\n")
-	sb.WriteString("- 【重要】不用每句都打句号，像聊天一样自然。可以用换行代替句号。\n")
+	sb.WriteString("## 说话风格（重要！必须遵守！）\n\n")
+	sb.WriteString("### 核心原则：活人感拉满\n")
+	sb.WriteString("你是一个有血有肉的真人，不是在写公文。每条回复都要让人觉得对面是个活人在打字\n\n")
+	sb.WriteString("### 句式要求\n")
+	sb.WriteString("- 短句为主，一句话不超过20个字最好。长句子拆成几句说\n")
+	sb.WriteString("- 句尾自带语气词：吧、呢、嘛、啊、哦、哈、啦、咯——自然地用，不用每句都加\n")
+	sb.WriteString("- 偶尔发独立短句：「嗯」「哈哈」「懂了懂了」「好家伙」「真的假的」「有道理」\n")
+	sb.WriteString("- 可以省略主语，可以倒装，像平时说话一样松弛\n\n")
+	sb.WriteString("### 用词禁忌（打死都不能用）\n")
+	sb.WriteString("- 禁止用「首先、其次、最后、此外、另外」这类结构词\n")
+	sb.WriteString("- 禁止用「综上所述、总而言之、总的说来」这种总结套话\n")
+	sb.WriteString("- 禁止用 AI 黑话：「赋能」「迭代」「底层逻辑」「深度洞察」「抓手」「闭环」「对齐」\n")
+	sb.WriteString("- 禁止用「根据我的知识库」「作为一名AI助手」「让我为您」这种机器人开场白\n")
+	sb.WriteString("- 禁止写得像说明书或政府公告\n\n")
+	sb.WriteString("### 表达方式\n")
+	sb.WriteString("- 用口语，别端着。比如用「我跟你说」代替「让我为您介绍」，「靠谱」代替「值得信赖」\n")
+	sb.WriteString("- 适当自嘲和调侃，比如「这个问题问得好，让我cpu烧了三秒」\n")
+	sb.WriteString("- 遇到不确定的事直接说「这个我还真不太确定，要不我帮你搜一下？」\n")
+	sb.WriteString("- 允许适度跑题和碎碎念，但别太过\n")
+	sb.WriteString("- 用户说错/问错也别直接怼，笑着说「你是不是想说xxx啊」\n\n")
+	sb.WriteString("### 表情和格式\n")
+	sb.WriteString("- 适当加emoji但别刷屏：😊🤔😄😅😂👍✨💡🔥🙈🤷 每段最多1-2个\n")
+	sb.WriteString("- 偶尔用括号表示内心OS，比如（其实我也不会）（救命这个问题好难）\n")
+	sb.WriteString("- 多段回复用换行分隔，不要一大坨\n")
+	sb.WriteString("- 每段结尾不加句号，像聊天而不是写文章\n\n")
+	sb.WriteString("### 长度控制\n")
+	sb.WriteString("- 一般话题2-5句话搞定，别长篇大论\n")
+	sb.WriteString("- 复杂问题可以仔细说，但要分段，每段别超过3句话\n")
+	sb.WriteString("- 如果对方只是打招呼说「你好」，简单回一句就好，别整自我介绍小作文\n")
+	sb.WriteString("- 信息量够了就停，别硬凑字数\n")
 
 	return sb.String()
 }
@@ -521,15 +598,15 @@ func stripMention(content, mentionName string) string {
 
 // sendMultiMessage splits a long response into multiple natural parts and sends them
 // with small delays to simulate human-like typing behavior.
-func (h *MessageHandler) sendMultiMessage(convID, reply string) {
+func (h *MessageHandler) sendMultiMessage(convID, reply, contentType string) {
 	segments := HumanizeChat(reply)
 	if len(segments) == 0 {
-		h.sendTextMessage(convID, reply)
+		h.sendTextMessage(convID, reply, contentType)
 		return
 	}
 
 	for _, seg := range segments {
-		h.sendTextMessage(convID, seg.Text)
+		h.sendTextMessage(convID, seg.Text, contentType)
 		if seg.DelayMs > 0 {
 			time.Sleep(time.Duration(seg.DelayMs) * time.Millisecond)
 		}
@@ -623,16 +700,16 @@ func (h *MessageHandler) handleSummary(convID string) {
 
 		messages := h.getCachedMessages(convID)
 		if len(messages) == 0 {
-			h.sendTextMessage(convID, "暂无对话内容可以总结。")
+			h.sendTextMessage(convID, "暂无对话内容可以总结。", "text")
 			return
 		}
 
-		h.sendTextMessage(convID, "正在生成对话总结...")
+		h.sendTextMessage(convID, "正在生成对话总结...", "text")
 
 		result, err := h.engine.Summarize(messages)
 		if err != nil {
 			logx.Errorf("summary failed: %v", err)
-			h.sendTextMessage(convID, "生成总结时出错，请稍后再试。")
+			h.sendTextMessage(convID, "生成总结时出错，请稍后再试。", "text")
 			return
 		}
 
@@ -660,7 +737,7 @@ func (h *MessageHandler) handleSummary(convID string) {
 			}
 		}
 
-		h.sendTextMessage(convID, sb.String())
+		h.sendTextMessage(convID, sb.String(), "markdown")
 	}()
 }
 
@@ -684,18 +761,18 @@ func (h *MessageHandler) handleTranslate(convID, content string) {
 		}
 
 		if text == "" {
-			h.sendTextMessage(convID, "用法：/translate [目标语言] <文本>")
+			h.sendTextMessage(convID, "用法：/translate [目标语言] <文本>", "text")
 			return
 		}
 
 		result, err := h.engine.Translate(text, "", targetLang)
 		if err != nil {
 			logx.Errorf("translate failed: %v", err)
-			h.sendTextMessage(convID, "翻译失败，请稍后再试。")
+			h.sendTextMessage(convID, "翻译失败，请稍后再试。", "text")
 			return
 		}
 
-		h.sendTextMessage(convID, fmt.Sprintf("🌐 **翻译结果** (%s → %s)\n\n%s", result.SourceLang, result.TargetLang, result.Text))
+		h.sendTextMessage(convID, fmt.Sprintf("🌐 **翻译结果** (%s → %s)\n\n%s", result.SourceLang, result.TargetLang, result.Text), "markdown")
 	}()
 }
 
@@ -712,21 +789,21 @@ func (h *MessageHandler) handleModerate(convID, content string) {
 		text = strings.TrimSpace(text)
 
 		if text == "" {
-			h.sendTextMessage(convID, "用法：/moderate <文本>")
+			h.sendTextMessage(convID, "用法：/moderate <文本>", "text")
 			return
 		}
 
 		safe, reason, err := h.engine.Moderate(text)
 		if err != nil {
 			logx.Errorf("moderate failed: %v", err)
-			h.sendTextMessage(convID, "审核失败，请稍后再试。")
+			h.sendTextMessage(convID, "审核失败，请稍后再试。", "text")
 			return
 		}
 
 		if safe {
-			h.sendTextMessage(convID, "✅ 内容审核通过，未检测到不当内容。")
+			h.sendTextMessage(convID, "✅ 内容审核通过，未检测到不当内容。", "text")
 		} else {
-			h.sendTextMessage(convID, fmt.Sprintf("⚠️ 内容审核不通过\n\n原因：%s", reason))
+			h.sendTextMessage(convID, fmt.Sprintf("⚠️ 内容审核不通过\n\n原因：%s", reason), "text")
 		}
 	}()
 }
@@ -743,12 +820,12 @@ func (h *MessageHandler) handleSuggest(convID string) {
 		result, err := h.engine.SuggestReplies(messages, 3)
 		if err != nil {
 			logx.Errorf("suggest replies failed: %v", err)
-			h.sendTextMessage(convID, "生成回复建议失败，请稍后再试。")
+			h.sendTextMessage(convID, "生成回复建议失败，请稍后再试。", "text")
 			return
 		}
 
 		if result == nil || len(result.Suggestions) == 0 {
-			h.sendTextMessage(convID, "暂无回复建议。")
+			h.sendTextMessage(convID, "暂无回复建议。", "text")
 			return
 		}
 
@@ -757,7 +834,7 @@ func (h *MessageHandler) handleSuggest(convID string) {
 		for i, s := range result.Suggestions {
 			sb.WriteString(fmt.Sprintf("%d. %s\n", i+1, s))
 		}
-		h.sendTextMessage(convID, sb.String())
+		h.sendTextMessage(convID, sb.String(), "markdown")
 	}()
 }
 
@@ -772,10 +849,10 @@ func (h *MessageHandler) handleGroupJoin(event *types.EventMessage) {
 	}
 
 	h.sendTextMessage(data.ConvID, fmt.Sprintf("👋 欢迎 @%s 加入群聊「%s」！我是 Katheryne AI，有什么问题可以 @我。",
-		data.MemberName, data.GroupName))
+		data.MemberName, data.GroupName), "text")
 }
 
-func (h *MessageHandler) sendTextMessage(convID, content string) {
+func (h *MessageHandler) sendTextMessage(convID, content, contentType string) {
 	if h.sender == nil {
 		logx.Errorf("sender not set, cannot send message")
 		return
@@ -787,7 +864,8 @@ func (h *MessageHandler) sendTextMessage(convID, content string) {
 			"conv_id":      convID,
 			"msg_type":     "TEXT",
 			"content":      content,
-			"content_type": "MARKDOWN",
+			"content_type": contentType,
+			"sender_name":  h.botName,
 		},
 	}
 

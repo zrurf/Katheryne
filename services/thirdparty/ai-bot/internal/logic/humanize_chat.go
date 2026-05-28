@@ -43,15 +43,6 @@ func HumanizeChat(content string) []HumanizedSegment {
 		})
 	}
 
-	// Occasionally append a standalone expression at the end
-	if rand.Float64() < 0.3 && len(segments) > 0 {
-		expr := randomStandaloneExpression()
-		segments = append(segments, HumanizedSegment{
-			Text:    expr,
-			DelayMs: 500 + randRange(0, 500),
-		})
-	}
-
 	return segments
 }
 

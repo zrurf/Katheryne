@@ -4,6 +4,7 @@ import (
 	"context"
 	"strconv"
 
+	"bot/botclient"
 	"gateway/internal/svc"
 	"gateway/internal/types"
 	"message/messageclient"
@@ -79,6 +80,33 @@ func (l *SearchMessagesLogic) SearchMessages(req *types.SearchMessagesReq) (resp
 		}
 	}
 
+	botMap := make(map[int64]*botclient.InstalledBotItem)
+	if convId > 0 {
+		botResp, botErr := l.svcCtx.BotRpc.GetConvBots(l.ctx, &botclient.GetConvBotsReq{ConvId: convId})
+		if botErr == nil {
+			for _, bot := range botResp.List {
+				botMap[bot.BotId] = bot
+			}
+		}
+	} else {
+		convSet := make(map[int64]bool)
+		for _, item := range result.List {
+			if item.ConvId > 0 {
+				convSet[item.ConvId] = true
+			}
+		}
+		for cid := range convSet {
+			botResp, botErr := l.svcCtx.BotRpc.GetConvBots(l.ctx, &botclient.GetConvBotsReq{ConvId: cid})
+			if botErr == nil {
+				for _, bot := range botResp.List {
+					if _, exists := botMap[bot.BotId]; !exists {
+						botMap[bot.BotId] = bot
+					}
+				}
+			}
+		}
+	}
+
 	list := make([]types.MessageItem, len(result.List))
 	for i, item := range result.List {
 		senderName := ""
@@ -86,6 +114,9 @@ func (l *SearchMessagesLogic) SearchMessages(req *types.SearchMessagesReq) (resp
 		if u, ok := userMap[item.Sender]; ok {
 			senderName = u.Name
 			senderAvatar = u.Avatar
+		} else if bot, ok := botMap[item.Sender]; ok {
+			senderName = bot.Name
+			senderAvatar = bot.Avatar
 		}
 
 		list[i] = types.MessageItem{

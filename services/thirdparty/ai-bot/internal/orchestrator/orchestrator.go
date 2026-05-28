@@ -239,6 +239,7 @@ func (o *Orchestrator) startInstance(botID int64) error {
 
 	msgHandler := logic.NewMessageHandler(handlerCfg)
 	msgHandler.SetBotID(botID)
+	msgHandler.SetBotName(cfg.Name)
 	msgHandler.SetOfficial(cfg.IsOfficial)
 	if cfg.SystemPrompt != "" {
 		msgHandler.SetSystemPrompt(cfg.SystemPrompt)

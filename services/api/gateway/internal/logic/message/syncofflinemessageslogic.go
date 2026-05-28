@@ -4,6 +4,7 @@ import (
 	"context"
 	"strconv"
 
+	"bot/botclient"
 	"conversation/conversationclient"
 	"gateway/internal/svc"
 	"gateway/internal/types"
@@ -82,6 +83,18 @@ func (l *SyncOfflineMessagesLogic) SyncOfflineMessages(req *types.SyncOfflineMes
 		}
 	}
 
+	botMap := make(map[int64]*botclient.InstalledBotItem)
+	for _, cid := range convIds {
+		botResp, botErr := l.svcCtx.BotRpc.GetConvBots(l.ctx, &botclient.GetConvBotsReq{ConvId: cid})
+		if botErr == nil {
+			for _, bot := range botResp.List {
+				if _, exists := botMap[bot.BotId]; !exists {
+					botMap[bot.BotId] = bot
+				}
+			}
+		}
+	}
+
 	list := make([]types.MessageItem, len(result.Messages))
 	for i, item := range result.Messages {
 		senderName := ""
@@ -89,6 +102,9 @@ func (l *SyncOfflineMessagesLogic) SyncOfflineMessages(req *types.SyncOfflineMes
 		if u, ok := userMap[item.Sender]; ok {
 			senderName = u.Name
 			senderAvatar = u.Avatar
+		} else if bot, ok := botMap[item.Sender]; ok {
+			senderName = bot.Name
+			senderAvatar = bot.Avatar
 		}
 
 		list[i] = types.MessageItem{

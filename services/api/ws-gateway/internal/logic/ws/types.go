@@ -211,11 +211,14 @@ type BotMentionEvent struct {
 }
 
 type BotSendMessageData struct {
-	ConvId      string `json:"conv_id"`
-	Content     string `json:"content"`
-	ContentType string `json:"content_type"`
-	QuoteMsgId  string `json:"quote_msg_id,omitempty"`
-	Extra       string `json:"extra,omitempty"`
+	ConvId       string `json:"conv_id"`
+	MsgType      string `json:"msg_type"`
+	Content      string `json:"content"`
+	ContentType  string `json:"content_type"`
+	SenderName   string `json:"sender_name,omitempty"`
+	SenderAvatar string `json:"sender_avatar,omitempty"`
+	QuoteMsgId   string `json:"quote_msg_id,omitempty"`
+	Extra        string `json:"extra,omitempty"`
 }
 
 type BotSendMessageResp struct {
